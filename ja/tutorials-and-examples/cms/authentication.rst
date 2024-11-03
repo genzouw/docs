@@ -65,7 +65,7 @@ ArticlesController と同様に、手動、もしくは bake シェルを使用�
 :doc:`Installation <installation>` で作成したデフォルトユーザーを編集する事が出来ます。
 ユーザーのパスワードを変更すると、一覧画面または詳細画面に元の値の代わりにハッシュ化されたパスワードが表示されます。
 
-CakePHP はデフォルトでは `bcrypt <http://codahale.com/how-to-safely-store-a-password/>`_ でパスワードをハッシュ化します。
+CakePHP はデフォルトでは `bcrypt <https://codahale.com/how-to-safely-store-a-password/>`_ でパスワードをハッシュ化します。
 
 セキュリティ基準を高く保つために、すべての新しいアプリケーションに bcrypt を使用することを推奨します。
 bcrypt は `PHPの推奨パスワードハッシュアルゴリズム <https://www.php.net/manual/en/function.password-hash.php>`_ です。
@@ -194,7 +194,7 @@ POSTされたフォームデータ(存在する場合)も検査し、credentials
         $this->request->allowMethod(['get', 'post']);
         $result = $this->Authentication->getResult();
         // POST, GET を問わず、ユーザーがログインしている場合はリダイレクトします
-        if ($result->isValid()) {
+        if ($result && $result->isValid()) {
             // redirect to /articles after login success
             $redirect = $this->request->getQuery('redirect', [
                 'controller' => 'Articles',
@@ -264,7 +264,7 @@ logout アクションを ``UsersController`` に追加します。::
     {
         $result = $this->Authentication->getResult();
         // POST, GET を問わず、ユーザーがログインしている場合はリダイレクトします
-        if ($result->isValid()) {
+        if ($result && $result->isValid()) {
             $this->Authentication->logout();
             return $this->redirect(['controller' => 'Users', 'action' => 'login']);
         }

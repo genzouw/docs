@@ -2,7 +2,7 @@ Testing
 #######
 
 CakePHP comes with comprehensive testing support built-in. CakePHP comes with
-integration for `PHPUnit <http://phpunit.de>`_. In addition to the features
+integration for `PHPUnit <https://phpunit.de>`_. In addition to the features
 offered by PHPUnit, CakePHP offers some additional features to make testing
 easier. This section will cover installing PHPUnit, and getting started with
 Unit Testing, and how you can use the extensions that CakePHP offers.
@@ -13,8 +13,8 @@ Installing PHPUnit
 CakePHP uses PHPUnit as its underlying test framework. PHPUnit is the de-facto
 standard for unit testing in PHP. It offers a deep and powerful set of features
 for making sure your code does what you think it does. PHPUnit can be installed
-through using either a `PHAR package <http://phpunit.de/#download>`__ or
-`Composer <http://getcomposer.org>`_.
+through using either a `PHAR package <https://phpunit.de/#download>`__ or
+`Composer <https://getcomposer.org>`_.
 
 Install PHPUnit with Composer
 -----------------------------
@@ -56,14 +56,14 @@ tests:
           phpunit --version
 
     Please refer to the PHPUnit documentation for instructions regarding
-    `Globally installing the PHPUnit PHAR on Windows <http://phpunit.de/manual/current/en/installation.html#installation.phar.windows>`__.
+    `Globally installing the PHPUnit PHAR on Windows <https://phpunit.de/manual/current/en/installation.html#installation.phar.windows>`__.
 
 Test Database Setup
 ===================
 
-Remember to have debug enabled in your **config/app.php** file before running
+Remember to have debug enabled in your **config/app_local.php** file before running
 any tests.  Before running any tests you should be sure to add a ``test``
-datasource configuration to **config/app.php**. This configuration is used by
+datasource configuration to **config/app_local.php**. This configuration is used by
 CakePHP for fixture tables and data::
 
     'Datasources' => [
@@ -429,7 +429,7 @@ extension and your ``phpunit.xml`` file should contain:
         <listener
         class="\Cake\TestSuite\Fixture\FixtureInjector">
             <arguments>
-                <object class="\Cake\TestSuite\Fixture\PHPUnitExtension" />
+                <object class="\Cake\TestSuite\Fixture\FixtureManager" />
             </arguments>
         </listener>
     </listeners>
@@ -438,14 +438,17 @@ The listener is deprecated and you should :doc:`update your fixture configuratio
 
 .. _creating-test-database-schema:
 
-Creating Test Database Schema
+Creating Schema in Tests
 -----------------------------
 
 You can generate test database schema either via CakePHP's migrations, loading
 a SQL dump file or using another external schema management tool. You should
 create your schema in your application's ``tests/bootstrap.php`` file.
 
-If you use CakePHP's `migrations plugin </migrations>` to manage your
+Creating Schema with Migrations
+-------------------------------
+
+If you use CakePHP's :doc:`migrations plugin </migrations>` to manage your
 application's schema, you can reuse those migrations to generate your test
 database schema as well::
 
@@ -463,11 +466,81 @@ database schema as well::
     // Run the Documents migrations on the test_docs connection.
     $migrator->run(['plugin' => 'Documents', 'connection' => 'test_docs']);
 
+If you need to run multiple sets of migrations, those can be run as follows::
+
+    $migrator->runMany([
+        // Run app migrations on test connection.
+        ['connection' => 'test'],
+        // Run Contacts migrations on test connection.
+        ['plugin' => 'Contacts'],
+        // Run Documents migrations on test_docs connection.
+        ['plugin' => 'Documents', 'connection' => 'test_docs']
+    ]);
+
+Using ``runMany()`` will ensure that plugins that share a database don't drop
+tables as each set of migrations is run.
+
 The migrations plugin will only run unapplied migrations, and will reset
 migrations if your current migration head differs from the applied migrations.
 
 You can also configure how migrations should be run in tests in your datasources
-configuration. See the `migrations docs </migrations>` for more information.
+configuration. See the :doc:`migrations docs </migrations>` for more information.
+
+Creating Schema with Abstract Schema
+------------------------------------
+
+For plugins that need to define schema in tests, but don't need or want to have
+dependencies on migrations, you can define schema as a structured array of
+tables. This format is not recommended for application development as it can be
+time-consuming to maintain.
+
+Each table can define ``columns``, ``constraints``, and ``indexes``.
+An example table would be::
+
+     return [
+       'articles' => [
+          'columns' => [
+              'id' => [
+                  'type' => 'integer',
+              ],
+              'author_id' => [
+                  'type' => 'integer',
+                  'null' => true,
+              ],
+              'title' => [
+                  'type' => 'string',
+                  'null' => true,
+              ],
+              'body' => 'text',
+              'published' => [
+                  'type' => 'string',
+                  'length' => 1,
+                  'default' => 'N',
+              ],
+          ],
+          'constraints' => [
+              'primary' => [
+                  'type' => 'primary',
+                  'columns' => [
+                      'id',
+                  ],
+              ],
+          ],
+       ],
+       // More tables.
+    ];
+
+The options available to ``columns``, ``indexes`` and ``constraints`` match the
+attributes that are available in CakePHP's schema reflection APIs. Tables are
+created incrementally and you must take care to ensure that tables are created
+before foreign key references are made. Once you have created your schema file
+you can load it in your ``tests/bootstrap.php`` with::
+
+    $loader = new SchemaLoader();
+    $loader->loadInternalFile($pathToSchemaFile);
+
+Creating Schema with SQL Dump Files
+-----------------------------------
 
 To load a SQL dump file you can use the following::
 
@@ -668,9 +741,10 @@ In the above example, both fixtures would be loaded from
 Fixture Factories
 -----------------
 
-As your application grows, so does the number and the size of your test fixtures. You might find it difficult
-to maintain them and to keep track of their content.
-The `fixture factories plugin <https://github.com/vierge-noire/cakephp-fixture-factories>`_ proposes an
+As your application grows, so does the number and the size of your test
+fixtures. You might find it difficult to maintain them and to keep track of
+their content. The `fixture factories plugin
+<https://github.com/vierge-noire/cakephp-fixture-factories>`_ proposes an
 alternative for large sized applications.
 
 The plugin uses the `test suite light plugin <https://github.com/vierge-noire/cakephp-test-suite-light>`_
@@ -684,9 +758,9 @@ Once your factories are
 `tuned <https://github.com/vierge-noire/cakephp-fixture-factories/blob/main/docs/factories.md>`_,
 you are ready to create test fixtures in no time.
 
-Unnecessary interaction with the database will slow down your tests as well as your application.
-You can create test fixtures without persisting them which can be useful for
-testing methods without DB interaction::
+Unnecessary interaction with the database will slow down your tests as well as
+your application. You can create test fixtures without persisting them which can
+be useful for testing methods without DB interaction::
 
     $article = ArticleFactory::make()->getEntity();
 
@@ -696,16 +770,17 @@ In order to persist::
 
 The factories help creating associated fixtures too.
 Assuming that articles belongs to many authors, we can now, for example,
-create 5 articles each with 2 authors:
+create 5 articles each with 2 authors::
 
-``$articles = ArticleFactory::make(5)->with('Authors', 2)->getEntities();``
+    $articles = ArticleFactory::make(5)->with('Authors', 2)->getEntities();
 
-Note that the fixture factories do not require any fixture creation or declaration. Still, they are fully
-compatible with the fixtures that come with cakephp. You will find additional insights
-and documentation `here <https://github.com/vierge-noire/cakephp-fixture-factories>`_.
+Note that the fixture factories do not require any fixture creation or
+declaration. Still, they are fully compatible with the fixtures that come with
+cakephp. You will find additional insights and documentation `here
+<https://github.com/vierge-noire/cakephp-fixture-factories>`_.
 
 Loading Routes in Tests
------------------------
+=======================
 
 If you are testing mailers, controller components or other classes that require
 routes and resolving URLs, you will need to load routes. During
@@ -721,6 +796,46 @@ the ``setUp()`` of a class or during individual test methods you can use
 This method will build an instance of your ``Application`` and call the
 ``routes()`` method on it. If your ``Application`` class requires specialized
 constructor parameters you can provide those to ``loadRoutes($constructorArgs)``.
+
+Creating Routes in Tests
+------------------------
+
+Sometimes it may be be necessary to dynamically add routes in tests, for example
+when developing plugins, or applications that are extensible.
+
+Just like loading existing application routes, this can be done during ``setup()``
+of a test method, and/or in the individual test methods themselves::
+
+    use Cake\Routing\Route\DashedRoute;
+    use Cake\Routing\RouteBuilder;
+    use Cake\Routing\Router;
+    use Cake\TestSuite\TestCase;
+
+    class PluginHelperTest extends TestCase
+    {
+        protected RouteBuilder $routeBuilder;
+
+        public function setUp(): void
+        {
+            parent::setUp();
+
+            $this->routeBuilder = Router::createRouteBuilder('/');
+            $this->routeBuilder->scope('/', function (RouteBuilder $routes) {
+                $routes->setRouteClass(DashedRoute::class);
+                $routes->get(
+                    '/test/view/{id}',
+                    ['controller' => 'Tests', 'action' => 'view']
+                );
+                // ...
+            });
+
+            // ...
+        }
+    }
+
+This will create a new route builder instance that will merge connected routes
+into the same route collection used by all other route builder instances that
+may already exist, or are yet to be created in the environment.
 
 Loading Plugins in Tests
 ------------------------
@@ -750,7 +865,7 @@ Let's say we already have our Articles Table class defined in
         public function findPublished(Query $query, array $options): Query
         {
             $query->where([
-                $this->alias() . '.published' => 1
+                $this->getAlias() . '.published' => 1
             ]);
             return $query;
         }
@@ -798,7 +913,7 @@ now looks like this::
 
         public function testFindPublished(): void
         {
-            $query = $this->Articles->find('published')->all();
+            $query = $this->Articles->find('published')->select(['id', 'title']);
             $this->assertInstanceOf('Cake\ORM\Query', $query);
             $result = $query->enableHydration(false)->toArray();
             $expected = [
@@ -1064,7 +1179,7 @@ you can configure the request to inject environment conditions or headers that
 simulate actual authentication request headers.
 
 When testing Basic or Digest Authentication, you can add the environment
-variables that `PHP creates <http://php.net/manual/en/features.http-auth.php>`_
+variables that `PHP creates <https://php.net/manual/en/features.http-auth.php>`_
 automatically. These environment variables used in the authentication adapter
 outlined in :ref:`basic-authentication`::
 
@@ -1199,12 +1314,13 @@ JSON is a friendly and common format to use when building a web service.
 Testing the endpoints of your web service is very simple with CakePHP. Let us
 begin with a simple example controller that responds in JSON::
 
+    use Cake\View\JsonView;
+
     class MarkersController extends AppController
     {
-        public function initialize(): void
+        public function viewClasses(): array
         {
-            parent::initialize();
-            $this->loadComponent('RequestHandler');
+            return [JsonView::class];
         }
 
         public function view($id)
@@ -1220,12 +1336,14 @@ and make sure our web service is returning the proper response::
 
     class MarkersControllerTest extends IntegrationTestCase
     {
+        use IntegrationTestTrait;
+    
         public function testGet(): void
         {
             $this->configRequest([
                 'headers' => ['Accept' => 'application/json']
             ]);
-            $result = $this->get('/markers/view/1.json');
+            $this->get('/markers/view/1.json');
 
             // Check that the response was a 200
             $this->assertResponseOk();
@@ -1454,7 +1572,7 @@ make testing responses much simpler. Some examples are::
     // Check for a 5xx response code
     $this->assertResponseFailure();
 
-    // Check for a specific response code, e.g. 200
+    // Check for a specific response code, for example, 200
     $this->assertResponseCode(200);
 
     // Check the Location header
@@ -1508,8 +1626,12 @@ make testing responses much simpler. Some examples are::
     $user =  $this->viewVariable('user');
     $this->assertEquals('jose', $user->username);
 
-    // Assert cookies in the response
+    // Assert cookie values in the response
     $this->assertCookie('1', 'thingid');
+
+    // Assert a cookie is or is not present
+    $this->assertCookieIsSet('remember_me');
+    $this->assertCookieNotSet('remember_me');
 
     // Check the content type
     $this->assertContentType('application/json');
@@ -1588,6 +1710,10 @@ Mocking Injected Dependencies
 See :ref:`mocking-services-in-tests` for how to replace services injected with
 the dependency injection container in your integration tests.
 
+Mocking HTTP Client Responses
+=============================
+
+See :ref:`httpclient-testing` to know how to create mock responses to external APIs.
 
 Testing Views
 =============

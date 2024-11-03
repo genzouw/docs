@@ -21,14 +21,13 @@ CakePHP には、いくつかのキャッシュエンジンが用意されてい
   最も遅いキャッシュエンジンで、アトミックな操作のための多くの機能を持ちません。
   しかし、ディスクストレージは非常に安価なので、頻繁に書き込みが行なわれない
   大きなオブジェクトや要素の保存はファイルに適しています。
-* ``Memcached`` `Memcached <http://php.net/memcached>`_ 拡張を使います。
+* ``Memcached`` `Memcached <https://php.net/memcached>`_ 拡張を使います。
 * ``Redis`` `phpredis <https://github.com/phpredis/phpredis>`_ 拡張を使います。
   Redis は高速で、Memcached と同様の永続キャッシュシステム、アトミックな操作を提供します。
-* ``Apcu`` APCu キャッシュは、PHP の `APCu <http://php.net/apcu>`_ 拡張を使用します。
+* ``Apcu`` APCu キャッシュは、PHP の `APCu <https://php.net/apcu>`_ 拡張を使用します。
   この拡張はオブジェクトを保存するためにウェブサーバー上の共有メモリーを使います。
   これはとても高速で、かつアトミックな読み込み/書き込みの機能を提供することが可能になります。
-  3.6.0 より前は ``ApcuEngine`` は ``ApcEngine`` という名前でした。
-* ``Wincache`` Wincache は `Wincache <http://php.net/wincache>`_ 拡張を使います。
+* ``Wincache`` Wincache は `Wincache <https://php.net/wincache>`_ 拡張を使います。
   Wincache は APC と同様の機能とパフォーマンスを持ちますが、Windows と IIS に最適化されています。
 * ``Array`` はすべてのデータを配列に保存します。
   永続的なストレージを提供せず、test suites内での使用を想定しています。
@@ -218,9 +217,6 @@ Redis サーバーが予期せず失敗した場合、 ``redis`` キャッシュ
 
 フォールバックがない場合、キャッシュ障害は例外として発生します。
 
-.. versionchanged:: 3.6.0
-    フォールバックは ``false`` で無効化できるようになりました。
-
 設定されたキャッシュエンジンを削除する
 --------------------------------------
 
@@ -276,6 +272,30 @@ CakePHP がより効率的なストレージ API を使用できるようにし�
     // $result は以下を含みます
     ['article-first-post' => true, 'article-first-post-comments' => true]
 
+アトミックな書き込み
+--------------------
+
+.. php:staticmethod:: add($key, $value $config = 'default')
+
+``Cache::add()`` を使用すると、キーがキャッシュに存在しない場合に、
+アトミックにキーを値に設定することができます。
+もし、キーがすでにキャッシュに存在する場合や、書き込みに失敗した場合は、
+``add()`` は ``false`` を返します::
+
+    // キーをロックとして機能するように設定する
+    $result = Cache::add($lockKey, true);
+    if (!$result) {
+        return;
+    }
+    // 一度に1つのプロセスしかアクティブにできないアクションを行う。
+
+    // ロックキーを外す。
+    Cache::delete($lockKey);
+
+.. warning::
+
+   ファイルベースのキャッシュは、アトミックライトをサポートしていません。
+
 Read-through キャッシュ
 -----------------------
 
@@ -306,14 +326,13 @@ Cache を使用すると、Read-through キャッシュを簡単に行うこと�
 ``Cache::read()`` は、 ``$key`` 配下に格納されたキャッシュされた値を
 ``$config`` から読み込むために使用されます。 ``$config`` が null の場合、
 デフォルトの設定が使用されます。 ``Cache::read()`` は、有効なキャッシュであれば
-キャッシュされた値を返し、キャッシュが期限切れになっているか存在しない場合は ``false`` を返します。
+キャッシュされた値を返し、キャッシュが期限切れになっているか存在しない場合は ``null`` を返します。
 キャッシュの内容は false と評価される可能性があるので、必ず厳密な比較演算子
 ``===`` または ``!==`` を使用してください。
 
 例::
 
     $cloud = Cache::read('cloud');
-
     if ($cloud !== null) {
         return $cloud;
     }
@@ -368,6 +387,11 @@ Cache を使用すると、Read-through キャッシュを簡単に行うこと�
     // キーの削除
     Cache::delete('my_key');
 
+4.4.0 以降、 ``RedisEngine`` は ``deleteAsync()`` メソッドも提供し、
+``UNLINK`` オペレーションを使用してキャッシュキーを削除します::
+
+    Cache::pool('redis')->deleteAsync('my_key');
+
 一度に複数のキーの削除
 ----------------------
 
@@ -397,10 +421,10 @@ Cache を使用すると、Read-through キャッシュを簡単に行うこと�
     // すべてのキーをクリアする。
     Cache::clear();
 
-.. php:staticmethod:: gc($config)
+4.4.0 以降では、 ``RedisEngine`` は ``clearBlocking()`` メソッドも提供し、
+``UNLINK`` オペレーションを使ってキャッシュキーを削除します::
 
-キャッシュ設定内のガベージコレクトエントリー。これは主に FileEngine で使用されます。
-キャッシュされたデータを手動で削除する必要のある任意のキャッシュエンジンによって実装される必要があります。
+    Cache::pool('redis')->clearBlocking();
 
 .. note::
 

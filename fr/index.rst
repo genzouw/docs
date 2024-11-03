@@ -22,9 +22,9 @@ la documentation.
     EPUB, vous pouvez maintenant lire les docs sur plus d'appareils et
     hors-ligne.
 
-    - `PDF <../_downloads/fr/CakePHPCookbook.pdf>`_.
+    - `PDF <../_downloads/fr/CakePHPBook.pdf>`_.
     - `EPUB <../_downloads/fr/CakePHP.epub>`_.
-    - `Source originale <http://github.com/cakephp/docs>`_.
+    - `Source originale <https://github.com/cakephp/docs>`_.
 
 Obtenir de l'Aide
 =================

@@ -289,7 +289,7 @@ Existem vários elementos de rota que têm um significado especial no CakePHP e 
 * ``_port`` Defina a porta se precisar criar links em portas não padrão.
 * ``_full`` Se ``true``, a constante `FULL_BASE_URL` será anexada aos URLs gerados
 * ``#`` Permite definir fragmentos de hash de URL.
-* ``_ssl`` Defina como ``true`` para converter o URL gerado em https ou ``false`` para forçar http.
+* ``_https`` Defina como ``true`` para converter o URL gerado em https ou ``false`` para forçar http.
 * ``_method`` Defina o verbo/método HTTP a ser usado. Útil ao trabalhar com :ref:`resource-routes`.
 * ``_name`` Nome da rota. Se você configurou rotas nomeadas, poderá usar esta chave para especificá-la.
 
@@ -1143,7 +1143,7 @@ Você também pode usar qualquer um dos elementos de rota especiais ao gerar URL
 * ``_port`` Defina a porta se precisar criar links em portas não padrão.
 * ``_method`` Defina o verbo HTTP para o qual a URL é.
 * ``_full`` Se ``true``, a constante ``FULL_BASE_URL`` será anexada aos URLs gerados.
-* ``_ssl`` Defina como ``true`` para converter o URL gerado em https ou ``false`` para forçar http.
+* ``_https`` Defina como ``true`` para converter o URL gerado em https ou ``false`` para forçar http.
 * ``_name`` Nome da rota. Se você configurou rotas nomeadas, poderá usar esta chave para especificá-la.
 
 .. _redirect-routing:
@@ -1174,10 +1174,10 @@ matriz como destino de redirecionamento permite usar outras rotas para definir p
 deve ser redirecionada. Você pode redirecionar para locais externos usando URLs de string como destino::
 
     Router::scope('/', function ($routes) {
-        $routes->redirect('/articles/*', 'http://google.com', ['status' => 302]);
+        $routes->redirect('/articles/*', 'https://google.com', ['status' => 302]);
     });
 
-Isso redirecionaria ``/articles/*`` para ``http://google.com`` com um status HTTP 302.
+Isso redirecionaria ``/articles/*`` para ``https://google.com`` com um status HTTP 302.
 
 .. _custom-route-classes:
 

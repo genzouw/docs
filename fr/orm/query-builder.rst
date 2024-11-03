@@ -149,7 +149,6 @@ Vous pouvez aussi récupérer une liste de clés-valeurs à partir du résultat 
 requête::
 
     $list = $articles->find('list')->all();
-
     foreach ($list as $id => $title) {
         echo "$id : $title"
     }
@@ -216,7 +215,7 @@ activer les :ref:`logs de requête <database-query-logging>`.
 
 Récupérer vos Données
 =====================
-CakePHP permet de construire simplement des requêtes ``SELECT``. La 
+CakePHP permet de construire simplement des requêtes ``SELECT``. La
 méthode ``select()`` vous permet de ne récupérer que les champs qui vous sont
 nécessaires::
 
@@ -363,17 +362,16 @@ Fonctions de fenêtrage
 
 Ces fonctions de fenêtrage (*window-only*) contiennent une expression de
 fenêtrage par défaut:
--
--``rowNumber()``
--    Renvoie une expression Aggregate pour la fonction SQL ``ROW_NUMBER()``.
--``lag()``
--    Renvoie une expression Aggregate pour la fonction SQL ``LAG()``.
--``lead()``
--    Renvoie une expression Aggregate pour la fonction SQL ``LEAD()``.
--
--.. versionadded:: 4.1.0
--    Les fonctions de fenêtrage ont été ajoutées dans 4.1.0
 
+``rowNumber()``
+    Renvoie une expression Aggregate pour la fonction SQL ``ROW_NUMBER()``.
+``lag()``
+    Renvoie une expression Aggregate pour la fonction SQL ``LAG()``.
+``lead()``
+    Renvoie une expression Aggregate pour la fonction SQL ``LEAD()``.
+
+.. versionadded:: 4.1.0
+    Les fonctions de fenêtrage ont été ajoutées dans 4.1.0
 
 Quand vous fournissez des arguments pour les fonctions SQL, il y a deux types de
 paramètres que vous pouvez utiliser: les arguments littéraux et les paramètres
@@ -388,10 +386,10 @@ fonctions SQL. Par exemple::
         ' - CAT: ',
         'Categories.name' => 'identifier',
         ' - Age: ',
-        $query->func()->dateDiff(
+        $query->func()->dateDiff([
             'NOW()' => 'literal',
             'Articles.created' => 'identifier'
-        )
+        ])
     ]);
     $query->select(['link_title' => $concat]);
 
@@ -562,7 +560,7 @@ pourrions le faire ainsi::
     $sizing = $query->newExpr()->case()
         ->when(['population <' => 100000])
         ->then('PETITE')
-        ->when($q->between('population', 100000, 999000))
+        ->when($query->newExpr()->between('population', 100000, 999000))
         ->then('MOYENNE')
         ->when(['population >=' => 999001])
         ->then('GRANDE');
@@ -609,10 +607,21 @@ Vous pouvez créer des conditions ``if ... then ... else`` en utilisant
     $published = $query->newExpr()
         ->case()
         ->when(['published' => true])
-        ->then('Y');
+        ->then('Y')
         ->else('N');
 
     # CASE WHEN published = true THEN 'Y' ELSE 'N' END;
+
+Il est également possible créer une variable simple en passant une valeur à
+``case()``:
+
+    $published = $query->newExpr()
+        ->case($query->identifier('published'))
+        ->when(true)
+        ->then('Y');
+        ->else('N');
+
+   # CASE published WHEN true THEN 'Y' ELSE 'N' END;
 
 .. versionchanged:: 4.3.0
     Ajout du builder fluide ``case()``.
@@ -697,8 +706,8 @@ Après avoir exécuté ces lignes, votre résultat devrait ressembler à quelque
 chose comme ceci::
 
     [
-        ['id' => 1, 'title' => 'Premier Article', 'body' => 'Corps de l'article 1' ...],
-        ['id' => 2, 'title' => 'Deuxième Article', 'body' => 'Corps de l'article 2' ...],
+        ['id' => 1, 'title' => 'Premier Article', 'body' => 'Corps de l\'article 1' ...],
+        ['id' => 2, 'title' => 'Deuxième Article', 'body' => 'Corps de l\'article 2' ...],
         ...
     ]
 
@@ -776,7 +785,7 @@ de conditions::
             'OR' => [['nombre_de_vues' => 2], ['nombre_de_vues' => 3]],
         ]);
 
-Ce qui précède générerait le code SQL::
+Ce qui précède générerait le code SQL:
 
 .. code-block:: sql
 
@@ -1615,11 +1624,11 @@ plus haut, qui était vulnérable à une injection SQL::
     ``Query::bind()`` a besoin que vous passiez les "placeholders" en incluant
     les deux-points (``:``) !
 
-Plus de Requêtes Complexes
-==========================
+Requêtes Plus Complexes
+=======================
 
-Le constructeur de requête est capable de construire des requêtes complexes
-comme les requêtes ``UNION`` et sous-requêtes.
+Si votre application a besoin de recourir à des requêtes plus complexes, vous
+pouvez en écrire de nombreuses manières avec le constructeur de requêtes ORM.
 
 Unions
 ------
@@ -1778,7 +1787,71 @@ reprises, vous pouvez créer des fenêtres nommées en utilisant la méthode
     ]);
 
 .. versionadded:: 4.1.0
-    Le support des fonctions de fenêtrage a été ajouté dans 4.1.0
+    Le support des fonctions de fenêtrage a été ajouté.
+
+Common Table Expressions
+------------------------
+
+Les *Common Table Expressions* ou CTE sont utiles pour construire des requêtes
+dans lesquelles vous devez rassembler les résultats de plusieurs petites
+requêtes. Ils peuvent avoir la même utilité que les vues de base de données ou
+que les résultats de sous-requêtes. Les *Common Table Expression* se
+différencient des tables dérivées et des vues sur plusieurs points:
+
+#. Contrairement aux vues, vous n'avez pas besoin de maintenir un schéma pour
+   les CTE. Le schéma est basé implicitement sur le result set de l'expression.
+#. Vous pouvez faire plusieurs références aux résultats d'une CTE sans
+   dégradation de performance, contrairement aux jointures de sous-requêtes.
+
+À titre d'exemple, récupérons une liste de clients et le nombre de commandes
+qu'ils ont passées. En SQL nous utiliserions:
+
+.. code-block:: sql
+
+    WITH commandes_par_client AS (
+        SELECT COUNT(*) AS nb_commandes, client_id FROM commandes GROUP BY client_id
+    )
+    SELECT nom, commandes_par_client.nb_commandes
+    FROM clients
+    INNER JOIN commandes_par_client ON commandes_par_client.client_id = clients.id
+
+Pour construire cette requête avec le constructeur de requêtes, nous
+utiliserions::
+
+    // Démarrer la requête finale
+    $query = $this->Clients->find();
+
+    // Attacher une common table expression
+    $query->with(function ($cte) {
+        // Créer une sous-requête à utiliser dans notre CTE
+        $q = $this->Commandes->subquery();
+        $q->select([
+            'nb_commandes' => $q->func()->count('*'),
+            'client_id'
+        ])
+        ->group('client_id');
+
+        // Attacher la nouvelle requête à notre CTE
+        return $cte
+            ->name('commandes_par_client')
+            ->query($q);
+    });
+
+    // Terminer la construction de la requête finale
+    $query->select([
+        'name',
+        'nb_commandes' => 'commandes_par_client.nb_commandes',
+    ])
+    ->join([
+        // Définir la jointure avec notre CTE
+        'commandes_par_client' => [
+            'table' => 'commandes_par_client',
+            'conditions' => 'commandes_par_client.client_id = Clients.id'
+        ]
+    ]);
+
+.. versionadded:: 4.1.0
+    Ajout des Common table expressions.
 
 Exécuter des Requêtes Complexes
 -------------------------------

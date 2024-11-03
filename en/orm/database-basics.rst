@@ -62,10 +62,9 @@ It is also possible to use complex data types as arguments::
 
 Instead of writing the SQL manually, you can use the query builder::
 
+    // Prior to 4.5 use $connection->query() instead.
     $results = $connection
-        ->newQuery()
-        ->select('*')
-        ->from('articles')
+        ->selectQuery('*', 'articles')
         ->where(['created >' => new DateTime('1 day ago')], ['created' => 'datetime'])
         ->order(['title' => 'DESC'])
         ->execute()
@@ -192,7 +191,7 @@ database
     The name of the database for this connection to use. Avoid using ``.`` in
     your database name. Because of how it complicates identifier quoting CakePHP
     does not support ``.`` in database names. The path to your SQLite database
-    should be an absolute path (e.g. ``ROOT . DS . 'my_app.db'``) to avoid
+    should be an absolute path (for example, ``ROOT . DS . 'my_app.db'``) to avoid
     incorrect paths caused by relative paths.
 port (*optional*)
     The TCP port or Unix socket used to connect to the server.
@@ -236,6 +235,11 @@ cacheMetadata
     :ref:`database-metadata-cache` section for more information.
 mask
     Set the permissions on the generated database file. (Only supported by SQLite)
+cache
+    The ``cache`` flag to send to SQLite.
+mode
+    The ``mode`` flag value to send to SQLite.
+
 
 At this point, you might want to take a look at the
 :doc:`/intro/conventions`. The correct naming for your tables (and the addition
@@ -249,9 +253,44 @@ pastry\_stores, and savory\_cakes.
 .. note::
 
     If your MySQL server is configured with ``skip-character-set-client-handshake``
-    then you MUST use the ``flags`` config to set your charset encoding. For e.g.::
+    then you MUST use the ``flags`` config to set your charset encoding. For example::
 
         'flags' => [\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8']
+
+.. _read-and-write-connections:
+
+Read and Write Connections
+==========================
+
+Connections can have separate read and write roles. Read
+roles are expected to represent read-only replicas and write roles are expected
+to be the default connection and support write operations.
+
+Read roles are configured by providing a ``read`` key in the connection config.
+Write roles are configured by providing a ``write`` key.
+
+Role configurations override the values in the shared connection config. If the read
+and write role configurations are the same, a single connection to the database is used
+for both::
+
+    'default' => [
+        'driver' => 'mysql',
+        'username' => '...',
+        'password' => '...',
+        'database' => '...',
+        'read' => [
+            'host' => 'read-db.example.com',
+        ],
+        'write' => [
+            'host' => 'write-db.example.com',
+        ]
+    ];
+
+You can specify the same value for both ``read`` and ``write`` key without creating
+multiple connections to the database.
+
+.. versionadded:: 4.5.0
+    Read and write connection roles were added.
 
 .. php:namespace:: Cake\Datasource
 
@@ -490,7 +529,7 @@ the type mapping. During our application bootstrap we should do the following::
 
     TypeFactory::map('json', 'App\Database\Type\JsonType');
 
-We then have two ways to use our datatype in our models. 
+We then have two ways to use our datatype in our models.
 
 #. The first path is to overwrite the reflected schema data to use our new type.
 #. The second is to implement ``Cake\Database\Type\ColumnSchemaAwareInterface``
@@ -498,17 +537,14 @@ We then have two ways to use our datatype in our models.
 
 Overwriting the reflected schema with our custom type will enable CakePHP's
 database layer to automatically convert JSON data when creating queries. In your
-Table's :ref:`_initializeSchema() method <saving-complex-types>` add the
+Table's :ref:`getSchema() method <saving-complex-types>` add the
 following::
-
-    use Cake\Database\Schema\TableSchemaInterface;
 
     class WidgetsTable extends Table
     {
-        protected function _initializeSchema(TableSchemaInterface $schema): TableSchemaInterface
+        public function getSchema(): TableSchemaInterface
         {
-            $schema->setColumnType('widget_prefs', 'json');
-            return $schema;
+            $this->getSchema()->setColumnType('widget_prefs', 'json');
         }
     }
 
@@ -547,7 +583,7 @@ used::
             $data = $schema->getColumn($column);
             $sql = $driver->quoteIdentifier($column);
             $sql .= ' JSON';
-            if (isset($data['null') && $data['null'] === false) {
+            if (isset($data['null']) && $data['null'] === false) {
                 $sql .= ' NOT NULL';
             }
             return $sql;
@@ -646,7 +682,7 @@ value object and into SQL expressions::
     {
         public function toPHP($value, DriverInterface $d)
         {
-            return Point::parse($value);
+            return $value === null ? null : Point::parse($value);
         }
 
         public function marshal($value)
@@ -760,15 +796,18 @@ abstract type names when creating a query::
         ['date', 'integer']
     );
 
-.. php:method:: newQuery()
+.. php:method:: deleteQuery()
+.. php:method:: insertQuery()
+.. php:method:: selectQuery()
+.. php:method:: updateQuery()
 
-This allows you to use rich data types in your applications and properly convert
+These methods allow you to use rich data types in your applications and properly convert
 them into SQL statements. The last and most flexible way of creating queries is
 to use the :doc:`/orm/query-builder`. This approach allows you to build complex and
 expressive queries without having to use platform specific SQL::
 
-    $query = $connection->newQuery();
-    $query->update('articles')
+    // Prior to 4.5 use $articles->query() instead.
+    $query = $connection->updateQuery('articles')
         ->set(['published' => true])
         ->where(['id' => 2]);
     $statement = $query->execute();
@@ -777,9 +816,9 @@ When using the query builder, no SQL will be sent to the database server until
 the ``execute()`` method is called, or the query is iterated. Iterating a query
 will first execute it and then start iterating over the result set::
 
-    $query = $connection->newQuery();
-    $query->select('*')
-        ->from('articles')
+    // Prior to 4.5 use $articles->query() instead.
+    $query = $connection
+        ->selectQuery('*', 'articles')
         ->where(['published' => true]);
 
     foreach ($query as $row) {

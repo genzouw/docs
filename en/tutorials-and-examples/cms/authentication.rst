@@ -14,7 +14,7 @@ Use composer to install the Authentication Plugin:
 
 .. code-block:: console
 
-    composer require "cakephp/authentication:^2.0"
+    composer require "cakephp/authentication:^2.4"
 
 
 Adding Password Hashing
@@ -72,7 +72,7 @@ You can edit the default user that was created during
 :doc:`Installation <installation>`. If you change that user's password,
 you should see a hashed password instead of the original value on the list or
 view pages. CakePHP hashes passwords with `bcrypt
-<http://codahale.com/how-to-safely-store-a-password/>`_ by default. We recommend
+<https://codahale.com/how-to-safely-store-a-password/>`_ by default. We recommend
 bcrypt for all new applications to keep your security standards high. This
 is the `recommended password hash algorithm for PHP <https://www.php.net/manual/en/function.password-hash.php>`_.
 
@@ -130,7 +130,8 @@ Then add the following::
         $middlewareQueue
             // ... other middleware added before
             ->add(new RoutingMiddleware($this))
-            // add Authentication after RoutingMiddleware
+            ->add(new BodyParserMiddleware())
+            // Add the AuthenticationMiddleware. It should be after routing and body parser.
             ->add(new AuthenticationMiddleware($this));
 
         return $middlewareQueue;
@@ -171,7 +172,6 @@ In your ``AppController`` class add the following code::
     public function initialize(): void
     {
         parent::initialize();
-        $this->loadComponent('RequestHandler');
         $this->loadComponent('Flash');
 
         // Add this line to check authentication result and lock your site
@@ -191,6 +191,13 @@ user to the ``/users/login`` page.
 Note at this point, the site won't work as we don't have a login page yet.
 If you visit your site, you'll get an "infinite redirect loop" so let's fix that.
 
+.. note::
+
+    If your application serves from both SSL and non-SSL protocols, then you might have problems
+    with sessions being lost, in case your application is on non-SSL protocol. You need to enable
+    access by setting session.cookie_secure to false in your config config/app.php or config/app_local.php. 
+    (See :doc:`CakePHP’s defaults on session.cookie_secure </development/sessions>`)
+
 In your ``UsersController``, add the following code::
 
     public function beforeFilter(\Cake\Event\EventInterface $event)
@@ -206,7 +213,7 @@ In your ``UsersController``, add the following code::
         $this->request->allowMethod(['get', 'post']);
         $result = $this->Authentication->getResult();
         // regardless of POST or GET, redirect if user is logged in
-        if ($result->isValid()) {
+        if ($result && $result->isValid()) {
             // redirect to /articles after login success
             $redirect = $this->request->getQuery('redirect', [
                 'controller' => 'Articles',
@@ -263,8 +270,8 @@ configuration in AppController::
     If you don't have a user with a hashed password yet, comment the
     ``$this->loadComponent('Authentication.Authentication')`` line in your
     AppController and all other lines where Authentication is used. Then go to
-    ``/users/add`` to create a new user picking email and password. Make sure to
-    uncomment the lines we just temporarily commented!
+    ``/users/add`` to create a new user picking email and password. Afterward,
+    make sure to uncomment the lines we just temporarily commented!
 
 Try it out by visiting ``/articles/add`` before logging in! Since this action is not
 allowed, you will be redirected to the login page. After logging in
@@ -280,7 +287,7 @@ Add the logout action to the ``UsersController`` class::
     {
         $result = $this->Authentication->getResult();
         // regardless of POST or GET, redirect if user is logged in
-        if ($result->isValid()) {
+        if ($result && $result->isValid()) {
             $this->Authentication->logout();
             return $this->redirect(['controller' => 'Users', 'action' => 'login']);
         }

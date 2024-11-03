@@ -11,9 +11,10 @@ Error & Exception Configuration
 ===============================
 
 Error configuration is done in your application's **config/app.php** file. By
-default CakePHP uses ``Cake\Error\ErrorHandler`` to handle both PHP errors and
-exceptions by default. The error configuration allows you to customize error
-handling for your application. The following options are supported:
+default CakePHP uses ``Cake\Error\ErrorTrap`` and ``Cake\Error\ExceptionTrap``
+to handle both PHP errors and exceptions respectively. The error configuration
+allows you to customize error handling for your application. The following
+options are supported:
 
 * ``errorLevel`` - int - The level of errors you are interested in capturing.
   Use the built-in PHP error constants, and bitmasks to select the level of
@@ -33,9 +34,11 @@ handling for your application. The following options are supported:
 * ``extraFatalErrorMemory`` - int - Set to the number of megabytes to increase
   the memory limit by when a fatal error is encountered. This allows breathing
   room to complete logging or error handling.
-* ``errorLogger`` - ``Cake\Error\ErrorLoggerInterface`` - The class responsible
-  for logging errors and unhandled exceptions. Defaults to
-  ``Cake\Error\ErrorLogger``.
+* ``logger`` (prior to 4.4.0 use ``errorLogger``) -
+  ``Cake\Error\ErrorLoggerInterface`` - The class responsible for logging
+  errors and unhandled exceptions. Defaults to ``Cake\Error\ErrorLogger``.
+* ``errorRenderer`` - ``Cake\Error\ErrorRendererInterface`` - The class responsible
+  for rendering errors. Default is chosen based on PHP SAPI.
 * ``ignoredDeprecationPaths`` - array - A list of glob compatible paths that
   deprecation errors should be ignored in. Added in 4.2.0
 
@@ -94,6 +97,8 @@ Exception handling offers several ways to tailor how exceptions are handled.  Ea
 approach gives you different amounts of control over the exception handling
 process.
 
+#. *Listen to events* This allows you to be notified through CakePHP events when
+   errors and exceptions have been handled.
 #. *Custom error templates* This allows you to change the rendered view
    templates as you would any other template in your application.
 #. *Custom ErrorController* This allows you to control how exception
@@ -102,6 +107,41 @@ process.
    pages and logging are performed.
 #. *Create & register your own error handler* This gives you complete
    control over how errors & exceptions are handled, logged and rendered.
+
+Listen to Events
+================
+
+The ``ErrorTrap`` and ``ExceptionTrap`` handlers will trigger CakePHP events
+when they handle errors. You can listen to the ``Error.beforeRender`` event to be
+notified of PHP errors. The ``Exception.beforeRender`` event is dispatched when an
+exception is handled::
+
+    $errorTrap = new ErrorTrap(Configure::read('Error'));
+    $errorTrap->getEventManager()->on(
+        'Error.beforeRender',
+        function (EventInterface $event, PhpError $error) {
+            // do your thing
+        }
+    );
+
+Within an ``Error.beforeRender`` handler you have a few options:
+
+* Stop the event to prevent rendering.
+* Return a string to skip rendering and use the provided string instead
+
+Within an ``Exception.beforeRender`` handler you have a few options:
+
+* Stop the event to prevent rendering.
+* Set the ``exception`` data attribute with ``setData('exception', $err)``
+  to replace the exception that is being rendered.
+* Return a response from the event listener to skip rendering and use
+  the provided response instead.
+
+.. versionadded:: 4.4.0
+    Error and Exception events were added.
+
+.. versionchanged:: 4.5.0
+   The ``beforeRender`` events can now replace exceptions and replace rendering.
 
 .. _error-views:
 
@@ -121,7 +161,7 @@ error templates will have the following variables available:
 * ``url`` The request URL.
 * ``error`` The exception object.
 
-In debug mode if your error extends ``Cake\Core\Exception\Exception`` the
+In debug mode if your error extends ``Cake\Core\Exception\CakeException`` the
 data returned by ``getAttributes()`` will be exposed as view variables as well.
 
 .. note::
@@ -165,16 +205,6 @@ prefix. You could create the following class::
     class ErrorController extends AppController
     {
         /**
-         * Initialization hook method.
-         *
-         * @return void
-         */
-        public function initialize(): void
-        {
-            $this->loadComponent('RequestHandler');
-        }
-
-        /**
          * beforeRender callback.
          *
          * @param \Cake\Event\EventInterface $event Event.
@@ -198,7 +228,7 @@ If you want to control the entire exception rendering and logging process you
 can use the ``Error.exceptionRenderer`` option in **config/app.php** to choose
 a class that will render exception pages. Changing the ExceptionRenderer is
 useful when you want to change the logic used to create an error controller,
-choose the error template, or control how the overall rendering process.
+choose the error template, or control the overall rendering process.
 
 Your custom exception renderer class should be placed in **src/Error**. Let's
 assume our application uses ``App\Exception\MissingWidgetException`` to indicate
@@ -277,121 +307,50 @@ override the ``_getController()`` method in your exception renderer::
     ],
     // ...
 
-
-Creating your Own Error Handler
-===============================
-
-By replacing the error handler you can customize how PHP errors and exceptions
-that are not caught by middleware are handled. Error handlers are different for
-the HTTP and Console parts of your application.
-
-To create an error handler for HTTP requests, you should extend
-``Cake\Error\ErrorHandler``.  As an example, we could build
-a class called ``AppError`` to handle errors during HTTP requests::
-
-    // In src/Error/AppError.php
-    namespace App\Error;
-
-    use Cake\Error\ErrorHandler;
-    use Throwable;
-
-    class AppError extends ErrorHandler
-    {
-        protected function _displayError(array $error, bool $debug): void
-        {
-            echo 'There has been an error!';
-        }
-
-        protected function _displayException(Throwable $exception): void
-        {
-            echo 'There has been an exception!';
-        }
-    }
-
-Then we can register our error handler as the PHP error handler::
-
-    // In config/bootstrap.php
-    use App\Error\AppError;
-
-    if (PHP_SAPI !== 'cli') {
-        $errorHandler = new AppError();
-        $errorHandler->register();
-    }
-
-Finally, we can use our error handler in the ``ErrorHandlerMiddleware``::
-
-    // in src/Application.php
-    public function middleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue
-    {
-        $error = new AppError(Configure::read('Error'));
-        $middleware->add(new ErrorHandlerMiddleware($error));
-
-        return $middleware;
-    }
-
-For console error handling, you should extend ``Cake\Error\ConsoleErrorHandler`` instead::
-
-    // In /src/Error/AppConsoleErrorHandler.php
-    namespace App\Error;
-    use Cake\Error\ConsoleErrorHandler;
-
-    class AppConsoleErrorHandler extends ConsoleErrorHandler {
-
-        protected function _displayException(Throwable $exception): void {
-            parent::_displayException($exception);
-            if (isset($exception->queryString)) {
-                $this->_stderr->write('Query String: ' . $exception->queryString);
-            }
-        }
-
-    }
-
-Then we can register our console error handler as the PHP error handler::
-
-    // In config/bootstrap.php
-    use App\Error\AppConsoleErrorHandler;
-    $isCli = PHP_SAPI === 'cli';
-    if ($isCli) {
-        (new AppConsoleErrorHandler(Configure::read('Error')))->register();
-    } 
-
-ErrorHandler objects have a few methods you may want to implement:
-
-* ``_displayError(array $error, bool $debug)`` is used when errors are triggered. 
-* ``_displayException(Throwable $exception)`` method is called when there is an uncaught exception.
-* ``_logError($level, array $error)`` is called when there is an error to log.
-* ``logException(Throwable $exception)`` is called when there is an exception to log.
-
-
-Changing Fatal Error Behavior
------------------------------
-
-Error handlers convert fatal errors into exceptions and re-use the
-exception handling logic to render an error page. If you do not want to show the
-standard error page, you can override it::
-
-    // In src/Error/AppError.php
-    namespace App\Error;
-
-    use Cake\Error\BaseErrorHandler;
-
-    class AppError extends BaseErrorHandler
-    {
-        // Other methods.
-
-        public function handleFatalError(int $code, string $description, string $file, int $line): bool
-        {
-            echo 'A fatal error has happened';
-        }
-    }
-
 Custom Error Logging
 ====================
 
 Error handlers use instances of ``Cake\Error\ErrorLoggingInterface`` to create
 log messages and log them to the appropriate place. You can replace the error
-logger using the ``Error.errorLogger`` configure value. An example error
+logger using the ``Error.logger`` configure value. An example error
 logger::
+
+    namespace App\Error;
+
+    use Cake\Error\ErrorLoggerInterface;
+    use Cake\Error\PhpError;
+    use Psr\Http\Message\ServerRequestInterface;
+    use Throwable;
+
+    /**
+     * Log errors and unhandled exceptions to `Cake\Log\Log`
+     */
+    class ErrorLogger implements ErrorLoggerInterface
+    {
+        /**
+         * @inheritDoc
+         */
+        public function logError(
+            PhpError $error,
+            ?ServerRequestInterface $request,
+            bool $includeTrace = false
+        ): void {
+            // Log PHP Errors
+        }
+
+        /**
+         * @inheritDoc
+         */
+        public function logException(
+            ?ServerRequestInterface $request,
+            bool $includeTrace = false
+        ): void {
+            // Log exceptions.
+        }
+    }
+
+Prior to CakePHP 4.4.0, you should implement ``logMessage()`` and ``log()``, and then
+replace the error logger using the ``Error.errorLogger`` configure value::
 
     namespace App\Error;
 
@@ -421,19 +380,55 @@ logger::
 .. versionadded:: 4.1.0
     ErrorLoggerInterface was added.
 
+.. versionchanged:: 4.4.0
+    ``ErrorLoggerInterface::logException()`` and ``ErrorLoggerInterface::logError()`` were added.
+
+
+Custom Error Rendering
+======================
+
+By default CakePHP ships with error renderers for both web and console
+environments. If however, you would like to replace the logic that renders
+errors you can create a class::
+
+    // src/Error/CustomErrorRenderer.php
+    namespace App\Error;
+
+    use Cake\Error\ErrorRendererInterface;
+    use Cake\Error\PhpError;
+
+    class CustomErrorRenderer implements ErrorRendererInterface
+    {
+        public function write(string $out): void
+        {
+            // output the rendered error to the appropriate output stream
+        }
+
+        public function render(PhpError $error, bool $debug): string
+        {
+            // Convert the error into the output string.
+        }
+    }
+
+The constructor of your renderer will be passed an array of all the Error
+configuration.
+
+.. versionadded:: 4.4.0
+    ErrorRendererInterface was added.
+
 .. index:: application exceptions
 
 Creating your own Application Exceptions
 ========================================
 
 You can create your own application exceptions using any of the built in `SPL
-exceptions <http://php.net/manual/en/spl.exceptions.php>`_, ``Exception``
+exceptions <https://php.net/manual/en/spl.exceptions.php>`_, ``Exception``
 itself, or :php:exc:`Cake\\Core\\Exception\\Exception`.
 If your application contained the following exception::
 
-    use Cake\Core\Exception\Exception;
+    use Cake\Core\Exception\CakeException;
 
-    class MissingWidgetException extends Exception
+    class MissingWidgetException extends CakeException
     {
     }
 
@@ -441,17 +436,18 @@ You could provide nice development errors, by creating
 **templates/Error/missing_widget.php**. When in production mode, the above
 error would be treated as a 500 error and use the **error500** template.
 
-If your exceptions have a code between ``400`` and ``506`` the exception code
-will be used as the HTTP response code.
+Exceptions that subclass ``Cake\Http\Exception\HttpException``, will have their
+error code used as an HTTP status code if the error code is between ``400`` and
+``506``.
 
-The constructor for :php:exc:`Cake\\Core\\Exception\\Exception` allows you to
+The constructor for :php:exc:`Cake\\Core\\Exception\\CakeException` allows you to
 pass in additional data. This additional data is interpolated into the the
 ``_messageTemplate``. This allows you to create data rich exceptions, that
 provide more context around your errors::
 
-    use Cake\Core\Exception\Exception;
+    use Cake\Core\Exception\CakeException;
 
-    class MissingWidgetException extends Exception
+    class MissingWidgetException extends CakeException
     {
         // Context data is interpolated into this format string.
         protected $_messageTemplate = 'Seems that %s is missing.';
@@ -466,11 +462,16 @@ When rendered, this your view template would have a ``$widget`` variable set. If
 you cast the exception as a string or use its ``getMessage()`` method you will
 get ``Seems that Pointy is missing.``.
 
+.. note::
+
+    Prior to CakePHP 4.2.0 use class ``Cake\Core\Exception\Exception`` instead
+    of ``Cake\Core\Exception\CakeException``
+
 Logging Exceptions
 ------------------
 
 Using the built-in exception handling, you can log all the exceptions that are
-dealt with by ErrorHandler by setting the ``log`` option to ``true`` in your
+dealt with by ErrorTrap by setting the ``log`` option to ``true`` in your
 **config/app.php**. Enabling this will log every exception to
 :php:class:`Cake\\Log\\Log` and the configured loggers.
 
@@ -728,6 +729,117 @@ MethodNotAllowedException the rfc2616 says::
 
     "The response MUST include an Allow header containing a list of valid
     methods for the requested resource."
+
+Creating your Own Error Handler
+===============================
+
+.. deprecated:: 4.4.0
+    ``ErrorHandler`` has been deprecated. Use ``ErrorTrap`` or ``ExceptionTrap``
+    instead.
+
+By replacing the error handler you can customize how PHP errors and exceptions
+that are not caught by middleware are handled. Error handlers are different for
+the HTTP and Console parts of your application.
+
+To create an error handler for HTTP requests, you should extend
+``Cake\Error\ErrorHandler``.  As an example, we could build
+a class called ``AppError`` to handle errors during HTTP requests::
+
+    // In src/Error/AppError.php
+    namespace App\Error;
+
+    use Cake\Error\ErrorHandler;
+    use Throwable;
+
+    class AppError extends ErrorHandler
+    {
+        protected function _displayError(array $error, bool $debug): void
+        {
+            echo 'There has been an error!';
+        }
+
+        protected function _displayException(Throwable $exception): void
+        {
+            echo 'There has been an exception!';
+        }
+    }
+
+Then we can register our error handler as the PHP error handler::
+
+    // In config/bootstrap.php
+    use App\Error\AppError;
+
+    if (PHP_SAPI !== 'cli') {
+        $errorHandler = new AppError();
+        $errorHandler->register();
+    }
+
+Finally, we can use our error handler in the ``ErrorHandlerMiddleware``::
+
+    // in src/Application.php
+    public function middleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue
+    {
+        $error = new AppError(Configure::read('Error'));
+        $middleware->add(new ErrorHandlerMiddleware($error));
+
+        return $middleware;
+    }
+
+For console error handling, you should extend ``Cake\Error\ConsoleErrorHandler`` instead::
+
+    // In /src/Error/AppConsoleErrorHandler.php
+    namespace App\Error;
+    use Cake\Error\ConsoleErrorHandler;
+
+    class AppConsoleErrorHandler extends ConsoleErrorHandler {
+
+        protected function _displayException(Throwable $exception): void {
+            parent::_displayException($exception);
+            if (isset($exception->queryString)) {
+                $this->_stderr->write('Query String: ' . $exception->queryString);
+            }
+        }
+
+    }
+
+Then we can register our console error handler as the PHP error handler::
+
+    // In config/bootstrap.php
+    use App\Error\AppConsoleErrorHandler;
+    $isCli = PHP_SAPI === 'cli';
+    if ($isCli) {
+        (new AppConsoleErrorHandler(Configure::read('Error')))->register();
+    }
+
+ErrorHandler objects have a few methods you may want to implement:
+
+* ``_displayError(array $error, bool $debug)`` is used when errors are triggered.
+* ``_displayException(Throwable $exception)`` method is called when there is an uncaught exception.
+* ``_logError($level, array $error)`` is called when there is an error to log.
+* ``logException(Throwable $exception)`` is called when there is an exception to log.
+
+
+Changing Fatal Error Behavior
+-----------------------------
+
+Error handlers convert fatal errors into exceptions and re-use the
+exception handling logic to render an error page. If you do not want to show the
+standard error page, you can override it::
+
+    // In src/Error/AppError.php
+    namespace App\Error;
+
+    use Cake\Error\BaseErrorHandler;
+
+    class AppError extends BaseErrorHandler
+    {
+        // Other methods.
+
+        public function handleFatalError(int $code, string $description, string $file, int $line): bool
+        {
+            echo 'A fatal error has happened';
+        }
+    }
 
 .. meta::
     :title lang=en: Error & Exception Handling

@@ -62,7 +62,7 @@ El canal IRC
 -  `#cakephp-fr <irc://irc.freenode.net/cakephp-fr>`_ -- Canal francés.
 
 Si estás atascado, péganos un grito en el canal IRC de CakePHP.
-Alguién del `equipo de desarrollo <https://github.com/cakephp?tab=members>`_
+Alguién del `equipo de desarrollo <https://cakephp.org/team>`_
 está normalmente, especialmente durante las horas de día para usuarios de
 América del Norte y del Sur. Estaremos encantados de escucharte, tanto si
 necesitas ayuda como si quieres encontrar usuarios en tu zona o si quieres
@@ -72,7 +72,7 @@ donar tu nuevo coche deportivo de marca.
 
 Foro oficial de CakePHP
 =======================
-`Foro oficial de CakePHP <http://discourse.cakephp.org>`_
+`Foro oficial de CakePHP <https://discourse.cakephp.org>`_
 
 Nuestro foro oficial donde puedes pedir ayuda, sugerir ideas y conversar sobre
 CakePHP. Es un lugar perfecto para encontrar rápidamente respuestas y ayudar
@@ -92,7 +92,7 @@ Donde encontrar ayuda en tu idioma
 Portugúes de Brasil
 -------------------
 
-- `Comunidad brasileña de CakePHP <http://cakephp-br.org>`_
+- `Comunidad brasileña de CakePHP <https://cakephp-br.org>`_
 
 Danés
 -----
@@ -102,7 +102,7 @@ Danés
 Francés
 -------
 
-- `Comunidad francesa de CakePHP <http://cakephp-fr.org>`_
+- `Comunidad francesa de CakePHP <https://cakephp-fr.org>`_
 
 Alemán
 ------
@@ -113,7 +113,7 @@ Alemán
 Iraní
 -----
 
-- `Comunidad iraní de CakePHP <http://cakephp.ir>`_
+- `Comunidad iraní de CakePHP <https://cakephp.ir>`_
 
 Holandés
 --------
@@ -129,14 +129,14 @@ Japonés
 Portugués
 ---------
 
-- `Grupo portugés de CakePHP en Google <http://groups.google.com/group/cakephp-pt>`_
+- `Grupo portugés de CakePHP en Google <https://groups.google.com/group/cakephp-pt>`_
 
 Español
 -------
 
 - `Canal español de CakePHP en Slack <https://cakesf.slack.com/messages/spanish/>`_
 - `Canal IRC de CakePHP en español <irc://irc.freenode.net/cakephp-es>`_
-- `Grupo español de CakePHP en Google <http://groups.google.com/group/cakephp-esp>`_
+- `Grupo español de CakePHP en Google <https://groups.google.com/group/cakephp-esp>`_
 
 .. meta::
     :title lang=es: Donde obtener ayuda

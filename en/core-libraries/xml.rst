@@ -27,10 +27,10 @@ strings::
     </post>';
     $xml = Xml::build($text);
 
-You can also build Xml objects from local files::
+You can also build Xml objects from local files by overriding the default option::
 
     // Local file
-    $xml = Xml::build('/home/awesome/unicorns.xml');
+    $xml = Xml::build('/home/awesome/unicorns.xml', ['readFile' => true]);
 
 You can also build Xml objects using an array::
 
@@ -54,8 +54,8 @@ If your input is invalid, the Xml class will throw an exception::
 
 .. note::
 
-    `DOMDocument <http://php.net/domdocument>`_ and
-    `SimpleXML <http://php.net/simplexml>`_ implement different API's.
+    `DOMDocument <https://php.net/domdocument>`_ and
+    `SimpleXML <https://php.net/simplexml>`_ implement different APIs.
     Be sure to use the correct methods on the object you request from Xml.
 
 Loading HTML documents

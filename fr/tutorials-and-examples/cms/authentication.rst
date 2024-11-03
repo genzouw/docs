@@ -76,7 +76,7 @@ créé pendant le chapitre :doc:`Installation <installation>` du tutoriel. Si vo
 changez le mot de passe de l'utilisateur, vous devriez voir une version hashée du
 mot de passe à la place de la valeur par défaut sur l'action index ou view. CakePHP
 hashe les mots de passe, par défaut, avec `bcrypt
-<http://codahale.com/how-to-safely-store-a-password/>`_. Nous recommandons
+<https://codahale.com/how-to-safely-store-a-password/>`_. Nous recommandons
 bcrypt pour toutes les nouvelles applications afin de garentir à votre application
 un niveau de sécurité élevé. C'est l'
 `algorithme de hachage de mot de passe recommandé pour PHP <https://www.php.net/manual/en/function.password-hash.php>`_.
@@ -210,7 +210,7 @@ Dans votre ``UsersController``, ajoutez le code suivant::
         $this->request->allowMethod(['get', 'post']);
         $result = $this->Authentication->getResult();
         // indépendamment de POST ou GET, rediriger si l'utilisateur est connecté
-        if ($result->isValid()) {
+        if ($result && $result->isValid()) {
             // rediriger vers /articles après la connexion réussie
             $redirect = $this->request->getQuery('redirect', [
                 'controller' => 'Articles',
@@ -234,7 +234,7 @@ Ajoutez la logique du template pour votre action de connexion::
         <h3>Connexion</h3>
         <?= $this->Form->create() ?>
         <fieldset>
-            <legend><?= __('Veuillez s'il vous plaît entrer votre nom d'utilisateur et votre mot de passe') ?></legend>
+            <legend><?= __('Veuillez s\'il vous plaît entrer votre nom d\'utilisateur et votre mot de passe') ?></legend>
             <?= $this->Form->control('email', ['required' => true]) ?>
             <?= $this->Form->control('password', ['required' => true]) ?>
         </fieldset>
@@ -286,7 +286,7 @@ Ajoutez l'action de logout à la classe ``UsersController``::
     {
         $result = $this->Authentication->getResult();
         // indépendamment de POST ou GET, rediriger si l'utilisateur est connecté
-        if ($result->isValid()) {
+        if ($result && $result->isValid()) {
             $this->Authentication->logout();
             return $this->redirect(['controller' => 'Users', 'action' => 'login']);
         }

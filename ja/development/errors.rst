@@ -31,7 +31,10 @@ CakePHP は PHP エラーと例外の両方を処理するために ``Cake\Error
   除外するのに役立ちます。
 * ``extraFatalErrorMemory`` - int - 致命的エラーが起きた時にメモリーの上限を増加させるための
   メガバイト数を設定します。これはログの記録やエラー処理を完了するために猶予を与えます。
-* ``errorLogger`` - \Cake\Error\ErrorLogger - エラーログの記録および未処理の例外を担当するクラス。
+* ``errorLogger`` - ``Cake\Error\ErrorLoggerInterface`` - エラーログの記録および未処理の
+  例外を担当するクラス。デフォルトは ``Cake\Error\ErrorLogger``
+* ``ignoredDeprecationPaths`` - array - 非推奨のエラーが無視されるべきパス（glob互換）のリスト。
+  4.2.0で追加
 
 エラーハンドラーは既定では、 ``debug`` が ``true`` の時にエラーを表示し、
 ``debug`` が ``false`` の時にエラーをログに記録します。
@@ -44,6 +47,37 @@ CakePHP は PHP エラーと例外の両方を処理するために ``Cake\Error
 .. note::
 
     もしカスタムエラーハンドラーを使うなら、サポートされるオプションはあなたのハンドラーに依存します。
+
+
+.. _deprecation-warnings:
+
+非推奨の警告
+--------------------
+
+CakePHPは、非推奨の警告を使用して、機能が非推奨になったことを示します。
+また、このシステムをプラグインやアプリケーションコードで使用することをお勧めします。
+``deprecationWarning()`` を使用して非推奨の警告をトリガーできます。 ::
+
+    deprecationWarning('The example() method is deprecated. Use getExample() instead.');
+
+CakePHPまたはプラグインをアップグレードすると、新しい非推奨の警告が表示される場合があります。
+いくつかの方法のいずれかで、非推奨の警告を一時的に無効にすることができます。
+
+#. ``Error.errorLevel`` を ``E_ALL ^ E_USER_DEPRECATED`` に設定して、すべての非推奨警告を無視します。
+#. ``Error.ignoredDeprecationPaths`` 設定オプションを使用して、glob互換の表現で非推奨を無視します。
+   以下をご覧ください。 ::
+
+        'Error' => [
+            'ignoredDeprecationPaths' => [
+                'vendors/company/contacts/*',
+                'src/Models/*',
+            ]
+        ],
+
+   アプリケーションにおける ``Models`` ディレクトリと ``Contacts`` プラグインからのすべての非推奨を無視します。
+
+.. versionadded:: 4.2.0
+    ``Error.ignoredDeprecationPaths`` オプションが追加されました。
 
 .. php:class:: ExceptionRenderer(Exception $exception)
 
@@ -241,19 +275,58 @@ ErrorController クラスの変更
     // src/Error/AppError.php の中で
     namespace App\Error;
 
-    use Cake\Error\BaseErrorHandler;
+    use Cake\Error\ErrorHandler;
+    use Throwable;
 
-    class AppError extends BaseErrorHandler
+    class AppError extends ErrorHandler
     {
-        public function _displayError($error, $debug)
+        protected function _displayError(array $error, bool $debug): void
         {
             echo 'エラーがありました！';
         }
 
-        public function _displayException($exception)
+        protected function _displayException(Throwable $exception): void
         {
             echo '例外がありました！';
         }
+    }
+
+Then we can register our error handler as the PHP error handler::
+
+    // In config/bootstrap.php
+    use App\Error\AppError;
+
+    if (PHP_SAPI !== 'cli') {
+        $errorHandler = new AppError();
+        $errorHandler->register();
+    }
+
+Finally, we can use our error handler in the ``ErrorHandlerMiddleware``::
+
+    // in src/Application.php
+    public function middleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue
+    {
+        $error = new AppError(Configure::read('Error'));
+        $middleware->add(new ErrorHandlerMiddleware($error));
+
+        return $middleware;
+    }
+
+For console error handling, you should extend ``Cake\Error\ConsoleErrorHandler`` instead::
+
+    // In /src/Error/AppConsoleErrorHandler.php
+    namespace App\Error;
+    use Cake\Error\ConsoleErrorHandler;
+
+    class AppConsoleErrorHandler extends ConsoleErrorHandler {
+
+        protected function _displayException(Throwable $exception): void {
+            parent::_displayException($exception);
+            if (isset($exception->queryString)) {
+                $this->_stderr->write('Query String: ' . $exception->queryString);
+            }
+        }
+
     }
 
 ``BaseErrorHandler`` は二つの抽象メソッドを定義しています。
@@ -276,18 +349,55 @@ ErrorController クラスの変更
     {
         // 他のメソッド
 
-        public function handleFatalError($code, $description, $file, $line)
+        public function handleFatalError(int $code, string $description, string $file, int $line): bool
         {
             echo '致命的エラーが発生しました';
         }
     }
+
+
+Custom Error Logging
+====================
+
+Error handlers use instances of ``Cake\Error\ErrorLoggingInterface`` to create
+log messages and log them to the appropriate place. You can replace the error
+logger using the ``Error.errorLogger`` configure value. An example error
+logger::
+
+    namespace App\Error;
+
+    use Cake\Error\ErrorLoggerInterface;
+    use Psr\Http\Message\ServerRequestInterface;
+    use Throwable;
+
+    /**
+     * Log errors and unhandled exceptions to `Cake\Log\Log`
+     */
+    class ErrorLogger implements ErrorLoggerInterface
+    {
+        /**
+         * @inheritDoc
+         */
+        public function logMessage($level, string $message, array $context = []): bool
+        {
+            // Log PHP Errors
+        }
+
+        public function log(Throwable $exception, ?ServerRequestInterface $request = null): bool
+        {
+            // Log exceptions.
+        }
+    }
+
+.. versionadded:: 4.1.0
+    ErrorLoggerInterface was added.
 
 .. index:: application exceptions
 
 独自アプリケーション例外の作成
 ==============================
 
-組み込みの `SPL の例外 <http://php.net/manual/en/spl.exceptions.php>`_ 、
+組み込みの `SPL の例外 <https://php.net/manual/en/spl.exceptions.php>`_ 、
 ``Exception`` そのもの、または :php:exc:`Cake\\Core\\Exception\\Exception`
 のいずれかを使って、独自のアプリケーション例外を作ることができます。
 もしアプリケーションが以下の例外を含んでいたなら::

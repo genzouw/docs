@@ -6,7 +6,7 @@ Routing
 .. php:class:: RouterBuilder
 
 Routing provides you tools that map URLs to controller actions. By defining
-routes, you can separate how your application is implemented from how its URL's
+routes, you can separate how your application is implemented from how its URLs
 are structured.
 
 Routing in CakePHP also encompasses the idea of reverse routing, where an array
@@ -398,8 +398,8 @@ CakePHP, and should not be used unless you want the special meaning
 * ``_full``  If ``true`` the value of ``App.fullBaseUrl`` mentioned in
   :ref:`general-configuration` will be prepended to generated URLs.
 * ``#`` Allows you to set URL hash fragments.
-* ``_ssl`` Set to ``true`` to convert the generated URL to https or ``false``
-  to force http.
+* ``_https`` Set to ``true`` to convert the generated URL to https or ``false``
+  to force http. Prior to 4.5.0 use ``_ssl``.
 * ``_method`` Define the HTTP verb/method to use. Useful when working with
   :ref:`resource-routes`.
 * ``_name`` Name of route. If you have setup named routes, you can use this key
@@ -457,7 +457,7 @@ functions::
     // routes.php
     $routes->scope('/', function (RouteBuilder $routes) {
         $routes->connect(
-            '/blog/{id}-{slug}', // E.g. /blog/3-CakePHP_Rocks
+            '/blog/{id}-{slug}', // For example, /blog/3-CakePHP_Rocks
             ['controller' => 'Blogs', 'action' => 'view']
         )
         // Define the route elements in the route template
@@ -501,10 +501,10 @@ We talked about string targets above. The same also works for URL generation usi
 ``Router::pathUrl()``::
 
     echo Router::pathUrl('Articles::index');
-    // results in e.g.: /articles
+    // outputs: /articles
 
     echo Router::pathUrl('MyBackend.Admin/Articles::view', [3]);
-    // results in e.g.: /admin/my-backend/articles/view/3
+    // outputs: /admin/my-backend/articles/view/3
 
 .. tip::
 
@@ -517,7 +517,7 @@ Using Named Routes
 
 Sometimes you'll find typing out all the URL parameters for a route too verbose,
 or you'd like to take advantage of the performance improvements that named
-routes have. When connecting routes you can specifiy a ``_name`` option, this
+routes have. When connecting routes you can specify a ``_name`` option, this
 option can be used in reverse routing to identify the route you want to use::
 
     // Connect a route with a name.
@@ -687,10 +687,6 @@ how to build this link using the HTML helper::
         'View Post',
         ['prefix' => false, 'controller' => 'Articles', 'action' => 'view', 5]
     );
-
-.. note::
-
-    You should connect prefix routes *before* you connect fallback routes.
 
 .. index:: plugin routing
 
@@ -938,10 +934,8 @@ registered into the route collection::
     use Cake\Http\Middleware\CsrfProtectionMiddleware;
     use Cake\Http\Middleware\EncryptedCookieMiddleware;
 
-    $routes->scope('/', function (RouteBuilder $routes) {
-        $routes->registerMiddleware('csrf', new CsrfProtectionMiddleware());
-        $routes->registerMiddleware('cookies', new EncryptedCookieMiddleware());
-    });
+    $routes->registerMiddleware('csrf', new CsrfProtectionMiddleware());
+    $routes->registerMiddleware('cookies', new EncryptedCookieMiddleware());
 
 Once registered, scoped middleware can be applied to specific
 scopes::
@@ -1012,8 +1006,8 @@ this::
     });
 
 The first line sets up a number of default routes for REST
-access where method specifies the desired result format (e.g. xml,
-json, rss). These routes are HTTP Request Method sensitive.
+access where method specifies the desired result format, for example, xml,
+json and rss. These routes are HTTP Request Method sensitive.
 
 =========== ===================== ==============================
 HTTP format URL.format            Controller action invoked
@@ -1035,7 +1029,7 @@ DELETE      /recipes/123.format   RecipesController::delete(123)
 
     The default for pattern for resource IDs only matches integers or UUIDs.
     If your IDs are different you will have to supply a regular expression pattern
-    via the  ``id`` option. E.g. ``$builder->resources('Recipes', ['id' => '.*'])``.
+    via the  ``id`` option, for example, ``$builder->resources('Recipes', ['id' => '.*'])``.
 
 The HTTP method being used is detected from a few different sources.
 The sources in order of preference are:
@@ -1104,6 +1098,23 @@ only connect specific resource routes you can use the ``only`` option::
 
 Would create read only resource routes. The route names are ``create``,
 ``update``, ``view``, ``index``, and ``delete``.
+
+The default **route name and controller action used** are as follows:
+
+=========== =======================
+Route name  Controller action used    
+=========== =======================
+create      add      
+----------- -----------------------
+update      edit  
+----------- -----------------------
+view        view      
+----------- -----------------------
+index       index  
+----------- -----------------------
+delete      delete  
+=========== =======================
+
 
 Changing the Controller Actions Used
 ------------------------------------
@@ -1183,7 +1194,7 @@ URL Inflection for Resource Routes
 ----------------------------------
 
 By default, multi-worded controllers' URL fragments are the dashed
-form of the controller's name. E.g., ``BlogPostsController``'s URL fragment
+form of the controller's name. For example, ``BlogPostsController``'s URL fragment
 would be **/blog-posts**.
 
 You can specify an alternative inflection type using the ``inflect`` option::
@@ -1353,8 +1364,8 @@ You can also use any of the special route elements when generating URLs:
 * ``_method`` Define the HTTP verb the URL is for.
 * ``_full``  If ``true`` the value of ``App.fullBaseUrl`` mentioned in
   :ref:`general-configuration` will be prepended to generated URLs.
-* ``_ssl`` Set to ``true`` to convert the generated URL to https or ``false``
-  to force http.
+* ``_https`` Set to ``true`` to convert the generated URL to https or ``false``
+  to force http. Prior to 4.5.0 use ``_ssl``
 * ``_name`` Name of route. If you have setup named routes, you can use this key
   to specify it.
 
@@ -1508,10 +1519,10 @@ redirected to. You can redirect to external locations using
 string URLs as the destination::
 
     $routes->scope('/', function (RouteBuilder $routes) {
-        $routes->redirect('/articles/*', 'http://google.com', ['status' => 302]);
+        $routes->redirect('/articles/*', 'https://google.com', ['status' => 302]);
     });
 
-This would redirect ``/articles/*`` to ``http://google.com`` with a
+This would redirect ``/articles/*`` to ``https://google.com`` with a
 HTTP status of 302.
 
 .. _entity-routing:

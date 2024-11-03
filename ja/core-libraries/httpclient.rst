@@ -5,6 +5,10 @@ Http Client
 
 .. php:class:: Client(mixed $config = [])
 
+CakePHP includes a PSR-18 compliant HTTP client which can be used for
+making requests. It is a great way to communicate with webservices, and
+remote APIs.
+
 CakePHP には、リクエストの実行に使用できる基本的ながら強力な HTTP クライアントが含まれています。
 これは、ウェブサービスや、リモート API と通信するための素晴らしい方法です。
 
@@ -51,6 +55,19 @@ POST や PUT のリクエストを実行することは、同様に簡単です�
     $http->delete(...);
     $http->head(...);
     $http->patch(...);
+
+If you have created a PSR-7 request object you can send it using
+``sendRequest()``::
+
+    use Cake\Http\Client;
+    use Cake\Http\Client\Request as ClientRequest;
+
+    $request = new ClientRequest(
+        'http://example.com/search',
+        ClientRequest::METHOD_GET
+    );
+    $client = new Client();
+    $response = $client->sendRequest($request);
 
 ファイルを使用したマルチパートリクエストの作成
 ==============================================
@@ -258,7 +275,7 @@ OAuth2 は、多くの場合、単一のヘッダーであるため、特殊な�
 
 ２番目のプロキシーパラメーターは、プロトコルのない IP またはドメインの文字列でなければなりません。
 ユーザー名とパスワードは、ヘッダー通じて渡されますが、プロキシー文字列は `stream_context_create()
-<http://php.net/manual/ja/function.stream-context-create.php>`_ を通じて渡されます。
+<https://php.net/manual/ja/function.stream-context-create.php>`_ を通じて渡されます。
 
 .. _http_client_scoped_client:
 
@@ -282,6 +299,7 @@ OAuth2 は、多くの場合、単一のヘッダーであるため、特殊な�
 スコープ指定クライアントを作成する場合、以下の情報を使用することができます。
 
 * host
+* basePath
 * scheme
 * proxy
 * auth
@@ -353,7 +371,7 @@ Response オブジェクトは、レスポンスデータを検査するため�
 
 .. versionchanged:: 3.3.0
     3.3.0 では、 ``Cake\Http\Client\Response`` は `PSR-7 ResponseInterface
-    <http://www.php-fig.org/psr/psr-7/#3-3-psr-http-message-responseinterface>`__
+    <https://www.php-fig.org/psr/psr-7/#3-3-psr-http-message-responseinterface>`__
     を実装します。
 
 レスポンスボディーの読み込み
@@ -451,6 +469,72 @@ JSON は配列にデコードされ、XML データは、 ``SimpleXMLElement`` �
 
     // __get() ヘルパー
     $response->code;
+
+Changing Transport Adapters
+===========================
+
+By default ``Http\Client`` will prefer using a ``curl`` based transport adapter.
+If the curl extension is not available a stream based adapter will be used
+instead. You can force select a transport adapter using a constructor option::
+
+    use Cake\Http\Client\Adapter\Stream;
+
+    $client = new Client(['adapter' => Stream::class]);
+
+.. _httpclient-testing:
+
+Testing
+=======
+
+.. php:namespace:: Cake\Http\TestSuite
+
+.. php:trait:: HttpClientTrait
+
+In tests you will often want to create mock responses to external APIs. You can
+use the ``HttpClientTrait`` to define responses to the requests your application
+is making::
+
+    use Cake\Http\TestSuite\HttpClientTrait;
+    use Cake\TestSuite\TestCase;
+
+    class CartControllerTests extends TestCase
+    {
+        use HttpClientTrait;
+
+        public function testCheckout()
+        {
+            // Mock a POST request that will be made.
+            $this->mockClientPost(
+                'https://example.com/process-payment',
+                $this->newClientResponse(200, [], json_encode(['ok' => true]))
+            );
+            $this->post("/cart/checkout");
+            // Do assertions.
+        }
+    }
+
+There are methods to mock the most commonly used HTTP methods::
+
+    $this->mockClientGet(...);
+    $this->mockClientPatch(...);
+    $this->mockClientPost(...);
+    $this->mockClientPut(...);
+    $this->mockClientDelete(...);
+
+.. php:method:: newClientResponse(int $code = 200, array $headers = [], string $body = '')
+
+As seen above you can use the ``newClientResponse()`` method to create responses
+for the requests your application will make. The headers need to be a list of
+strings::
+
+    $headers = [
+        'Content-Type: application/json',
+        'Connection: close',
+    ];
+    $response = $this->newClientResponse(200, $headers, $body)
+
+
+.. versionadded:: 4.3.0
 
 .. meta::
     :title lang=ja: HttpClient

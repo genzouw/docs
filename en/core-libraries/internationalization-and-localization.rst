@@ -37,7 +37,7 @@ Language Files
 
 Translations can be made available by using language files stored in the
 application. The default format for CakePHP translation files is the
-`Gettext <http://en.wikipedia.org/wiki/Gettext>`_ format. Files need to be
+`Gettext <https://en.wikipedia.org/wiki/Gettext>`_ format. Files need to be
 placed under **resources/locales/** and within this directory, there should be a
 subfolder for each language the application needs to support::
 
@@ -73,6 +73,7 @@ messages::
             /locales
                 /fr
                     my_plugin.po
+                    additional.po
                 /de
                     my_plugin.po
 
@@ -80,7 +81,11 @@ Translation folders can be the two or three letter ISO code of the language or
 the full ICU locale name such as ``fr_FR``, ``es_AR``, ``da_DK`` which contains
 both the language and the country where it is spoken.
 
-See https://www.localeplanet.com/icu/ for the full list.
+See https://www.localeplanet.com/icu/ for the full list of locales.
+
+.. versionchanged:: 4.5.0
+    As of 4.5.0 plugins can contain multiple translation domains. Use
+   ``MyPlugin.additional`` to reference plugin domains.
 
 An example translation file could look like this:
 
@@ -153,7 +158,7 @@ domain::
 
 .. note::
 
-    If you want to translate plugins that are vendor namespaced, you must use 
+    If you want to translate plugins that are vendor namespaced, you must use
     the domain string ``vendor/plugin_name``. But the related language file
     will become ``plugins/<Vendor>/<PluginName>/resources/locales/<locale>/plugin_name.po``
     inside your plugin folder.
@@ -206,7 +211,7 @@ By using two adjacent quotes your variables will be replaced properly::
     __("This variable ''{0}'' be replaced.", 'will');
 
 These functions take advantage of the
-`ICU MessageFormatter <http://php.net/manual/en/messageformatter.format.php>`_
+`ICU MessageFormatter <https://php.net/manual/en/messageformatter.format.php>`_
 so you can translate messages and localize dates, numbers and currency at the
 same time::
 
@@ -251,8 +256,8 @@ number. A list of extra options follows:
 The word ``time`` after the placeholder number is also accepted and it
 understands the same options as ``date``.
 
-You can also use named placeholders like ``{name}`` in the message strings. 
-When using named placeholders, pass the placeholder and replacement in an array using key/value pairs, 
+You can also use named placeholders like ``{name}`` in the message strings.
+When using named placeholders, pass the placeholder and replacement in an array using key/value pairs,
 for example::
 
     // echos:  Hi. My name is Sara. I'm 12 years old.
@@ -414,7 +419,7 @@ for a single domain and locale::
 The above code can be added to your **config/bootstrap.php** so that
 translations can be found before any translation function is used. The absolute
 minimum that is required for creating a translator is that the loader function
-should return a ``Cake\I18n\Package`` object (prior to 4.2 it should be an ``Aura\Intl\Package`` object). 
+should return a ``Cake\I18n\Package`` object (prior to 4.2 it should be an ``Aura\Intl\Package`` object).
 Once the code is in place you can use the translation functions as usual::
 
     I18n::setLocale('fr_FR');
@@ -645,7 +650,7 @@ use a middleware to define both timezone conversion and locale parsing::
     use Psr\Http\Server\MiddlewareInterface;
     use Psr\Http\Server\RequestHandlerInterface;
 
-    class DatetimeMiddleare implements MiddlewareInterface
+    class DatetimeMiddleware implements MiddlewareInterface
     {
         public function process(
             ServerRequestInterface $request,
@@ -688,7 +693,7 @@ automatically set the locale based on the current user::
 The ``LocaleSelectorMiddleware`` will use the ``Accept-Language`` header to
 automatically set the user's preferred locale. You can use the locale list
 option to restrict which locales will automatically be used.
-    
+
 Translate Content/Entities
 ==========================
 

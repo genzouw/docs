@@ -146,7 +146,7 @@ easiest way to render a cell is to echo it::
     <?= $cell ?>
 
 This will render the template matching the lowercased and underscored version of
-our action name, e.g. **display.php**.
+our action name like **display.php**.
 
 Because cells use ``View`` to render templates, you can load additional cells
 within a cell template if required.
@@ -155,7 +155,7 @@ within a cell template if required.
 
     Echoing a cell uses the PHP ``__toString()`` magic method which prevents PHP
     from showing the filename and line number for any fatal errors raised. To
-    obtain a meanful error message, it is recommended to use the
+    obtain a meaningful error message, it is recommended to use the
     ``Cell::render()`` method, for example ``<?= $cell->render() ?>``.
 
 Rendering Alternate Templates
@@ -206,20 +206,20 @@ Paginating Data inside a Cell
 =============================
 
 Creating a cell that renders a paginated result set can be done by leveraging
-the ``Paginator`` class of the ORM. An example of paginating a user's favorite
+a paginator class of the ORM. An example of paginating a user's favorite
 messages could look like::
 
     namespace App\View\Cell;
 
     use Cake\View\Cell;
-    use Cake\Datasource\Paginator;
+    use Cake\Datasource\Paging\NumericPaginator;
 
     class FavoritesCell extends Cell
     {
         public function display($user)
         {
             // Create a paginator
-            $paginator = new Paginator();
+            $paginator = new NumericPaginator();
 
             // Paginate the model
             $results = $paginator->paginate(
@@ -234,6 +234,7 @@ messages could look like::
                 ]
             );
 
+            // Set the paging params as a request attribute for use the PaginatorHelper
             $paging = $paginator->getPagingParams() + (array)$this->request->getAttribute('paging');
             $this->request = $this->request->withAttribute('paging', $paging);
 
@@ -253,7 +254,6 @@ creating a cell object::
     namespace App\View\Cell;
 
     use Cake\View\Cell;
-    use Cake\Datasource\Paginator;
 
     class FavoritesCell extends Cell
     {
@@ -263,7 +263,9 @@ creating a cell object::
 
         public function display($userId)
         {
-            $result = $this->fetchTable('Users')->find('friends', ['for' => $userId])->all();
+            $result = $this->fetchTable('Users')->find('friends', ['for' => $userId])
+                ->limit($this->limit)
+                ->all();
             $this->set('favorites', $result);
         }
     }
@@ -275,4 +277,23 @@ This will allow us to define the option when creating the cell::
 
 Cell options are handy when you want data available as properties allowing you
 to override default values.
+
+Using Helpers inside a Cell
+===========================
+
+Cells have their own context and their own View instance but Helpers loaded inside your
+``AppView::initialize()`` function are still loaded as usual.
+
+Loading a specific Helper just for a specific cell can be done via the following example::
+
+    namespace App\View\Cell;
+
+    use Cake\View\Cell;
+
+    class FavoritesCell extends Cell
+    {
+        public function initialize(): void {
+            $this->viewBuilder()->addHelper('MyCustomHelper');
+        }
+    }
 

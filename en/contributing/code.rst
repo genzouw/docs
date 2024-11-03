@@ -23,12 +23,12 @@ Set up your user information with your name/handle and working email address::
 .. note::
 
     If you are new to Git, we highly recommend you to read the excellent and
-    free `ProGit <http://git-scm.com/book/>`_ book.
+    free `ProGit <https://git-scm.com/book/>`_ book.
 
 Get a clone of the CakePHP source code from GitHub:
 
-* If you don't have a `GitHub <http://github.com>`_ account, create one.
-* Fork the `CakePHP repository <http://github.com/cakephp/cakephp>`_ by clicking
+* If you don't have a `GitHub <https://github.com>`_ account, create one.
+* Fork the `CakePHP repository <https://github.com/cakephp/cakephp>`_ by clicking
   the **Fork** button.
 
 After your fork is made, clone your fork to your local machine::
@@ -67,8 +67,8 @@ the 2.x release series, you should use the ``2.x`` branch::
 
 .. tip::
 
-    Use a descriptive name for your branch, referencing the ticket or feature
-    name is a good convention. e.g. ticket-1234, feature-awesome
+    Use a descriptive name for your branch. Referencing the ticket or feature
+    name is a good convention. Examples include ``ticket-1234`` and ``feature-awesome``.
 
 The above will create a local branch based on the upstream (CakePHP) 2.x branch.
 Work on your fix, and make as many commits as you need; but keep in mind the
@@ -124,7 +124,7 @@ branch, as you cannot edit it once the pull request is created.
   should choose the branch with the next version number. For example if the
   current stable release is ``4.0.0``, the branch accepting new features will
   be ``4.next``.
-* If your change is a breaks existing functionality, or API's then you'll have
+* If your change is a breaks existing functionality, or APIs then you'll have
   to choose then next major release. For example, if the current release is
   ``4.0.0`` then the next time existing behavior can be broken will be in
   ``5.x`` so you should target that branch.

@@ -2,8 +2,8 @@ Injection de Dépendance
 #######################
 
 .. warning::
-    Le conteneur d'injection de dépendance est une fonctionnalité expérimentale
-    dont l'API n'est pas encore stabilisé.
+    Le conteneur Dependency Injection est une fonctionnalité expérimentale dont
+    l'API n'est pas encore stabilisé.
 
 Le conteneur de services de CakePHP vous permet de gérer les dépendances de
 classes de vos services applicatifs par l'injection de dépendance. L'injection
@@ -36,6 +36,12 @@ Un exemple simple serait::
         }
     }
 
+    // Dans src/Application.php
+    public function services(ContainerInterface $container): void
+    {
+        $container->add(UsersService::class);
+    }
+
 Dans cet exemple, l'action ``UsersController::ssoCallback()`` a besoin de
 récupérer un utilisateur à partir d'un fournisseur Single-Sign-On et de
 s'assurer qu'il existe dans la base de données locale. Puisque le service est
@@ -50,27 +56,28 @@ Voici un exemple de service injecté dans une commande::
         /** @var UsersService */
         public $users;
 
-        public function __construct(UsersService $users) 
+        public function __construct(UsersService $users)
         {
             parent::__construct();
             $this->users = $users;
         }
 
-        public function execute( Arguments $args, ConsoleIo $io ) 
+        public function execute( Arguments $args, ConsoleIo $io )
         {
             $valid = $this->users->check('all');
         }
-    
+
     }
-    
+
     // Dans src/Application.php
-    public function services( ContainerInterface $container ): void 
+    public function services( ContainerInterface $container ): void
     {
         $container
             ->add(CheckUsersCommand::class)
             ->addArgument(UsersService::class);
+        $container->add(UsersService::class);
     }
-    
+
 Ici, le processus d'injection est un peu différent. Au lieu d'ajouter le
 ``UsersService`` au conteneur, nous devons d'abord ajouter la commande comme un
 tout dans le <em>Container</em> et ajouter le ``UsersService`` en argument. Avec
@@ -79,6 +86,7 @@ la commande.
 
 Ajouter des Services
 ====================
+
 Pour disposer de services créés par le conteneur, vous devez lui dire quelles
 classes il peut créer et comment construire ces classes. La définition la plus
 simple se fait par le nom de la classe::
@@ -135,6 +143,12 @@ soit des valeurs primitives::
 
     $container->add(BillingService::class)
         ->addArgument('apiKey');
+
+Vos services peuvent faire référence à la ``ServerRequest`` dans les actions du
+controller car elle sera chargée automatiquement.
+
+.. versionchanged:: 4.4.0
+    La ``$request`` est désormais enregistrée automatiquement.
 
 Ajouter des Services Partagés
 -----------------------------
@@ -288,5 +302,29 @@ conteneur par des Mocks ou des stubs::
     $this->removeMockService(StripeService::class);
 
 Tous les Mocks définis seront remplacés dans le conteneur de votre application
-pendant le test, et automatiquement injectés dans vos contrôleurs et vos 
+pendant le test, et automatiquement injectés dans vos contrôleurs et vos
 commandes. Les Mocks sont supprimés à la fin de chaque test.
+
+Auto Wiring
+===========
+
+L'auto Wiring est désactivé par défaut. Pour l'activer::
+
+    // Dans src/Application.php
+    public function services(ContainerInterface $container): void
+    {
+        $container->delegate(
+            new \League\Container\ReflectionContainer()
+        );
+    }
+
+À présent, vos dépendances sont résolues automatiquement. Cette approche ne
+mettra pas les résolutions en cache les résolutions, au détriment de la
+performance. Pour activer la mise en cache::
+
+    $container->delegate(
+        new \League\Container\ReflectionContainer(true) // ou utilisez la valeur de Configure::read('debug') 
+    );
+
+Pour en savoir plus sur l'auto wiring, consultez la
+`PHP League Container documentation <https://container.thephpleague.com/4.x/auto-wiring/>`.

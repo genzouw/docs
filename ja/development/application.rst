@@ -2,7 +2,7 @@
 ################
 
 ``Application`` はあなたのアプリケーションの心臓部です。
-アプリケーションがどのように構成され、何のプラグイン、ミドルウェア、コンソールコマンド、およびルートが含まれているかを制御します。。
+アプリケーションがどのように構成され、何のプラグイン、ミドルウェア、コンソールコマンド、およびルートが含まれているかを制御します。
 
 ``Application`` クラスは **src/Application.php** にあります。
 デフォルトでは非常にスリムで、いくつかのデフォルトの :doc:`/controllers/middleware`
@@ -15,7 +15,7 @@
   デフォルトでは、 **config/routes.php** を含みます。
 * ``middleware`` アプリケーションに :doc:`ミドルウェア </controllers/middleware>`
   を追加するために使用されます。
-* ``console`` アプリケーションに :doc:`コンソールコマンド </console-and-shells>`
+* ``console`` アプリケーションに :doc:`コンソールコマンド </console-commands>`
   を追加するために使用されます。
   デフォルトでは、アプリケーションとすべてのプラグインのシェルとコマンドが自動的に検出されます。
 * ``events`` アプリケーションのイベントマネージャーに
@@ -27,33 +27,28 @@
 Application::bootstrap()
 ------------------------
 
-TODO
+アプリケーションの低レベルな関心事を設定するために使用する **config/bootstrap.php** ファイルに加えて、
+プラグインのロードや初期化、グローバルイベントリスナーの追加のために ``Application::bootstrap()`` フックメソッドが利用できます::
 
-.. _adding-http-stack:
+    // in src/Application.php
+    namespace App;
 
-既存アプリケーションへの新しい HTTP スタック追加
-================================================
+    use Cake\Http\BaseApplication;
 
-既存のアプリケーションで HTTP ミドルウェアを使うには、アプリケーションにいくつかの
-変更を行わなければなりません。
+    class Application extends BaseApplication
+    {
+        public function bootstrap()
+        {
+            // Call the parent to `require_once` config/bootstrap.php
+            parent::bootstrap();
 
-#. まず **webroot/index.php** を更新します。 `app スケルトン
-   <https://github.com/cakephp/app/tree/master/webroot/index.php>`__ から
-   ファイルの内容をコピーしてください。
-#. ``Application`` クラスを作成します。どのようにするかについては上の :ref:`using-middleware`
-   セクションを参照してください。もしくは `app スケルトン
-   <https://github.com/cakephp/app/tree/master/src/Application.php>`__
-   の中の例をコピーしてください。
-#. **config/requirements.php** を作成します。もし存在しない場合、 `app スケルトン
-   <https://github.com/cakephp/app/blob/master/config/requirements.php>`__ から
-   内容を追加してください。
+            // Load MyPlugin
+            $this->addPlugin('MyPlugin');
+        }
+    }
 
-これら三つの手順が完了すると、アプリケーション／プラグインのディスパッチフィルターを
-HTTP ミドルウェアとして再実装を始める準備が整います。
-
-もし、テストを実行する場合は、 `app スケルトン
-<https://github.com/cakephp/app/tree/master/tests/bootstrap.php>`_ から、
-ファイルの内容をコピーして **tests/bootstrap.php** を更新することも必要になります。
+``Application::bootstrap()`` でプラグインとイベントをロードすると、イベントとルートが各テストメソッドで再処理されるので、
+:ref:`integration-testing` が簡単になります。
 
 .. meta::
     :title lang=en: CakePHP Application

@@ -7,7 +7,7 @@ Views
 
 Views are the **V** in MVC. Views are responsible for generating the specific
 output required for the request. Often this is in the form of HTML, XML, or
-JSON, but streaming files and creating PDF's that users can download are also
+JSON, but streaming files and creating PDFs that users can download are also
 responsibilities of the View Layer.
 
 CakePHP comes with a few built-in View classes for handling the most common
@@ -68,7 +68,7 @@ views will be rendering HTML/XHTML documents to browsers, but you might also
 need to reply to a remote application via JSON, or output a CSV file for a user.
 
 CakePHP template files are regular PHP files and utilize the `alternative PHP syntax
-<http://php.net/manual/en/control-structures.alternative-syntax.php>`_
+<https://php.net/manual/en/control-structures.alternative-syntax.php>`_
 for control structures and output. These files contain the logic necessary to
 prepare the data received from the controller into a presentation format that is
 ready for your audience.
@@ -117,9 +117,9 @@ Another example, using if/elseif/else. Notice the colons:
      <h3>Hi unknown user</h3>
   <?php endif; ?>
 
-If you'd prefer using a templating language like
-`Twig <https://twig.symfony.com>`_, a subclass of View will bridge your
-templating language and CakePHP.
+If you'd prefer to use a templating language like
+`Twig <https://twig.symfony.com>`_, checkout the `CakePHP Twig Plugin
+<https://github.com/cakephp/twig-view>`__ 
 
 Template files are stored in **templates/**, in a folder named after the
 controller that uses the files, and named after the action it corresponds to.
@@ -252,9 +252,23 @@ as the ``content`` block.
     You should avoid using ``content`` as a block name in your application.
     CakePHP uses this for uncaptured content in extended views.
 
-You can get the list of all populated blocks using the ``blocks()`` method::
+Extending Layouts
+=================
 
-    $list = $this->blocks();
+Just like views, layouts can also be extended. Like views, you use ``extend()``
+to extend layouts. Layout extensions can update or replace blocks, and update or
+replace the content rendered by the child layout. For example if we wanted to
+wrap a block with additional markup you could do::
+
+    // Our layout extends the application layout.
+    $this->extend('application');
+    $this->prepend('content', '<main class="nosidebar">');
+    $this->append('content', '</main>');
+
+    // Output more markup.
+
+    // Remember to echo the contents of the previous layout.
+    echo $this->fetch('content');
 
 .. _view-blocks:
 
@@ -635,7 +649,7 @@ if you are in the ``ContactsController`` of the Contacts plugin, the following::
 are equivalent and will result in the same element being rendered.
 
 For elements inside subfolder of a plugin
-(e.g., **plugins/Contacts/Template/element/sidebar/helpbox.php**), use the
+(for example, **plugins/Contacts/Template/element/sidebar/helpbox.php**), use the
 following::
 
     echo $this->element('Contacts.sidebar/helpbox');

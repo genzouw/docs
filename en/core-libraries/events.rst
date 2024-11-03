@@ -61,7 +61,7 @@ has been created. To keep your Orders model clean you could use events::
         {
             if ($this->save($order)) {
                 $this->Cart->remove($order);
-                $event = new Event('Model.Order.afterPlace', $this, [
+                $event = new Event('Order.afterPlace', $this, [
                     'order' => $order
                 ]);
                 $this->getEventManager()->dispatch($event);
@@ -103,7 +103,7 @@ access the global manager using a static method::
     use Cake\Event\EventManager;
 
     EventManager::instance()->on(
-        'Model.Order.afterPlace',
+        'Order.afterPlace',
         $aCallback
     );
 
@@ -176,7 +176,9 @@ as necessary. Our ``UserStatistics`` listener might start out like::
         public function implementedEvents(): array
         {
             return [
-                'Model.Order.afterPlace' => 'updateBuyStatistic',
+                // Custom event names let you design your application events
+                // as required.
+                'Order.afterPlace' => 'updateBuyStatistic',
             ];
         }
 
@@ -204,7 +206,8 @@ function to do so::
 
     use Cake\Log\Log;
 
-    $this->Orders->getEventManager()->on('Model.Order.afterPlace', function ($event) {
+    // From within a controller, or during application bootstrap.
+    $this->Orders->getEventManager()->on('Order.afterPlace', function ($event) {
         Log::write(
             'info',
             'A new order was placed with id: ' . $event->getSubject()->id
@@ -219,7 +222,7 @@ supports::
         'inventory' => [$this->InventoryManager, 'decrement'],
     ];
     foreach ($events as $callable) {
-        $eventManager->on('Model.Order.afterPlace', $callable);
+        $eventManager->on('Order.afterPlace', $callable);
     }
 
 When working with plugins that don't trigger specific events, you can leverage
@@ -301,7 +304,7 @@ for event listeners::
     // Setting priority for a callback
     $callback = [$this, 'doSomething'];
     $this->getEventManager()->on(
-        'Model.Order.afterPlace',
+        'Order.afterPlace',
         ['priority' => 2],
         $callback
     );
@@ -312,7 +315,7 @@ for event listeners::
         public function implementedEvents()
         {
             return [
-                'Model.Order.afterPlace' => [
+                'Order.afterPlace' => [
                     'callable' => 'updateBuyStatistic',
                     'priority' => 100
                 ],
@@ -360,7 +363,7 @@ an event::
 
     // An event listener has to be instantiated before dispatching an event.
     // Create a new event and dispatch it.
-    $event = new Event('Model.Order.afterPlace', $this, [
+    $event = new Event('Order.afterPlace', $this, [
         'order' => $order
     ]);
     $this->getEventManager()->dispatch($event);
@@ -368,7 +371,7 @@ an event::
 :php:class:`Cake\\Event\\Event` accepts 3 arguments in its constructor. The
 first one is the event name, you should try to keep this name as unique as
 possible, while making it readable. We suggest a convention as follows:
-``Layer.eventName`` for general events happening at a layer level (e.g.
+``Layer.eventName`` for general events happening at a layer level (for example,
 ``Controller.startup``, ``View.beforeRender``) and ``Layer.Class.eventName`` for
 events happening in specific classes on a layer, for example
 ``Model.User.afterRegister`` or ``Controller.Courses.invalidAccess``.
@@ -394,7 +397,7 @@ Stopping Events
 
 Much like DOM events, you may want to stop an event to prevent additional
 listeners from being notified. You can see this in action during model callbacks
-(e.g. beforeSave) in which it is possible to stop the saving operation if
+(for example, beforeSave) in which it is possible to stop the saving operation if
 the code detects it cannot proceed any further.
 
 In order to stop events you can either return ``false`` in your callbacks or
@@ -423,7 +426,7 @@ event object::
 
     public function place($order)
     {
-        $event = new Event('Model.Order.beforePlace', $this, ['order' => $order]);
+        $event = new Event('Order.beforePlace', $this, ['order' => $order]);
         $this->getEventManager()->dispatch($event);
         if ($event->isStopped()) {
             return false;
@@ -466,7 +469,7 @@ directly or returning the value in the callback itself::
     // Using the event result
     public function place($order)
     {
-        $event = new Event('Model.Order.beforePlace', $this, ['order' => $order]);
+        $event = new Event('Order.beforePlace', $this, ['order' => $order]);
         $this->getEventManager()->dispatch($event);
         if (!empty($event->getResult()['order'])) {
             $order = $event->getResult()['order'];

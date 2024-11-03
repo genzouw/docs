@@ -34,7 +34,7 @@ Licencia
 ========
 
 CakePHP está licenciado bajo la
-`Licencia MIT <http://www.opensource.org/licenses/mit-license.php>`_. Esto
+`Licencia MIT <https://www.opensource.org/licenses/mit-license.php>`_. Esto
 significa que eres libre para modificar, distribuir y republicar el código
 fuente con la condición de que las notas de copyright queden intactas. También
 eres libre para incorporar CakePHP en cualquier aplicación comercial o de código
@@ -43,7 +43,7 @@ cerrado.
 Instalando CakePHP
 ==================
 
-CakePHP utiliza `Composer <http://getcomposer.org>`_, una herramienta de manejo
+CakePHP utiliza `Composer <https://getcomposer.org>`_, una herramienta de manejo
 de dependencias para PHP 5.3+, como el método de instalación oficialmente
 soportado.
 
@@ -90,6 +90,36 @@ añadir las siguientes líneas al ``composer.json`` de tu aplicación::
 Donde ``<branch>`` es el nombre del branch que quieres seguir. Cada vez que
 ejecutes ``php composer.phar update`` recibirás las últimas actualizaciones del
 branch seleccionado.
+
+Instalación usando DDEV
+-----------------------
+
+Otra manera rápida de instalar CakePHP es via `DDEV <https://ddev.com/>`_.
+DDEV es una herramienta de código abierto para lanzar ambientes de desarrollo web en local.
+
+Si quieres configurar un nuevo proyecto, sólo necesitas ejecutar::
+
+    mkdir my-cakephp-app
+    cd my-cakephp-app
+    ddev config --project-type=cakephp --docroot=webroot
+    ddev composer create --prefer-dist cakephp/app:~4.0
+    ddev launch
+
+Si tienes un proyecto existente::
+
+    git clone <your-cakephp-repo>
+    cd <your-cakephp-project>
+    ddev config --project-type=cakephp --docroot=webroot
+    ddev composer install
+    ddev launch
+
+Por favor revisa la `Documentación de DDEV <https://ddev.readthedocs.io/>`_ para más detalles de cómo instalar / actualizar DDEV.
+
+.. note::
+
+    IMPORTANTE: Ésto no es un script de despliegue. Su objetivo es ayudar desarrolladores a
+    configurar ambientes de desarrollo rápidamente. En ningún caso su intención es que sea utilizado
+    en ambientes de producción.
 
 Permisos
 ========
@@ -335,7 +365,7 @@ obtener información.
        </Directory>
 
    En macOS, otra solución es usar la herramienta
-   `virtualhostx <http://clickontyler.com/virtualhostx/>`_
+   `virtualhostx <https://clickontyler.com/virtualhostx/>`_
    para crear servidores virtuales y apuntarlos a tu carpeta.
 
    Para muchos servicios de alojamiento (GoDaddy, 1and1), tu servidor
@@ -431,7 +461,7 @@ necesitas PHP corriendo como una instancia FastCGI:
 En algunos servidores (Como Ubuntu 14.04) la configuración anterior no funcionará
 recién instalado, y de todas formas la documentación de nginx recomienda
 una forma diferente de abordar esto
-(http://nginx.org/en/docs/http/converting_rewrite_rules.html). Puedes intentar
+(https://nginx.org/en/docs/http/converting_rewrite_rules.html). Puedes intentar
 lo siguiente (Notarás que esto es un bloque de servidor {}, en vez de dos,
 pese a que si quieres que example.com resuelva a tu aplicación CakePHP en adición
 a www.example.com consulta el enlace de nginx anterior):
@@ -471,8 +501,8 @@ IIS7 no soporta de manera nativa los archivos .htaccess. Mientras hayan
 las reglas htaccess en IIS para usar las redirecciones nativas de CakePHP. Para hacer
 esto, sigue los siguientes pasos:
 
-#. Usa el `Intalador de plataforma Web de Microsoft <http://www.microsoft.com/web/downloads/platform.aspx>`_
-   para instalar el `Modulo de Redirreción 2.0 <http://www.iis.net/downloads/microsoft/url-rewrite>`_ de URLs
+#. Usa el `Intalador de plataforma Web de Microsoft <https://www.microsoft.com/web/downloads/platform.aspx>`_
+   para instalar el `Modulo de Redirreción 2.0 <https://www.iis.net/downloads/microsoft/url-rewrite>`_ de URLs
    o descarga directamente (`32-bit <https://download.microsoft.com/download/D/8/1/D81E5DD6-1ABB-46B0-9B4B-21894E18B77F/rewrite_x86_en-US.msi>`_ /
    `64-bit <https://download.microsoft.com/download/1/2/8/128E2E22-C1B9-44A4-BE2A-5859ED1D4592/rewrite_amd64_en-US.msi>`_).
 #. Crear un nuevo archivo llamado web.config en tu directorio de raíz de CakePHP.
@@ -534,8 +564,8 @@ Esto hará tus URL verse así
 www.example.com/index.php/controllername/actionname/param antes que
 www.example.com/controllername/actionname/param.
 
-.. _GitHub: http://github.com/cakephp/cakephp
-.. _Composer: http://getcomposer.org
+.. _GitHub: https://github.com/cakephp/cakephp
+.. _Composer: https://getcomposer.org
 
 .. meta::
     :title lang=es: Instalación

@@ -1,9 +1,6 @@
 依存性の注入(DI)
 ####################
 
-.. warning::
-    DIコンテナはAPIがまだ安定していない実験的な特徴になります。
-
 CakePHPのサービスコンテナは依存性の注入(DI)によりアプリケーションのサービスのためのクラス依存性を管理できます。
 DIは手動でインスタンス化することなく、自動でコンストラクタを通してオブジェクトの依存性を"注入"します。
 
@@ -35,7 +32,7 @@ CakePHPはコントローラーでアクションを呼ぶ際サービスコン�
 
 コマンド内でサービス注入を行う例::
 
-    // src/Command/CheckUsersCommand.php
+    // In src/Command/CheckUsersCommand.php
     class CheckUsersCommand extends Command
     {
         /** @var UsersService */
@@ -54,18 +51,18 @@ CakePHPはコントローラーでアクションを呼ぶ際サービスコン�
 
     }
 
-    // src/Application.php
+    // In src/Application.php
     public function services( ContainerInterface $container ): void
     {
         $container
             ->add(CheckUsersCommand::class)
             ->addArgument(UsersService::class);
+        $container->add(UsersService::class);
     }
 
-注入過程は少し異なります。
-``UsersService`` の代わりにコマンドを始めに追加する必要があります。
-全体としてコマンドにコンテナと ``UsersService`` を引数として与えます。
-そうすることでコマンド内コンストラクタにサービスをアクセスさせることができるのです。
+ここでは、インジェクションの手順が少し異なります。
+``UsersService`` をコンテナに追加するのではなく、まずCommand全体をコンテナに追加し、 ``UsersService`` を引数として追加する必要があります。
+これで、コマンドのコンストラクタ内でそのサービスにアクセスできるようになります。
 
 サービスの追加
 ===============
@@ -79,7 +76,7 @@ CakePHPはコントローラーでアクションを呼ぶ際サービスコン�
 
 アプリケーションとプラグイン内の ``services()`` フックメソッドからサービスを定義します。::
 
-    // src/Application.php
+    // in src/Application.php
     namespace App;
 
     use App\Service\BillingService;

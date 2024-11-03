@@ -234,8 +234,8 @@ Possible keys for hasOne association arrays include:
   associated table into the source table results. By default this is the
   underscored & singular name of the association so ``address`` in our example.
 - **strategy**: The query strategy used to load matching record from the other table.
-  Accepted values are 'join' and 'select'. Using 'select' will generate a separate query.
-  The default is 'join'.
+  Accepted values are ``'join'`` and ``'select'``. Using ``'select'`` will generate a separate query
+  and can be useful when the other table is in different database. The default is ``'join'``.
 - **finder**: The finder method to use when loading associated records.
 
 Once this association has been defined, find operations on the Users table can
@@ -323,8 +323,8 @@ Possible keys for belongsTo association arrays include:
   associated table into the source table results. By default this is the
   underscored & singular name of the association so ``user`` in our example.
 - **strategy**: The query strategy used to load matching record from the other table.
-  Accepted values are 'join' and 'select'. Using 'select' will generate a separate query.
-  The default is 'join'.
+  Accepted values are ``'join'`` and ``'select'``. Using ``'select'`` will generate a separate query
+  and can be useful when the other table is in different database. The default is ``'join'``.
 - **finder**: The finder method to use when loading associated records.
 
 Once this association has been defined, find operations on the Addresses table can
@@ -702,13 +702,27 @@ following models::
 The CoursesMemberships join table uniquely identifies a given Student's
 participation on a Course in addition to extra meta-information.
 
+When using a query object with a BelongsToMany relationship with a ``through``
+model, add contain and matching conditions for the association target table into
+your query object. The ``through`` table can then be referenced in other conditions
+such as a where condition by designating the through table name before the field
+you are filtering on::
+
+    $query = $this->find(
+            'list', 
+            ['valueField' => 'studentFirstName', 'order' => 'students.id']
+        )
+        ->contain(['Courses'])
+        ->matching('Courses')
+        ->where(['CoursesMemberships.grade' => 'B']);
+
 .. _association-finder:
 
 Using Association Finders
 -------------------------
 
 By default associations will load records based on the foreign key columns. If
-you want to define addition conditions for associations you can use
+you want to define additional conditions for associations, you can use
 a ``finder``. When an association is loaded the ORM will use your :ref:`custom
 finder <custom-find-methods>` to load, update, or delete associated records.
 Using finders lets you encapsulate your queries and make them more reusable.

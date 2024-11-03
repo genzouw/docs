@@ -12,7 +12,7 @@ application over time. What search terms are being used? What sorts
 of errors are my users being shown? How often is a particular query
 being executed?
 
-Logging data in CakePHP is done with the ``log()`` function is provided by the
+Logging data in CakePHP is done with the ``log()`` function. It is provided by the
 ``LogTrait``, which is the common ancestor for many CakePHP classes. If the
 context is a CakePHP class (Controller, Component, View,...), you can log your
 data.  You can also use ``Log::write()`` directly.  See :ref:`writing-to-logs`.
@@ -54,7 +54,7 @@ configured using :php:class:`Cake\\Log\\Log`. An example would be::
         'file' => 'error',
     ]);
 
-The above creates two loggers.  One named ``debug`` the other named ``error``.
+The above creates three loggers, named ``info``, ``debug`` and ``error``.
 Each is configured to handle different levels of messages. They also store their
 log messages in separate files, so we can separate debug/notice/info logs
 from more serious errors. See the section on :ref:`logging-levels` for more
@@ -76,7 +76,7 @@ Configuration options can also be provided as a :term:`DSN` string. This is
 useful when working with environment variables or :term:`PaaS` providers::
 
     Log::setConfig('error', [
-        'url' => 'file:///?levels[]=warning&levels[]=error&file=error',
+        'url' => 'file:///full/path/to/logs/?levels[]=warning&levels[]=error&file=error',
     ]);
 
 .. warning::
@@ -227,7 +227,7 @@ If a level is not supplied, :php:const:`LOG_ERR` is used which writes to the
 error log. The default log location is **logs/$level.log**::
 
     // Executing this inside a CakePHP class
-    $this->log('Something didn't work!');
+    $this->log("Something didn't work!");
 
     // Results in this being appended to logs/error.log
     // 2007-11-02 10:22:02 Error: Something didn't work!

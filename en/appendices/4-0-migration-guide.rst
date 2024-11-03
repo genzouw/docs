@@ -51,6 +51,7 @@ ORM
 * ``Entity::unsetProperty()`` has been renamed to ``Entity::unset()`` to match
   the other methods.
 * ``TableSchemaInterface::primaryKey()`` has been renamed to ``TableSchemaInterface::getPrimaryKey()``.
+* ``Entity::_properties`` has been renamed to ``Entity::_fields``.
 
 View
 ----
@@ -318,8 +319,6 @@ Utility
   path extracted as first argument.
 * The ``readFile`` option of ``Xml::build()`` is no longer true by default.
   Instead you must enable ``readFile`` to read local files.
-* ``Hash::sort()`` now accepts the ``SORT_ASC`` and ``SORT_DESC`` constants in
-  the direction parameter.
 * ``Inflector::pluralize()`` now inflects ``index`` to ``indexes`` instead of ``indices``.
   This reflects the technical usage of this plural in the core as well as the ecosystem.
 
@@ -516,6 +515,12 @@ TestSuite
 ---------
 
 * ``TestSuite\EmailTrait::assertMailContainsAttachment()`` was added.
+
+Utility
+-------
+
+* ``Hash::sort()`` now accepts the ``SORT_ASC`` and ``SORT_DESC`` constants in
+  the direction parameter.
 
 Validation
 ----------

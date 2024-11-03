@@ -67,7 +67,7 @@ O canal de IRC
    Canal francês.
 
 Se você está travado, nos faça uma visita no canal de IRC do CakePHP.
-Alguém do `time de desenvolvimento <https://github.com/cakephp?tab=members>`_
+Alguém do `time de desenvolvimento <https://cakephp.org/team>`_
 normalmente está conectado, especiamente nos horários diurnos da América do Sul
 e América do Norte. Nós apreciaríamos ouví-lo se você precisar de ajuda,
 se quiser encontrar usuários da sua área ou ainda se quiser doar seu novo carro
@@ -88,7 +88,7 @@ Onde conseguir ajuda em sua língua
 
 Francês
 -------
-- `Comunidade CakePHP francesa <http://cakephp-fr.org>`_
+- `Comunidade CakePHP francesa <https://cakephp-fr.org>`_
 
 .. meta::
     :title lang=pt: Onde conseguir ajuda

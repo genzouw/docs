@@ -22,15 +22,15 @@ build your own backend. The built-in caching engines are:
   atomic operations. However, since disk storage is often quite cheap,
   storing large objects, or elements that are infrequently written
   work well in files.
-* ``Memcached`` Uses the `Memcached <http://php.net/memcached>`_
+* ``Memcached`` Uses the `Memcached <https://php.net/memcached>`_
   extension.
 * ``Redis`` Uses the `phpredis <https://github.com/phpredis/phpredis>`_
   extension. Redis provides a fast and persistent cache system similar to
   Memcached, also provides atomic operations.
-* ``Apcu`` APCu cache uses the PHP `APCu <http://php.net/apcu>`_ extension.
+* ``Apcu`` APCu cache uses the PHP `APCu <https://php.net/apcu>`_ extension.
   This extension uses shared memory on the webserver to store objects.
   This makes it very fast, and able to provide atomic read/write features.
-* ``Wincache`` Wincache uses the `Wincache <http://php.net/wincache>`_
+* ``Wincache`` Wincache uses the `Wincache <https://php.net/wincache>`_
   extension. Wincache is similar to APC in features and performance, but
   optimized for Windows and IIS.
 * ``Array`` Stores all data in an array. This engine does not provide
@@ -158,6 +158,8 @@ FileEngine uses the following engine specific options:
 * ``mask`` The mask used for created files
 * ``path`` Path to where cachefiles should be saved. Defaults to system's temp dir.
 
+.. _caching-redisengine:
+
 RedisEngine Options
 -------------------
 
@@ -212,9 +214,9 @@ the ``fallback`` configuration key::
         'fallback' => 'default',
     ]);
 
-If the Redis server unexpectedly failed, writing to the ``redis`` cache
-configuration would fall back to writing to the ``default`` cache configuration.
-If writing to the ``default`` cache configuration *also* failed in this scenario, the
+If initializing the ``RedisEngine`` instance fails, the ``redis`` cache configuration
+would fall back to using the ``default`` cache configuration. If initializing the
+engine for the ``default`` cache configuration *also* fails, in this scenario the
 engine would fall back once again to the ``NullEngine`` and prevent the application
 from throwing an uncaught exception.
 
@@ -275,7 +277,7 @@ Writing Multiple Keys at Once
 
 You may find yourself needing to write multiple cache keys at once. While you
 can use multiple calls to ``write()``, ``writeMany()`` allows CakePHP to use
-more efficient storage API's where available. For example using ``writeMany()``
+more efficient storage APIs where available. For example using ``writeMany()``
 save multiple network connections when using Memcached::
 
     $result = Cache::writeMany([
@@ -285,6 +287,29 @@ save multiple network connections when using Memcached::
 
     // $result will contain
     ['article-first-post' => true, 'article-first-post-comments' => true]
+
+Atomic writes
+-------------
+
+.. php:staticmethod:: add($key, $value $config = 'default')
+
+Using ``Cache::add()`` will let you atomically set a key to a value if the key
+does not already exist in the cache. If the key already exists in the cache
+backend or the write fails, ``add()`` will return ``false``::
+
+    // Set a key to act as a lock
+    $result = Cache::add($lockKey, true);
+    if (!$result) {
+        return;
+    }
+    // Do an action where there can only be one process active at a time.
+
+    // Remove the lock key.
+    Cache::delete($lockKey);
+
+.. warning::
+
+   File based caching does not support atomic writes.
 
 Read Through Caching
 --------------------
@@ -357,7 +382,7 @@ Reading Multiple Keys at Once
 
 After you've written multiple keys at once, you'll probably want to read them as
 well. While you could use multiple calls to ``read()``, ``readMany()`` allows
-CakePHP to use more efficient storage API's where available. For example using
+CakePHP to use more efficient storage APIs where available. For example using
 ``readMany()`` save multiple network connections when using Memcached::
 
     $result = Cache::readMany([
@@ -378,6 +403,11 @@ object from the store::
     // Remove a key
     Cache::delete('my_key');
 
+As of 4.4.0, the ``RedisEngine`` also provides a ``deleteAsync()`` method
+which uses the ``UNLINK`` operation to remove cache keys::
+
+    Cache::pool('redis')->deleteAsync('my_key');
+
 Deleting Multiple Keys at Once
 ------------------------------
 
@@ -385,7 +415,7 @@ Deleting Multiple Keys at Once
 
 After you've written multiple keys at once, you may want to delete them.  While
 you could use multiple calls to ``delete()``, ``deleteMany()`` allows CakePHP to use
-more efficient storage API's where available. For example using ``deleteMany()``
+more efficient storage APIs where available. For example using ``deleteMany()``
 save multiple network connections when using Memcached::
 
     $result = Cache::deleteMany([
@@ -407,6 +437,11 @@ prefixes::
 
     // Will clear all keys.
     Cache::clear();
+
+As of 4.4.0, the ``RedisEngine`` also provides a ``clearBlocking()`` method
+which uses the ``UNLINK`` operation to remove cache keys::
+
+    Cache::pool('redis')->clearBlocking();
 
 .. note::
 
@@ -452,6 +487,9 @@ A perfect example of this are the results from
 :php:meth:`Cake\\ORM\\Table::find()`. The Query object allows you to cache
 results using the ``cache()`` method. See the :ref:`caching-query-results` section
 for more information.
+
+
+.. _cache-groups:
 
 Using Groups
 ============

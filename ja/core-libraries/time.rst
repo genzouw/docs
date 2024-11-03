@@ -47,18 +47,18 @@ Time インスタンスを作成する
     // 日時文字列から作成
     $time = FrozenTime::createFromFormat(
         'Y-m-d H:i:s',
-        $datetime,
+        '2021-01-31 22:11:30',
         'America/New_York'
     );
 
     // タイムスタンプから作成
-    $time = FrozenTime::createFromTimestamp($ts);
+    $time = FrozenTime::createFromTimestamp(1612149090, 'Asia/Tokyo');
 
     // 現在時刻を取得
     $time = FrozenTime::now();
 
     // または 'new' を使用して
-    $time = new FrozenTime('2014-01-10 11:11', 'America/New_York');
+    $time = new FrozenTime('2021-01-31 22:11:30', 'Asia/Tokyo');
 
     $time = new FrozenTime('2 hours ago');
 
@@ -69,45 +69,64 @@ UNIX タイムスタンプとして解釈されます。
 テストケースでは、 ``setTestNow()`` を使うことで ``now()`` をモックアップできます。 ::
 
     // 時間の固定
-    $now = new FrozenTime('2014-04-12 12:22:30');
-    FrozenTime::setTestNow($now);
+    $time = new FrozenTime('2021-01-31 22:11:30');
+    FrozenTime::setTestNow($time);
 
-    // 結果は '2014-04-12 12:22:30'
+    // 結果は '2021-01-31 22:11:30'
     $now = FrozenTime::now();
+    echo $now->i18nFormat('yyyy-MM-dd HH:mm:ss');
 
-    // 結果は '2014-04-12 12:22:30'
+    // 結果は '2021-01-31 22:11:30'
     $now = FrozenTime::parse('now');
+    echo $now->i18nFormat('yyyy-MM-dd HH:mm:ss');
 
 操作
 ====
 
-いったん作成した後は、セッターメソッドを使用することで ``FrozenTime`` インスタンスを操作できます。 ::
+``FrozenTime`` インスタンスは、それ自体を変更するのではなく、常にセッターから新しいインスタンスを返すことを忘れないでください。 ::
 
-    $now = FrozenTime::now();
-    $now->year(2013)
+    $time = FrozenTime::now();
+
+    // Create and reassign a new instance
+    $newTime = $time->year(2013)
         ->month(10)
         ->day(31);
+    // Outputs '2013-10-31 22:11:30'
+    echo $newTime->i18nFormat('yyyy-MM-dd HH:mm:ss');
 
 PHP のビルトインの ``DateTime`` クラスで提供されているメソッドも使用できます。 ::
 
-    $now = $now->setDate(2013, 10, 31);
+    $time = $time->setDate(2013, 10, 31);
 
 日付はコンポーネントの引き算や足し算で編集できます。 ::
 
-    $now = FrozenTime::now();
-    $now = $now->subDays(5)
+    $time->year(2013)
+        ->month(10)
+        ->day(31);
+    // Outputs '2021-01-31 22:11:30'
+    echo $time->i18nFormat('yyyy-MM-dd HH:mm:ss');
+
+コンポーネントの減算と加算により、日付が変更された別のインスタンスを作成できます。 ::
+
+    $time = FrozenTime::create(2021, 1, 31, 22, 11, 30);
+    $newTime = $time->subDays(5)
+        ->addHours(-2)
         ->addMonth(1);
+    // Outputs '2/26/21, 8:11 PM'
+    echo $newTime;
 
-    // strtotime文字列を使用
-    $now = $now->modify('+5 days');
+    // Using strtotime strings.
+    $newTime = $time->modify('+1 month -5 days -2 hours');
+    // Outputs '2/26/21, 8:11 PM'
+    echo $newTime;
 
-プロパティーにアクセスすることで日付の内部コンポーネントを取得することができます。 ::
+プロパティにアクセスすることで、日付の内部コンポーネントを取得できます。 ::
 
-    $now = FrozenTime::now();
-    echo $now->year; // 2014
-    echo $now->month; // 5
-    echo $now->day; // 10
-    echo $now->timezone; // America/New_York
+    $time = FrozenTime::create(2021, 1, 31, 22, 11, 30);
+    echo $time->year; // 2021
+    echo $time->month; // 1
+    echo $time->day; // 31
+    echo $time->timezoneName; // America/New_York
 
 フォーマットする
 ================
@@ -122,8 +141,20 @@ PHP のビルトインの ``DateTime`` クラスで提供されているメソ�
     Date::setJsonEncodeFormat('yyyy-MM-dd HH:mm:ss');  // 可変の Date 用
     FrozenDate::setJsonEncodeFormat('yyyy-MM-dd HH:mm:ss');  // 不変の Date 用
 
+    $time = FrozenTime::parse('2021-01-31 22:11:30');
+    echo json_encode($time);   // Outputs '2021-01-31 22:11:30'
+
+    // Added in 4.1.0
+    FrozenDate::setJsonEncodeFormat(static function($time) {
+        return $time->format(DATE_ATOM);
+    });
+
 .. note::
     このメソッドは静的に呼び出されなくてはなりません。
+
+.. versionchanged:: 4.1.0
+    ``callable`` パラメータタイプが追加されました。
+
 
 .. php:method:: i18nFormat($format = null, $timezone = null, $locale = null)
 
@@ -149,7 +180,7 @@ CakePHP は snap を作成します。 ::
 
 文字列が表示される希望のフォーマットを特定することも可能です。
 この関数に第1引数として `IntlDateFormatter 定数
-<http://www.php.net/manual/ja/class.intldateformatter.php>`_ を渡したり、
+<https://www.php.net/manual/ja/class.intldateformatter.php>`_ を渡したり、
 あるいは以下のリソースで指定されている ICU の日付フルフォーマット文字列を渡すことができます:
 https://unicode-org.github.io/icu/userguide/format_parse/datetime/#datetime-format-syntax.
 
@@ -172,39 +203,39 @@ https://unicode-org.github.io/icu/userguide/format_parse/datetime/#datetime-form
 
 .. note::
    IntlDateFormatter::FULL のような文字列定数のために Intl は ICU ライブラリーを使用します。
-   そのライブラリーは、 CLDR (http://cldr.unicode.org/) からデータを取り入れています。
+   そのライブラリーは、 CLDR (https://cldr.unicode.org/) からデータを取り入れています。
    ライブラリーのバージョンは、 PHP のインストールにとても依存し、バージョンにより異なる結果を返します。
 
 .. php:method:: nice()
 
 あらかじめ定義されている 'nice' フォーマットで出力します。 ::
 
-    $now = Time::parse('2014-10-31');
+    $time = Time::parse('2014-10-31');
 
     // en-USでは 'Oct 31, 2014 12:00 AM' と出力されます。
-    echo $now->nice();
+    echo $time->nice();
 
 ``Time`` オブジェクトそのものを変更することなく、出力される日付のタイムゾーンを変更することができます。
 一つのタイムゾーンでデータを保存しているけれども、ユーザーのそれぞれのタイムゾーンで表示したい場合に
 便利です。 ::
 
-    $now->i18nFormat(\IntlDateFormatter::FULL, 'Europe/Paris');
+    $time->i18nFormat(\IntlDateFormatter::FULL, 'Europe/Paris');
 
 第1引数を ``null`` のままにしておくと、デフォルトのフォーマット文字列を使用します。 ::
 
-    $now->i18nFormat(null, 'Europe/Paris');
+    $time->i18nFormat(null, 'Europe/Paris');
 
 最後に、日付を表示するのに異なるロケールを利用することができます。 ::
 
-    echo $now->i18nFormat(\IntlDateFormatter::FULL, 'Europe/Paris', 'fr-FR');
+    echo $time->i18nFormat(\IntlDateFormatter::FULL, 'Europe/Paris', 'fr-FR');
 
-    echo $now->nice('Europe/Paris', 'fr-FR');
+    echo $time->nice('Europe/Paris', 'fr-FR');
 
 デフォルトのロケールとフォーマット文字列を設定する
 --------------------------------------------------
 
 ``nice`` や ``i18nFormat`` を利用している際に表示される日付のデフォルトのロケールは、
-`intl.default_locale <http://www.php.net/manual/en/intl.configuration.php#ini.intl.default-locale>`_ の指令です。
+`intl.default_locale <https://www.php.net/manual/en/intl.configuration.php#ini.intl.default-locale>`_ の指令です。
 しかしながら、このデフォルト値は実行時にも変更できます。 ::
 
     Time::setDefaultLocale('es-ES'); // 可変の DateTime 用
@@ -240,22 +271,21 @@ https://unicode-org.github.io/icu/userguide/format_parse/datetime/#datetime-form
 
 現在との相対的な時間を出力することが有用なときがしばしばあります。 ::
 
-    $now = new Time('Aug 22, 2011');
-    echo $now->timeAgoInWords(
+    $time = new FrozenTime('Jan 31, 2021');
+    // On June 12, 2021, this would output '4 months, 1 week, 6 days ago'
+    echo $time->timeAgoInWords(
         ['format' => 'MMM d, YYY', 'end' => '+1 year']
     );
-    // 2011年11月10日現在の表示: 2 months, 2 weeks, 6 days ago
 
 ``format`` オプションを利用してフォーマットされた相対時間の位置は
 ``end`` オプションによって定義されます。
 ``accuracy`` オプションは、それぞれの間隔幅に対してどのレベルまで詳細を出すかをコントロールします。 ::
 
-    // If $timestamp is 1 month, 1 week, 5 days and 6 hours ago
-    echo $timestamp->timeAgoInWords([
+    // Outputs '4 months ago'
+    echo $time->timeAgoInWords([
         'accuracy' => ['month' => 'month'],
         'end' => '1 year'
     ]);
-    // 出力結果 '1 month ago'
 
 ``accuracy`` を文字列で設定すると、出力をどのレベルまで詳細を出すかの最大値を指定できます。 ::
 
@@ -272,9 +302,9 @@ https://unicode-org.github.io/icu/userguide/format_parse/datetime/#datetime-form
 
 一旦作成しても、 ``Time`` インスタンスを、タイムスタンプや四半期の値に変換することができます。 ::
 
-    $time = new Time('2014-06-15');
-    $time->toQuarter();
-    $time->toUnixString();
+    $time = new FrozenTime('2021-01-31');
+    echo $time->toQuarter();  // Outputs '1'
+    echo $time->toUnixString();  // Outputs '1612069200'
 
 現在と比較する
 ==============
@@ -286,12 +316,12 @@ https://unicode-org.github.io/icu/userguide/format_parse/datetime/#datetime-form
 
 様々な方法で ``Time`` インスタンスと現在とを比較することができます。 ::
 
-    $time = new Time('2014-06-15');
+    $time = new FrozenTime('+3 days');
 
-    echo $time->isYesterday();
-    echo $time->isThisWeek();
-    echo $time->isThisMonth();
-    echo $time->isThisYear();
+    debug($time->isYesterday());
+    debug($time->isThisWeek());
+    debug($time->isThisMonth());
+    debug($time->isThisYear());
 
 上述のメソッドのいずれも、 ``Time`` インスタンスが現在と一致するかどうかによって、
 ``true``/``false`` を返します。
@@ -301,65 +331,74 @@ https://unicode-org.github.io/icu/userguide/format_parse/datetime/#datetime-form
 
 .. php:method:: isWithinNext($interval)
 
-``wasWithinLast()`` および ``isWithinNext()`` を用いて、与えられた範囲に
-``Time`` インスタンスが属しているかどうかを確認できます。 ::
+``wasWithinLast()`` および ``isWithinNext()`` を使用して ``FrozenTime`` インスタンスが特定の範囲内にあるかどうかを確認できます。 ::
 
-    $time = new Time('2014-06-15');
+    $time = new FrozenTime('+3 days');
 
-    // ２日以内かどうか
-    echo $time->isWithinNext(2);
+    // Within 2 days. Outputs 'false'
+    debug($time->isWithinNext('2 days'));
 
-    // 次の２週間以内かどうか
-    echo $time->isWithinNext('2 weeks');
+    // Within 2 next weeks. Outputs 'true'
+    debug($time->isWithinNext('2 weeks'));
 
 .. php:method:: wasWithinLast($interval)
 
-``Time`` インスタンスと過去と範囲の中で比較することもできます。 ::
+過去の範囲内の ``FrozenTime`` インスタンスと比較することもできます。 ::
 
-    // 過去２日以内かどうか
-    echo $time->wasWithinLast(2);
+    $time = new FrozenTime('-72 hours');
 
-    // 過去２週間以内かどうか
-    echo $time->wasWithinLast('2 weeks');
+    // Within past 2 days. Outputs 'false'
+    debug($time->wasWithinLast('2 days'));
+
+    // Within past 3 days. Outputs 'true'
+    debug($time->wasWithinLast('3 days'));
+
+    // Within past 2 weeks. Outputs 'true'
+    debug($time->wasWithinLast('2 weeks'));
 
 .. end-time
 
-日付
-====
+FrozenDate
+==========
 
-.. php:class: Date
+.. php:class: FrozenDate
 
-CakePHP 内の ``Date`` クラスの実装は、API や :php:class:`Cake\\I18n\\Time` メソッドと同じです。
-``Time`` と ``Date`` の主要な違いは、 ``Date`` は時刻の成分を記録せず、かつ常に UTC であることです。
-以下が例です。 ::
+CakePHP の不変の ``FrozenDate`` クラスは :php:class:`Cake\\I18n\\FrozenTime` と同じAPIとメソッドを実装しています。
+``FrozenTime`` と ``FrozenDate`` の主な違いは、 ``FrozenDate`` が時間コンポーネントを追跡しないことです。
+以下のコードをご覧ください。 ::
 
-    use Cake\I18n\Date;
-    $date = new Date('2015-06-15');
+    use Cake\I18n\FrozenDate;
+    $date = new FrozenDate('2021-01-31');
 
-    $date->modify('+2 hours');
-    // 出力結果 2015-06-15 00:00:00
-    echo $date->format('Y-m-d H:i:s');
+    $newDate = $date->modify('+2 hours');
+    // Outputs '2021-01-31 00:00:00'
+    echo $newDate->format('Y-m-d H:i:s');
 
-    $date->modify('+36 hours');
-    // 出力結果 2015-06-15 00:00:00
-    echo $date->format('Y-m-d H:i:s');
+    $newDate = $date->addHours(36);
+    // Outputs '2021-01-31 00:00:00'
+    echo $newDate->format('Y-m-d H:i:s');
 
-``Date`` インスタンスでタイムゾーンを変更しようとしても、無視されます。 ::
+    $newDate = $date->addDays(10);
+    // Outputs '2021-02-10 00:00:00'
+    echo $newDate->format('Y-m-d H:i:s');
 
-    use Cake\I18n\Date;
-    $date = new Date('2015-06-15');
-    $date->setTimezone(new \DateTimeZone('America/New_York'));
 
-    // 出力結果 UTC
-    echo $date->format('e');
+``FrozenDate`` インスタンスのタイムゾーンを変更する試みも無視されます。 ::
 
-.. _immutable-time:
+    use Cake\I18n\FrozenDate;
+    $date = new FrozenDate('2021-01-31', new \DateTimeZone('America/New_York'));
+    $newDate = $date->setTimezone(new \DateTimeZone('Europe/Berlin'));
 
-不変な日付と時刻
-================
+    // Outputs 'America/New_York'
+    echo $newDate->format('e');
 
-.. php:class:: FrozenTime
-.. php:class:: FrozenDate
+.. _mutable-time:
+
+Mutable Dates and Times
+=======================
+
+.. php:class:: Time
+.. php:class:: Date
 
 CakePHP は、変更可能な仲間と同じインターフェイスを実装する、不変な日付と時刻のクラスを
 提供しています。不変なオブジェクトは、偶発的にデータが変わってしまうのを防ぎたいときや、
@@ -409,7 +448,7 @@ CakePHP は、変更可能な仲間と同じインターフェイスを実装す
 ==========================
 
 CakePHP はすべての有効な PHP タイムゾーンをサポートしています。サポートされるタイムゾーンの一覧は、
-`このページをご覧ください <http://php.net/manual/ja/timezones.php>`_ 。
+`このページをご覧ください <https://php.net/manual/ja/timezones.php>`_ 。
 
 .. meta::
     :title lang=ja: Time

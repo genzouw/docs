@@ -108,7 +108,7 @@ Creating the Database
 
 Next, let's set up the database for our bookmarking application. If you
 haven't already done so, create an empty database for use in this
-tutorial, with a name of your choice, e.g. ``cake_bookmarks``. You can execute
+tutorial, with the name of your choice such as ``cake_bookmarks``. You can execute
 the following SQL to create the necessary tables:
 
 .. code-block:: mysql
@@ -296,7 +296,7 @@ add the following::
 Now update one of the users you created earlier, if you change their password,
 you should see a hashed password instead of the original value on the list or
 view pages. CakePHP hashes passwords with `bcrypt
-<http://codahale.com/how-to-safely-store-a-password/>`_ by default. You can also
+<https://codahale.com/how-to-safely-store-a-password/>`_ by default. You can also
 use sha1 or md5 if you're working with an existing database.
 
 .. note::

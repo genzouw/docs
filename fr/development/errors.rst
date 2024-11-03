@@ -89,8 +89,8 @@ temporairement en utilisant un de ces moyens:
             ]
         ],
 
-    ignorerait toutes les dépréciations depuis votre répertoire ``Models`` et le
-    plugin ``Contacts`` dans votre application.
+   ignorerait toutes les dépréciations depuis votre répertoire ``Models`` et le
+   plugin ``Contacts`` dans votre application.
 
 .. versionadded:: 4.2.0
     L'option ``Error.ignoredDeprecationPaths`` a été ajoutée.
@@ -381,7 +381,7 @@ que gestionnaire d'erreurs PHP::
     $isCli = PHP_SAPI === 'cli';
     if ($isCli) {
         (new AppConsoleErrorHandler(Configure::read('Error')))->register();
-    } 
+    }
 
 Les objets ErrorHandler ont quelques méthodes que vous pourriez vouloir
 implémenter:
@@ -458,7 +458,7 @@ Créer vos propres Exceptions d'Application
 
 Vous pouvez créer vos propres exceptions d'application en utilisant l'une des
 exceptions intégrées
-`SPL exceptions <http://php.net/manual/en/spl.exceptions.php>`_, ``Exception``
+`SPL exceptions <https://php.net/manual/en/spl.exceptions.php>`_, ``Exception``
 , ou :php:exc:`Cake\\Core\\Exception\\Exception`.
 Si votre application contenait l'exception suivante::
 

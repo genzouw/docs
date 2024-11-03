@@ -15,15 +15,15 @@ Once your application is running on latest CakePHP 3.x, enable deprecation warni
         'errorLevel' => E_ALL,
     ]
 
-Now that you can see all the warnings, make sure these are fixed before proceding with the upgrade.
+Now that you can see all the warnings, make sure these are fixed before proceeding with the upgrade.
 
-Upgrade to PHP 7.2
+Upgrade to PHP 8.0
 ==================
 
-If you are not running on **PHP 7.2 or higher**, you will need to upgrade PHP before updating CakePHP.
+If you are not running on **PHP 8.0 or higher**, you will need to upgrade PHP before updating CakePHP.
 
 .. note::
-    CakePHP 4.0 requires **a minimum of PHP 7.2**.
+    Although CakePHP 4.0 requires **a minimum of PHP 7.2**, the upgrade tool requires **a minimum of PHP 8.0**.
 
 .. _upgrade-tool-use:
 
@@ -43,9 +43,9 @@ To help expedite fixing these tedious changes there is an upgrade CLI tool:
 .. code-block:: console
 
     # Install the upgrade tool
-    git clone git://github.com/cakephp/upgrade
+    git clone https://github.com/cakephp/upgrade
     cd upgrade
-    git checkout master
+    git checkout 4.x
     composer install --no-dev
 
 With the upgrade tool installed you can now run it on your application or

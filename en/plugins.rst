@@ -12,7 +12,7 @@ A CakePHP plugin is separate from the host application itself and generally
 provides some well-defined functionality that can be packaged up neatly, and
 reused with little effort in other applications. The application and the plugin
 operate in their own respective spaces, but share the application's
-configuration data (e.g. database connections, email transports)
+configuration data (for example, database connections, email transports)
 
 Plugin should define their own top-level namespace. For example:
 ``DebugKit``. By convention, plugins use their package name as their namespace.
@@ -22,7 +22,7 @@ namespace, when plugins are loaded.
 Installing a Plugin With Composer
 =================================
 
-Many plugins are available on `Packagist <http://packagist.org>`_
+Many plugins are available on `Packagist <https://packagist.org>`_
 and can be installed with ``Composer``. To install DebugKit, you
 would do the following:
 
@@ -93,13 +93,13 @@ Additionally, you will need to tell Composer to refresh its autoloading cache:
 Loading a Plugin
 ================
 
-If you want to use a plugin's routes, console commands, middleware, or event
-listeners you will need to load the plugin. Plugins are loaded in your
-application's ``bootstrap()`` function::
+If you want to use a plugin's routes, console commands, middlewares, event
+listeners, templates or webroot assets you will need to load the plugin.
+Plugins are loaded in your application's ``bootstrap()`` function::
 
     // In src/Application.php
     use Cake\Http\BaseApplication;
-    use ContactManager\Plugin as ContactManagerPlugin;
+    use ContactManager\ContactManagerPlugin;
 
     class Application extends BaseApplication {
         public function bootstrap()
@@ -117,7 +117,7 @@ application's ``bootstrap()`` function::
     }
 
 If you just want to use helpers, behaviors or components from a plugin you do
-not need to load a plugin.
+not need to explicitly load a plugin yet it's recommended to always do so.
 
 There is also a handy shell command to enable the plugin.  Execute the following
 line:
@@ -155,7 +155,7 @@ allow plugin authors to set defaults, which can be configured by you in your
 application::
 
     // In Application::bootstrap()
-    use ContactManager\Plugin as ContactManagerPlugin;
+    use ContactManager\ContactManagerPlugin;
 
     // Disable routes for the ContactManager plugin
     $this->addPlugin(ContactManagerPlugin::class, ['routes' => false]);
@@ -164,7 +164,7 @@ You can configure hooks with array options, or the methods provided by plugin
 classes::
 
     // In Application::bootstrap()
-    use ContactManager\Plugin as ContactManagerPlugin;
+    use ContactManager\ContactManagerPlugin;
 
     // Use the disable/enable to configure hooks.
     $plugin = new ContactManagerPlugin();
@@ -229,7 +229,7 @@ basic directory structure. It should look like this::
         /ContactManager
             /config
             /src
-                /Plugin.php
+                /ContactManagerPlugin.php
                 /Controller
                     /Component
                 /Model
@@ -291,17 +291,18 @@ Plugin Objects
 
 Plugin Objects allow a plugin author to define set-up logic, define default
 hooks, load routes, middleware and console commands. Plugin objects live in
-**src/Plugin.php**. For our ContactManager plugin, our plugin class could look
+**src/{PluginName}Plugin.php**. For our ContactManager plugin, our plugin class could look
 like::
 
     namespace ContactManager;
 
     use Cake\Core\BasePlugin;
+    use Cake\Core\ContainerInterface;
     use Cake\Core\PluginApplicationInterface;
     use Cake\Console\CommandCollection;
     use Cake\Http\MiddlewareQueue;
 
-    class Plugin extends BasePlugin
+    class ContactManagerPlugin extends BasePlugin
     {
         public function middleware(MiddlewareQueue $middleware): MiddlewareQueue
         {
@@ -331,6 +332,18 @@ like::
             // Add routes.
             // By default will load `config/routes.php` in the plugin.
             parent::routes($routes);
+        }
+
+        /**
+         * Register application container services.
+         *
+         * @param \Cake\Core\ContainerInterface $container The Container to update.
+         * @return void
+         * @link https://book.cakephp.org/4/en/development/dependency-injection.html#dependency-injection
+         */
+        public function services(ContainerInterface $container): void
+        {
+            // Add your services here
         }
     }
 
@@ -599,13 +612,13 @@ Linking to Assets in Plugins
 You can use the :term:`plugin syntax` when linking to plugin assets using the
 :php:class:`~Cake\\View\\Helper\\HtmlHelper`'s script, image, or css methods::
 
-    // Generates a URL of /contact-manager/css/styles.css
+    // Generates a URL of /contact_manager/css/styles.css
     echo $this->Html->css('ContactManager.styles');
 
-    // Generates a URL of /contact-manager/js/widget.js
+    // Generates a URL of /contact_manager/js/widget.js
     echo $this->Html->script('ContactManager.widget');
 
-    // Generates a URL of /contact-manager/img/logo.jpg
+    // Generates a URL of /contact_manager/img/logo.jpg
     echo $this->Html->image('ContactManager.logo');
 
 Plugin assets are served using the ``AssetMiddleware`` middleware by default.
@@ -614,7 +627,7 @@ This is only recommended for development. In production you should
 
 If you are not using the helpers, you can prepend /plugin-name/ to the beginning
 of the URL for an asset within that plugin to serve it. Linking to
-'/contact-manager/js/some_file.js' would serve the asset
+'/contact_manager/js/some_file.js' would serve the asset
 **plugins/ContactManager/webroot/js/some_file.js**.
 
 Components, Helpers and Behaviors

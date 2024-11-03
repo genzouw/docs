@@ -25,11 +25,9 @@
 
     class InboxCell extends Cell
     {
-
         public function display()
         {
         }
-
     }
 
 このファイルを **src/View/Cell/InboxCell.php** に保存します。ご覧の通り、 CakePHP
@@ -65,14 +63,11 @@
 
     class InboxCell extends Cell
     {
-
         public function display()
         {
-            $this->loadModel('Messages');
-            $unread = $this->Messages->find('unread');
+            $unread = $this->fetchTable('Messages')->find('unread');
             $this->set('unread_count', $unread->count());
         }
-
     }
 
 セルは ``ModelAwareTrait`` と ``ViewVarsTrait`` を使用しているため、コントローラーに
@@ -135,7 +130,7 @@
 
     $cell = $this->cell('Inbox::recent', ['-3 days']);
 
-上記は以下ような関数の定義になるでしょう。 ::
+上記は以下のような関数の定義になるでしょう。 ::
 
     public function recent($since)
     {
@@ -145,7 +140,7 @@
 ============
 
 セルが呼び出されて実行された後は、おそらくそれを描画したいはずです。セルを描画するための
-最も簡単な方法はそれエコーすることです。 ::
+最も簡単な方法はそれをエコーすることです。 ::
 
     <?= $cell ?>
 
@@ -241,8 +236,8 @@
                 ]
             );
 
-            $paging = $paginator->getPagingParams() + (array)$request->getParam('paging');
-            $this->request = $this->request->withParam('paging', $paging));
+            $paging = $paginator->getPagingParams() + (array)$this->request->getAttribute('paging');
+            $this->request = $this->request->withAttribute('paging', $paging);
 
             $this->set('favorites', $results);
         }
@@ -269,8 +264,7 @@
 
         public function display($userId)
         {
-            $this->loadModel('Users');
-            $result = $this->Users->find('friends', ['for' => $userId]);
+            $result = $this->fetchTable('Users')->find('friends', ['for' => $userId])->all();
             $this->set('favorites', $result);
         }
     }

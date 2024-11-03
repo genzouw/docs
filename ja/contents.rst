@@ -7,7 +7,6 @@
     index
 
 .. toctree::
-    :maxdepth: 3
     :caption: はじめに
 
     intro
@@ -15,10 +14,10 @@
     appendices/migration-guides
     tutorials-and-examples
     contributing
+    release-policy
 
 .. toctree::
-    :maxdepth: 3
-    :caption: 入門
+    :caption: CakePHP 入門
 
     installation
     development/configuration
@@ -32,11 +31,10 @@
     orm
 
 .. toctree::
-    :maxdepth: 3
     :caption: 一般的なトピック
 
     core-libraries/caching
-    console-and-shells
+    console-commands
     development/debugging
     deployment
     core-libraries/email
@@ -54,7 +52,6 @@
     core-libraries/validation
 
 .. toctree::
-    :maxdepth: 3
     :caption: ユーティリティ
 
     core-libraries/app
@@ -64,43 +61,44 @@
     core-libraries/httpclient
     core-libraries/inflector
     core-libraries/number
+    core-libraries/plugin
     core-libraries/registry-objects
     core-libraries/text
     core-libraries/time
     core-libraries/xml
 
 .. toctree::
-    :maxdepth: 3
-    :caption: プラグイン
+    :caption: プラグインとパッケージ
 
+    standalone-packages
+    Authentication <https://book.cakephp.org/authentication/2/ja/>
     Authorization <https://book.cakephp.org/authorization/2/>
-    Authentication <https://book.cakephp.org/authentication/2/>
     Bake <https://book.cakephp.org/bake/2/ja/>
-    Chronos <https://book.cakephp.org/chronos/2/ja/>
     Debug Kit <https://book.cakephp.org/debugkit/4/ja/>
     Migrations <https://book.cakephp.org/migrations/3/ja/>
     Elasticsearch <https://book.cakephp.org/elasticsearch/3/ja/>
     Phinx <https://book.cakephp.org/phinx/0/ja/>
+    Chronos <https://book.cakephp.org/chronos/2/ja/>
+    Queue <https://book.cakephp.org/queue/1/en/>
 
 .. toctree::
-    :maxdepth: 3
     :caption: その他
 
     core-libraries/global-constants-and-functions
     appendices
 
 .. toctree::
-    :hidden:
+   :hidden:
 
-    topics
-    chronos
-    debug-kit
-    elasticsearch
-    bake
-    bake/development
-    bake/usage
-    migrations
-    phinx
+   topics
+   chronos
+   debug-kit
+   elasticsearch
+   bake
+   bake/development
+   bake/usage
+   migrations
+   phinx
 
 .. todolist::
 

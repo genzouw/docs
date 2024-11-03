@@ -20,7 +20,7 @@ JSON と XML レスポンスを作成できるようになり、
 まず :php:class:`Cake\\Controller\\Component\\RequestHandlerComponent`
 をコントローラーでロードする必要があります。 ::
 
-    public function initialize()
+    public function initialize(): void
     {
         ...
         $this->loadComponent('RequestHandler');
@@ -54,7 +54,7 @@ json/xml に変換する前に独自のフォーマット処理が不要な場�
 
     class ArticlesController extends AppController
     {
-        public function initialize()
+        public function initialize(): void
         {
             parent::initialize();
             $this->loadComponent('RequestHandler');
@@ -75,7 +75,7 @@ json/xml に変換する前に独自のフォーマット処理が不要な場�
 
     class ArticlesController extends AppController
     {
-        public function initialize()
+        public function initialize(): void
         {
             parent::initialize();
             $this->loadComponent('RequestHandler');
@@ -173,7 +173,7 @@ JSON ビューの作成
 
 JsonView クラスは、JSON の生成に使用するビットマスクを変更するためための
 ``jsonOptions`` オプションをサポートします。このオプションの有効な値は
-`json_encode <http://php.net/json_encode>`_  を参照してください。
+`json_encode <https://php.net/json_encode>`_  を参照してください。
 
 例えば、一貫した JSON 形式で CakePHP エンティティーの検証エラーをシリアライズするには::
 

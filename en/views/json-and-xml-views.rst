@@ -1,14 +1,10 @@
 JSON and XML views
 ##################
 
-The ``JsonView`` and ``XmlView``
-let you create JSON and XML responses, and integrate with the
-:php:class:`Cake\\Controller\\Component\\RequestHandlerComponent`.
+The ``JsonView`` and ``XmlView`` integration with CakePHP's
+:ref:`controller-viewclasses` features and  let you create JSON and XML responses.
 
-By enabling ``RequestHandlerComponent`` in your application, and enabling
-support for the ``json`` and/or ``xml`` extensions, you can automatically
-leverage the new view classes. ``JsonView`` and ``XmlView`` will be referred to
-as data views for the rest of this page.
+These view classes are most commonly used alongside :php:meth:`\Cake\Controller\Controller::viewClasses()`.
 
 There are two ways you can generate data views. The first is by using the
 ``serialize`` option, and the second is by creating normal template files.
@@ -16,20 +12,16 @@ There are two ways you can generate data views. The first is by using the
 Enabling Data Views in Your Application
 =======================================
 
-Before you can use the data view classes, you'll first need to load the
-:php:class:`Cake\\Controller\\Component\\RequestHandlerComponent` in your
-controller::
+In your ``AppController`` or in an individual controller you can implement the
+``viewClasses()`` method and provide all of the views you want to support::
 
-    public function initialize(): void
+    use Cake\View\JsonView;
+    use Cake\View\XmlView;
+
+    public function viewClasses(): array
     {
-        ...
-        $this->loadComponent('RequestHandler');
+        return [JsonView::class, XmlView::class];
     }
-
-This can be done in your ``AppController`` and will enable automatic view class
-switching on content types. You can also set the component up with the
-``viewClassMap`` setting, to map types to your custom classes and/or map other
-data types.
 
 You can optionally enable the json and/or xml extensions with
 :ref:`file-extensions`. This will allow you to access the ``JSON``, ``XML`` or
@@ -40,6 +32,10 @@ By default, when not enabling :ref:`file-extensions`, the request, the ``Accept`
 header is used for, selecting which type of format should be rendered to the
 user. An example ``Accept`` format that is used to render ``JSON`` responses is
 ``application/json``.
+
+.. versionchanged:: 4.4.0
+   Prior to 4.4.0, You need to use the ``RequestHandlerComponent`` to do
+   content-type negotitation.
 
 Using Data Views with the Serialize Key
 =======================================
@@ -54,14 +50,16 @@ generating the response, you should use template files. The value of
 ``serialize`` can be either a string or an array of view variables to
 serialize::
 
+
     namespace App\Controller;
+
+    use Cake\View\JsonView;
 
     class ArticlesController extends AppController
     {
-        public function initialize(): void
+        public function viewClasses(): array
         {
-            parent::initialize();
-            $this->loadComponent('RequestHandler');
+            return [JsonView::class];
         }
 
         public function index()
@@ -77,12 +75,13 @@ You can also define ``serialize`` as an array of view variables to combine::
 
     namespace App\Controller;
 
+    use Cake\View\JsonView;
+
     class ArticlesController extends AppController
     {
-        public function initialize(): void
+        public function viewClasses(): array
         {
-            parent::initialize();
-            $this->loadComponent('RequestHandler');
+            return [JsonView::class];
         }
 
         public function index()
@@ -106,9 +105,8 @@ element the Xml will fail to generate.
 Using a Data View with Template Files
 =====================================
 
-You should use template files if you need to do some manipulation of your view
-content before creating the final output. For example if we had articles, that had
-a field containing generated HTML, we would probably want to omit that from a
+You should use template files if you need to manipulate your view
+content before creating the final output. For example, if we had articles with a field containing generated HTML, we would probably want to omit that from a
 JSON response. This is a situation where a view file would be useful::
 
     // Controller code
@@ -122,7 +120,7 @@ JSON response. This is a situation where a view file would be useful::
     }
 
     // View code - templates/Articles/json/index.php
-    foreach ($articles as &$article) {
+    foreach ($articles as $article) {
         unset($article->generated_html);
     }
     echo json_encode(compact('articles'));
@@ -141,7 +139,7 @@ view variables with a ``<response>`` node. You can set a custom name for
 this node using the ``rootNode`` option.
 
 The XmlView class supports the ``xmlOptions`` option that allows you to
-customize the options used to generate XML, e.g. ``tags`` vs ``attributes``.
+customize the options, such as ``tags`` or ``attributes``, used to generate XML.
 
 An example of using ``XmlView`` would be to generate a `sitemap.xml
 <https://www.sitemaps.org/protocol.html>`_. This document type requires that you
@@ -179,7 +177,7 @@ Creating JSON Views
 
 The JsonView class supports the ``jsonOptions`` option that allows you to
 customize the bit-mask used to generate JSON. See the
-`json_encode <http://php.net/json_encode>`_ documentation for the valid
+`json_encode <https://php.net/json_encode>`_ documentation for the valid
 values of this option.
 
 For example, to serialize validation error output of CakePHP entities in a consistent form of JSON do::
@@ -193,20 +191,18 @@ For example, to serialize validation error output of CakePHP entities in a consi
 JSONP Responses
 ---------------
 
-When using ``JsonView`` you can use the special view variable ``_jsonp`` to
+When using ``JsonView`` you can use the special view variable ``jsonp`` to
 enable returning a JSONP response. Setting it to ``true`` makes the view class
 check if query string parameter named "callback" is set and if so wrap the json
 response in the function name provided. If you want to use a custom query string
-parameter name instead of "callback" set ``_jsonp`` to required name instead of
+parameter name instead of "callback" set ``jsonp`` to required name instead of
 ``true``.
 
-Example Usage
-=============
+Choosing a View Class
+=====================
 
-While the :doc:`RequestHandlerComponent
-</controllers/components/request-handling>` can automatically set the view based
-on the request content-type or extension, you could also handle view
-mappings in your controller::
+While you can use the ``viewClasses`` hook method most of the time, if you want
+total control over view class selection you can directly choose the view class::
 
     // src/Controller/VideosController.php
     namespace App\Controller;

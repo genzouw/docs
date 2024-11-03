@@ -143,7 +143,6 @@ Getting A List Of Values From A Column
 You can also get a key-value list out of a query result::
 
     $list = $articles->find('list')->all();
-
     foreach ($list as $id => $title) {
         echo "$id : $title"
     }
@@ -272,6 +271,12 @@ purpose::
         ->select(['slug' => $query->func()->concat(['title' => 'identifier', '-', 'id' => 'identifier'])])
         ->select($articlesTable); // Select all fields from articles
 
+You can use ``selectAlso()`` to select all fields on a table and
+*also* select some additional fields::
+
+    $query = $articlesTable->find();
+    $query->selectAlso(['count' => $query->func()->count('*')]);
+
 If you want to select all but a few fields on a table, you can use
 ``selectAllExcept()``::
 
@@ -282,6 +287,10 @@ If you want to select all but a few fields on a table, you can use
 
 You can also pass an ``Association`` object when working with contained
 associations.
+
+.. versionadded:: 4.5.0
+
+    ``Query::selectAlso()`` was added.
 
 .. _using-sql-functions:
 
@@ -319,6 +328,8 @@ You can access existing wrappers for several SQL functions through ``Query::func
     Calculate the max of a column. `Assumes arguments are literal values.`
 ``count()``
     Calculate the count. `Assumes arguments are literal values.`
+``cast()``
+    Convert a field or expression from one data type to another.
 ``concat()``
     Concatenate two values together. `Assumes arguments are bound parameters.`
 ``coalesce()``
@@ -361,10 +372,10 @@ safely add user data to SQL functions. For example::
         ' - CAT: ',
         'Categories.name' => 'identifier',
         ' - Age: ',
-        $query->func()->dateDiff(
+        $query->func()->dateDiff([
             'NOW()' => 'literal',
             'Articles.created' => 'identifier'
-        )
+        ])
     ]);
     $query->select(['link_title' => $concat]);
 
@@ -529,7 +540,7 @@ following::
     $sizing = $query->newExpr()->case()
         ->when(['population <' => 100000])
         ->then('SMALL')
-        ->when($q->between('population', 100000, 999000))
+        ->when($query->newExpr()->between('population', 100000, 999000))
         ->then('MEDIUM')
         ->when(['population >=' => 999001])
         ->then('LARGE');
@@ -573,7 +584,7 @@ You can create ``if ... then ... else`` conditions by using ``else()``::
     $published = $query->newExpr()
         ->case()
         ->when(['published' => true])
-        ->then('Y');
+        ->then('Y')
         ->else('N');
 
     # CASE WHEN published = true THEN 'Y' ELSE 'N' END;
@@ -583,7 +594,7 @@ Also, it's possible to create the simple variant by passing a value to ``case()`
     $published = $query->newExpr()
         ->case($query->identifier('published'))
         ->when(true)
-        ->then('Y');
+        ->then('Y')
         ->else('N');
 
     # CASE published WHEN true THEN 'Y' ELSE 'N' END;
@@ -1077,10 +1088,35 @@ use the ``identifier()`` method::
             return $exp->gt('population', 100000);
         });
 
+You can use ``identifier()`` in comparisons to aggregations too::
+
+    $query = $this->Orders->find();
+    $query->select(['Customers.customer_name', 'total_orders' => $query->func()->count('Orders.order_id')])
+        ->contain('Customers')
+        ->group(['Customers.customer_name'])
+        ->having(['total_orders >=' => $query->identifier('Customers.minimum_order_count')]);
+
 .. warning::
 
     To prevent SQL injections, Identifier expressions should never have
     untrusted data passed into them.
+
+Collation
+---------------------------------
+
+In situations that you need to deal with accented characters, multilingual data
+or case-sensitive comparisons, you can use the ``$collation`` parameter of ``IdentifierExpression``
+or ``StringExpression`` to apply a character expression to a certain collation::
+
+    use Cake\Database\Expression\IdentifierExpression;
+
+    $collation = 'Latin1_general_CI_AI'; //sql server example
+    $query = $cities->find()
+        ->where(function (QueryExpression $exp, Query $q) use ($collation) {
+            return $exp->like(new IdentifierExpression('name', $collation), '%São José%');
+        });
+    # WHERE name COLLATE LIKE Latin1_general_CI_AI "%São José%"
+
 
 Automatically Creating IN Clauses
 ---------------------------------
@@ -1152,6 +1188,101 @@ expression objects to add snippets of SQL to your queries::
 
     Using expression objects leaves you vulnerable to SQL injection. You should
     never use untrusted data into expressions.
+
+Using Connection Roles
+----------------------
+
+If you have configured :ref:`read-and-write-connections` in your application,
+you can have a query run on the ``read`` connection using one of the role
+methods::
+
+    // Run a query on the read connection
+    $query->useReadRole();
+
+    // Run a query on the write connection (default)
+    $query->useWriteRole();
+
+.. versionadded:: 4.5.0
+    Query role methods were added in 4.5.0
+
+Expression Conjuction
+---------------------
+
+It is possible to change the conjunction used to join conditions in a query
+expression using the method ``setConjunction``::
+
+    $query = $articles->find();
+    $expr = $query->newExpr(['1','1'])->setConjunction('+');
+    $query->select(['two' => $expr]);
+
+And can be used combined with aggregations too::
+
+    $query = $products->find();
+    $query->select(function ($query) {
+            $stockQuantity = $query->func()->sum('Stocks.quantity');
+            $totalStockValue = $query->func()->sum(
+                    $query->newExpr(['Stocks.quantity', 'Products.unit_price'])
+                        ->setConjunction('*')
+            );
+            return [
+                'Products.name',
+                'stock_quantity' => $stockQuantity,
+                'Products.unit_price',
+                'total_stock_value' => $totalStockValue
+            ];
+        })
+        ->innerJoinWith('Stocks')
+        ->groupBy(['Products.id', 'Products.name', 'Products.unit_price']);
+
+Tuple Comparison
+----------------
+
+Tuple comparison involves comparing two rows of data (tuples) element by element,
+typically using comparison operators like ``<, >, =``::
+
+    $products->find()
+        ->where([
+            'OR' => [
+                ['unit_price <' => 20],
+                ['unit_price' => 20, 'tax_percentage <=' => 5],
+            ]
+        ]);
+   
+    # WHERE (unit_price < 20 OR (unit_price = 20 AND tax_percentage <= 5))
+
+The same result can be achieved using ``TupleComparison``::
+
+    use Cake\Database\Expression\TupleComparison;
+
+    $products->find()
+        ->where(
+            new TupleComparison(
+                ['unit_price', 'tax_percentage'],
+                [20, 5],
+                ['integer', 'integer'], # type of each value
+                '<='
+            )
+        );
+
+    # WHERE (unit_price, tax_percentage) <= (20, 5))
+
+Tuple Comparison can also be used with ``IN`` and the result can be transformed 
+even on DBMS that does not natively support it::
+
+    $articles->find()
+            ->where(
+                new TupleComparison(
+                    ['articles.id', 'articles.author_id'],
+                    [[10, 10], [30, 10]],
+                    ['integer', 'integer'],
+                    'IN'
+                ),
+            );
+
+    # WHERE (1) = ( SELECT (1) WHERE ( ( articles.id = : 10 AND articles.author_id = : 10 ) OR ( articles.id = : 30 AND articles.author_id = : 30 ) ) )
+
+.. note::
+    Tuple comparison transform only supports the ``IN`` and ``=`` operators
 
 Getting Results
 ===============
@@ -1400,8 +1531,9 @@ Inserting Data
 Unlike earlier examples, you should not use ``find()`` to create insert queries.
 Instead, create a new ``Query`` object using ``query()``::
 
-    $query = $articles->query();
-    $query->insert(['title', 'body'])
+    // Prior to 4.5 use $articles->query() instead.
+    $query = $articles->insertQuery()
+        ->insert(['title', 'body'])
         ->values([
             'title' => 'First post',
             'body' => 'Some body text'
@@ -1411,8 +1543,9 @@ Instead, create a new ``Query`` object using ``query()``::
 To insert multiple rows with only one query, you can chain the ``values()``
 method as many times as you need::
 
-    $query = $articles->query();
-    $query->insert(['title', 'body'])
+    // Prior to 4.5 use $articles->query() instead.
+    $query = $articles->insertQuery()
+        ->insert(['title', 'body'])
         ->values([
             'title' => 'First post',
             'body' => 'Some body text'
@@ -1432,7 +1565,8 @@ queries::
         ->select(['title', 'body', 'published'])
         ->where(['id' => 3]);
 
-    $query = $articles->query()
+    // Prior to 4.5 use $articles->query() instead.
+    $query = $articles->insertQuery()
         ->insert(['title', 'body', 'published'])
         ->values($select)
         ->execute();
@@ -1448,10 +1582,10 @@ Updating Data
 =============
 
 As with insert queries, you should not use ``find()`` to create update queries.
-Instead, create new a ``Query`` object using ``query()``::
+Instead, create new a ``Query`` object using ``updateQuery()``::
 
-    $query = $articles->query();
-    $query->update()
+    // Prior to 4.5 use $articles->query() instead.
+    $query = $articles->updateQuery()
         ->set(['published' => true])
         ->where(['id' => $id])
         ->execute();
@@ -1468,10 +1602,10 @@ Deleting Data
 =============
 
 As with insert queries, you should not use ``find()`` to create delete queries.
-Instead, create new a query object using ``query()``::
+Instead, create new a query object using ``deleteQuery()``::
 
-    $query = $articles->query();
-    $query->delete()
+    // Prior to 4.5 use $articles->query() instead.
+    $query = $articles->deleteQuery()
         ->where(['id' => $id])
         ->execute();
 
@@ -1549,8 +1683,8 @@ example given above::
 More Complex Queries
 ====================
 
-The query builder is capable of building complex queries like ``UNION`` queries
-and sub-queries.
+If your application requires using more complex queries, you can express many
+complex queries using the ORM query builder.
 
 Unions
 ------
@@ -1586,12 +1720,23 @@ results based on the results of other queries::
         ->distinct()
         ->where(['comment LIKE' => '%CakePHP%']);
 
+    // Use a subquery to create conditions
     $query = $articles->find()
         ->where(['id IN' => $matchingComment]);
 
+    // Join the results of a subquery into another query.
+    // Giving the subquery an alias provides a way to reference
+    // results in subquery.
+    $query = $articles->find();
+    $query->from(['matches' => $matchingComment])
+        ->innerJoin(
+            ['Articles' =>  'articles'],
+            ['Articles.id' => $query->identifier('matches.id') ]
+        );
+
 Subqueries are accepted anywhere a query expression can be used. For example, in
-the ``select()`` and ``join()`` methods. The above example uses a standard
-``Orm\Query`` object that will generate aliases, these aliases can make
+the ``select()``, ``from()`` and ``join()`` methods. The above example uses a standard
+``ORM\Query`` object that will generate aliases, these aliases can make
 referencing results in the outer query more complex. As of 4.2.0 you can use
 ``Table::subquery()`` to create a specialized query instance that will not
 generate aliases::
@@ -1698,7 +1843,71 @@ named windows using the ``window()`` method::
     ]);
 
 .. versionadded:: 4.1.0
-    Window function support was added in 4.1.0
+    Window function support was added.
+
+Common Table Expressions
+------------------------
+
+Common Table Expressions or CTE are useful when building reporting queries where
+you need to compose the results of several smaller query results together. They
+can serve a similar purpose to database views or subquery results. Common Table
+Expressions differ from derived tables and views in a couple ways:
+
+#. Unlike views, you don't have to maintain schema for common table expressions.
+   The schema is implicitly based on the result set of the table expression.
+#. You can reference the results of a common table expression multiple times
+   without incurring performance penalties unlike subquery joins.
+
+As an example lets fetch a list of customers and the number of orders each of
+them has made. In SQL we would use:
+
+.. code-block:: sql
+
+    WITH orders_per_customer AS (
+        SELECT COUNT(*) AS order_count, customer_id FROM orders GROUP BY customer_id
+    )
+    SELECT name, orders_per_customer.order_count
+    FROM customers
+    INNER JOIN orders_per_customer ON orders_per_customer.customer_id = customers.id
+
+To build that query with the ORM query builder we would use::
+
+    // Start the final query
+    $query = $this->Customers->find();
+
+    // Attach a common table expression
+    $query->with(function ($cte) {
+        // Create a subquery to use in our table expression
+        $q = $this->Orders->subquery();
+        $q->select([
+            'order_count' => $q->func()->count('*'),
+            'customer_id'
+        ])
+        ->group('customer_id');
+
+        // Attach the new query to the table expression
+        return $cte
+            ->name('orders_per_customer')
+            ->query($q);
+    });
+
+    // Finish building the final query
+    $query->select([
+        'name',
+        'order_count' => 'orders_per_customer.order_count',
+    ])
+    ->join([
+        // Define the join with our table expression
+        'orders_per_customer' => [
+            'table' => 'orders_per_customer',
+            'conditions' => 'orders_per_customer.customer_id = Customers.id'
+        ]
+    ]);
+
+If you need to build a recursive query (``WITH RECURSIVE …``), chain ``->recursive()`` onto ``return $cte``.
+
+.. versionadded:: 4.1.0
+    Common table expression support was added.
 
 Executing Complex Queries
 -------------------------

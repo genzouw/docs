@@ -49,9 +49,9 @@ il existe un outil CLI de mise à niveau:
 .. code-block:: console
 
     # Installe l'outil d'upgrade
-    git clone git://github.com/cakephp/upgrade
+    git clone https://github.com/cakephp/upgrade
     cd upgrade
-    git checkout master
+    git checkout 4.x
     composer install --no-dev
 
 
@@ -68,7 +68,7 @@ ou votre plugin:
 
 Une fois que vous avez renommé vos fichiers de template et de traduction, assurez-vous de mettre à jour
 les chemins ``App.paths.locales`` et ``App.paths.templates`` (dans **/config/app.php**) avec les
-bonnes valeurs.
+bonnes valeurs. Si besoin, référez-vous à la [configuration du squelette d'une application](https://github.com/cakephp/app/blob/master/config/app.php)
 
 Appliquez le Refactorings de Rector
 -----------------------------------

@@ -109,21 +109,23 @@ following configuration keys are used:
 - ``'message'``: Content of message. Do not set this field if you are using rendered content.
 - ``'priority'``: Priority of the email as numeric value (usually from 1 to 5 with 1 being the highest).
 - ``'headers'``: Headers to be included. See ``Mailer::setHeaders()``.
-- ``'viewRender'``: If you are using rendered content, set the view classname.
-  See ``Mailer::viewRender()``.
+- ``'viewRenderer'``: If you are using rendered content, set the view classname.
+  See ``ViewBuilder::setClassName()``.
 - ``'template'``: If you are using rendered content, set the template name. See
   ``ViewBuilder::setTemplate()``.
 - ``'theme'``: Theme used when rendering template. See ``ViewBuilder::setTheme()``.
-- ``'layout'``: If you are using rendered content, set the layout to render. If
-  you want to render a template without layout, set this field to null. See
+- ``'layout'``: If you are using rendered content, set the layout to render. See
   ``ViewBuilder::setTemplate()``.
+- ``'autoLayout'``: If you want to render a template without layout, set this field to
+  ``false``. See ``ViewBuilder::disableAutoLayout()``.
 - ``'viewVars'``: If you are using rendered content, set the array with
   variables to be used in the view. See ``Mailer::setViewVars()``.
 - ``'attachments'``: List of files to attach. See ``Mailer::setAttachments()``.
 - ``'emailFormat'``: Format of email (html, text or both). See ``Mailer::setEmailFormat()``.
 - ``'transport'``: Transport configuration name. See :ref:`email-transport`.
 - ``'log'``: Log level to log the email headers and message. ``true`` will use
-  LOG_DEBUG. See also :ref:`logging-levels`.
+  LOG_DEBUG. See :ref:`logging-levels`. Note that logs will be emitted under the scope named ``email``.
+  See also :ref:`logging-scopes`.
 - ``'helpers'``: Array of helpers used in the email template.
   ``ViewBuilder::setHelpers()``/``ViewBuilder::addHelpers()``.
 
@@ -245,8 +247,8 @@ You can attach files to email messages as well. There are a few
 different formats depending on what kind of files you have, and how
 you want the filenames to appear in the recipient's mail client:
 
-1. Array: ``$mailer->setAttachments(['/full/file/path/file.png'])`` will have
-   the same behavior as using a string.
+1. Array: ``$mailer->setAttachments(['/full/file/path/file.png'])`` will
+   attach this file with the name file.png..
 2. Array with key:
    ``$mailer->setAttachments(['photo.png' => '/full/some_hash.png'])`` will
    attach some_hash.png with the name photo.png. The recipient will see
@@ -283,7 +285,7 @@ Relaxing Address Validation Rules
 
 If you are having validation issues when sending to non-compliant addresses, you
 can relax the pattern used to validate email addresses. This is sometimes
-necessary when dealing with some ISP's::
+necessary when dealing with some ISPs::
 
     $mailer = new Mailer('default');
 
@@ -535,10 +537,10 @@ you must first drop it and then reconfigure it.
 Creating Custom Transports
 --------------------------
 
-You are able to create your custom transports to for e.g. send email using services
-like SendGrid, MailGun, Postmark etc. To create your transport, first create the file
+You are able to create your custom transports for situations such as send email using services
+like SendGrid, MailGun or Postmark. To create your transport, first create the file
 **src/Mailer/Transport/ExampleTransport.php** (where Example is the name of your
-transport). To start off your file should look like::
+transport). To start, your file should look like::
 
     namespace App\Mailer\Transport;
 
@@ -559,12 +561,12 @@ Sending emails without using Mailer
 ===================================
 
 The ``Mailer`` is a higher level abstraction class which acts as a bridge between
-the ``Cake\Mailer\Message``, ``Cake\Mailer\Renderer`` and ``Cake\Mailer\\AbstractTransport``
+the ``Cake\Mailer\Message``, ``Cake\Mailer\Renderer`` and ``Cake\Mailer\AbstractTransport``
 classes to configure emails with a fluent interface.
 
 If you want you can use these classes directly with the ``Mailer`` too.
 
-For e.g.::
+For example::
 
     $render = new \Cake\Mailer\Renderer();
     $render->viewBuilder()
@@ -648,7 +650,8 @@ The ``Cake\TestSuite\EmailTrait`` trait provides the following assertions::
     $this->assertMailSentTo($address);
 
     // Asserts an email was sent from an address
-    $this->assertMailSentFrom($address);
+    $this->assertMailSentFrom($emailAddress);
+    $this->assertMailSentFrom([$emailAddress => $displayName]);
 
     // Asserts an email contains expected contents
     $this->assertMailContains($contents);
@@ -659,7 +662,7 @@ The ``Cake\TestSuite\EmailTrait`` trait provides the following assertions::
     // Asserts an email contains expected text contents
     $this->assertMailContainsText($contents);
 
-    // Asserts an email contains the expected value within an Message getter (e.g., "subject")
+    // Asserts an email contains the expected value within an Message getter (for example, "subject")
     $this->assertMailSentWith($expected, $parameter);
 
     // Asserts an email at a specific index was sent to an address
@@ -680,7 +683,7 @@ The ``Cake\TestSuite\EmailTrait`` trait provides the following assertions::
     // Asserts an email contains an attachment
     $this->assertMailContainsAttachment('test.png');
 
-    // Asserts an email at a specific index contains the expected value within an Message getter (e.g., "cc")
+    // Asserts an email at a specific index contains the expected value within an Message getter (for example, "cc")
     $this->assertMailSentWithAt($at, $expected, $parameter);
 
     // Asserts an email contains a substring in the subject.

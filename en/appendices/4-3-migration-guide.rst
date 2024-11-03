@@ -43,7 +43,7 @@ Database
 --------
 
 - Using mutable datetime classes with ``DateTimeType`` and other time related type classes is deprecated.
-  Hence methods ``DatetimeType::useMutable()``, ``DatetimeType::useImmutable()`` and similar methods
+  Hence methods ``DateTimeType::useMutable()``, ``DateTimeType::useImmutable()`` and similar methods
   in other type classes are deprecated.
 - ``DriverInterface::supportsQuoting()`` and ``DriverInterface::supportSavepoints()`` are now deprecated
   in favor of ``DriverInterface::supports()`` which accepts feature constants defined in ``DriverInterface``.
@@ -85,8 +85,10 @@ ORM
 
 - ``ModelAwareTrait::loadModel()`` is deprecated. Use the new ``LocatorAwareTrait::fetchTable()`` instead.
   For example, in controllers you can do ``$this->fetchTable()`` to get the default table instance or use
-  ``$this->fetchTable('Foos')`` for a non-default table.  You can set the ``LocatorAwareTrait::$defaultTable`` 
-  property to specify the default table alias for ``fetchTable()``.
+  ``$this->fetchTable('Foos')`` for a non-default table.  You can set the ``LocatorAwareTrait::$defaultTable``
+  property to specify the default table alias for ``fetchTable()``. But be aware that
+  ``LocatorAwareTrait::fetchTable()`` does not create a property with the name of the table alias on the
+  calling object, e.g. ``$this->Articles``, as  ``ModelAwareTrait::loadModel()`` does.
 - Query proxying all ``ResultSetInterface`` methods (including ```CollectionInterface```), which forces
   fetching results and calls the proxied method on the results, is now deprecated. An example of the
   deprecated usage is ``$query->combine('id', 'title');``. This should be
@@ -117,7 +119,7 @@ TestSuite
 View
 ----
 
-- FormHelper methods' non-associative options (e.g. ``['disabled']``) are now deprecated.
+- FormHelper methods' non-associative options (for example, ``['disabled']``) are now deprecated.
 - Second argument ``$merge`` of ``ViewBuilder::setHelpers()`` has been deprecated in favor of dedicated
   ``ViewBuilder::addHelpers()`` method to cleanly separate merge from overwrite operation.
 
@@ -149,6 +151,8 @@ Database
 
 - ``ComparisonExpression`` no longer wraps generated ``IdentifierExpression`` sql in (). This affects
   ``Query::where()`` and anywhere else a ``ComparisonExpression`` is generated.
+- The SQLite implementation of ``listTables()`` now returns tables **and**
+  views. This change aligns SQLite with other database dialects.
 
 Datasource
 ----------
@@ -173,7 +177,7 @@ ORM
   that modify multiple translations at once, you may need to update how you
   render validation errors.
 - The types specified in function expressions now take precedence over default types set for
-  columns when selecting columns. For e.g. using ``$query->select(['id' => $query->func()->min('id')])``
+  columns when selecting columns. For example, using ``$query->select(['id' => $query->func()->min('id')])``
   the value for `id` in fetched entity will be `float` instead of `integer`.
 
 Routing
@@ -247,22 +251,21 @@ Core
 Database
 --------
 
-* Database mapping types can now implement
+- Database mapping types can now implement
   ``Cake\Database\Type\ColumnSchemaAwareInterface`` to specify
   column sql generation and column schema reflection. This allows
   custom types handle non-standard columns.
-* Logged queries now use ``TRUE`` and ``FALSE`` for postgres, sqlite and mysql
+- Logged queries now use ``TRUE`` and ``FALSE`` for postgres, sqlite and mysql
   drivers. This makes it easier to copy queries and run them in an interactive
   prompt.
-* The ``DatetimeType`` can now convert request data from the user's timezone
+- The ``DateTimeType`` can now convert request data from the user's timezone
   to the application timezone. See
   :ref:`converting-request-data-from-user-timezone` for more information.
-* ``JsonType::setEncodingOptions()`` was added. This method lets you define
+- ``JsonType::setEncodingOptions()`` was added. This method lets you define
   ``json_encode()`` options for when the ORM serializes JSON when persisting
   data.
-* Added ``DriverInterface::supports()`` which consolidates all feature checks into one function.
+- Added ``DriverInterface::supports()`` which consolidates all feature checks into one function.
   Drivers can support custom feature names or any of the feature constants:
-  constants.
 
   * ``FEATURE_CTE``
   * ``FEATURE_JSON``
@@ -273,6 +276,10 @@ Database
 - Added ``DriverInterface::inTransaction()`` which reflects the status returned by
   ``PDO::inTranaction()``.
 - A fluent builder for ``CASE, WHEN, THEN`` statements has been added.
+- The ``listTablesWithoutViews()`` was added to ``SchemaCollection`` and Driver
+  Dialects. This method returns the list of tables excluding views. This is
+  primarily used to truncate tables in tests.
+
 
 Form
 ----

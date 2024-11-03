@@ -158,6 +158,11 @@ This method sets the default format used when converting an object to json::
 .. note::
     This method must be called statically.
 
+.. note::
+    Be aware that this is not a PHP Datetime string format! You need to use a
+    ICU date formatting string as specified in the following resource:
+    https://unicode-org.github.io/icu/userguide/format_parse/datetime/#datetime-format-syntax.
+
 .. versionchanged:: 4.1.0
     The ``callable`` parameter type was added.
 
@@ -186,7 +191,7 @@ dates. CakePHP makes this a snap::
 
 It is possible to specify the desired format for the string to be displayed.
 You can either pass `IntlDateFormatter constants
-<http://www.php.net/manual/en/class.intldateformatter.php>`_ as the first
+<https://www.php.net/manual/en/class.intldateformatter.php>`_ as the first
 argument of this function, or pass a full ICU date formatting string as
 specified in the following resource:
 https://unicode-org.github.io/icu/userguide/format_parse/datetime/#datetime-format-syntax.
@@ -222,7 +227,7 @@ The following calendar types are supported:
 
 .. note::
     For constant strings i.e. IntlDateFormatter::FULL Intl uses ICU library
-    that feeds its data from CLDR (http://cldr.unicode.org/) which version
+    that feeds its data from CLDR (https://cldr.unicode.org/) which version
     may vary depending on PHP installation and give different results.
 
 .. php:method:: nice()
@@ -265,7 +270,7 @@ Setting the Default Locale and Format String
 
 The default locale in which dates are displayed when using ``nice``
 ``i18nFormat`` is taken from the directive
-`intl.default_locale <http://www.php.net/manual/en/intl.configuration.php#ini.intl.default-locale>`_.
+`intl.default_locale <https://www.php.net/manual/en/intl.configuration.php#ini.intl.default-locale>`_.
 You can, however, modify this default at runtime::
 
     Time::setDefaultLocale('es-ES'); // For any mutable DateTime
@@ -302,6 +307,11 @@ Likewise, it is possible to alter the default formatting string to be used for
 
 It is recommended to always use the constants instead of directly passing a date
 format string.
+
+.. note::
+    Be aware that this is not a PHP Datetime string format! You need to use a
+    ICU date formatting string as specified in the following resource:
+    https://unicode-org.github.io/icu/userguide/format_parse/datetime/#datetime-format-syntax.
 
 Formatting Relative Times
 -------------------------

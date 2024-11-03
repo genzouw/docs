@@ -120,7 +120,8 @@ necessários. As seguintes chaves de configuração são usadas:
 - ``'emailFormat'``: Formato de email (html, text ou ambos). Veja ``Mailer::setEmailFormat()``.
 - ``'transport'``: Nome da configuração de Transporte. Veja :ref:`email-transport`.
 - ``'log'``: Nível de logs para registrar os cabeçalhos e a mensagem do e-mail. ``true`` usará LOG_DEBUG. 
-  Veja também `logging-levels`.
+  Veja `logging-levels`. Observe que os logs serão emitidos sob o escopo chamado ``email``.
+  Veja também `logging-scopes`.
 - ``'helpers'``: Conjunto de auxiliares usados no template de e-mail. ``ViewBuilder::setHelpers()``.
 
 .. note::
@@ -552,7 +553,7 @@ Enviar Emails sem Usar o Mailer
 ===============================
 
 O ``Mailer`` é uma classe de abstração de nível superior que atua como uma ponte entre as 
-classes ``Cake\Mailer\Message``, ``Cake\Mailer\Renderer`` e ``Cake\Mailer\\AbstractTransport`` 
+classes ``Cake\Mailer\Message``, ``Cake\Mailer\Renderer`` e ``Cake\Mailer\AbstractTransport``
 para facilitar a configuração e entrega do e-mail.
 
 Se você quiser, pode usar essas classes diretamente com o ``Mailer`` também.

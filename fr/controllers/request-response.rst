@@ -36,7 +36,7 @@ permet sont les suivantes:
   et en propriétés d'un objet.
 
 L'objet ServerRequest de CakePHP implémente `l'interface
-PSR-7 ServerServerRequestInterface <http://www.php-fig.org/psr/psr-7/>`_ facilitant
+PSR-7 ServerServerRequestInterface <https://www.php-fig.org/psr/psr-7/>`_ facilitant
 l'utilisation des librairies en-dehors de CakePHP.
 
 Paramètres de la Requête
@@ -74,7 +74,7 @@ trouver dans les paramètres de routing:
 Accéder aux Paramètres Querystring
 ----------------------------------
 
-.. php:method:: getQuery($name)
+.. php:method:: getQuery($name, $default = null)
 
 Les paramètres Querystring peuvent être lus en utilisant la méthode ``getQuery()``::
 
@@ -599,8 +599,8 @@ Vérifier si une langue spécifique est acceptée::
 
 .. _request-cookies:
 
-Cookies
--------
+Lire des Cookies
+----------------
 
 Les cookies de la requête peuvent être lus à travers plusieurs méthodes::
 
@@ -1079,7 +1079,7 @@ il supprime le contenu de la réponse et envoie l'en-tête `304 Not Modified`::
 .. _response-cookies:
 
 Définir des Cookies
-===================
+-------------------
 
 Des cookies peuvent être ajoutés aux réponses en utilisant soit un tableau, soit
 un objet :php:class:`Cake\\Http\\Cookie\\Cookie`::

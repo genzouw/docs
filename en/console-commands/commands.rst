@@ -24,9 +24,11 @@ simple Hello world command. In your application's **src/Command** directory crea
 
     class HelloCommand extends Command
     {
-        public function execute(Arguments $args, ConsoleIo $io)
+        public function execute(Arguments $args, ConsoleIo $io): int
         {
             $io->out('Hello world.');
+            
+            return static::CODE_SUCCESS;
         }
     }
 
@@ -63,10 +65,12 @@ command line::
             return $parser;
         }
 
-        public function execute(Arguments $args, ConsoleIo $io)
+        public function execute(Arguments $args, ConsoleIo $io): int
         {
             $name = $args->getArgument('name');
             $io->out("Hello {$name}.");
+            
+            return static::CODE_SUCCESS;
         }
     }
 
@@ -117,13 +121,15 @@ add a ``yell`` option to our ``HelloCommand``::
         return $parser;
     }
 
-    public function execute(Arguments $args, ConsoleIo $io)
+    public function execute(Arguments $args, ConsoleIo $io): int
     {
         $name = $args->getArgument('name');
         if ($args->getOption('yell')) {
             $name = mb_strtoupper($name);
         }
         $io->out("Hello {$name}.");
+        
+        return static::CODE_SUCCESS;
     }
 
 See the :doc:`/console-commands/option-parsers` section for more information.
@@ -167,14 +173,14 @@ using ``$this->fetchTable()`` since command use the ``LocatorAwareTrait``::
             return $parser;
         }
 
-        public function execute(Arguments $args, ConsoleIo $io): ?int
+        public function execute(Arguments $args, ConsoleIo $io): int
         {
             $name = $args->getArgument('name');
             $user = $this->fetchTable()->findByUsername($name)->first();
 
             $io->out(print_r($user, true));
 
-            return null;
+            return static::CODE_SUCCESS;
         }
     }
 
@@ -188,7 +194,7 @@ When your commands hit an unrecoverable error you can use the ``abort()`` method
 to terminate execution::
 
     // ...
-    public function execute(Arguments $args, ConsoleIo $io)
+    public function execute(Arguments $args, ConsoleIo $io): int
     {
         $name = $args->getArgument('name');
         if (strlen($name) < 5) {
@@ -196,17 +202,21 @@ to terminate execution::
             $io->error('Name must be at least 4 characters long.');
             $this->abort();
         }
+        
+        return static::CODE_SUCCESS;
     }
 
 You can also use ``abort()`` on the ``$io`` object to emit a message and code::
 
-    public function execute(Arguments $args, ConsoleIo $io)
+    public function execute(Arguments $args, ConsoleIo $io): int
     {
         $name = $args->getArgument('name');
         if (strlen($name) < 5) {
             // Halt execution, output to stderr, and set exit code to 99
             $io->abort('Name must be at least 4 characters long.', 99);
         }
+        
+        return static::CODE_SUCCESS;
     }
 
 You can pass any desired exit code into ``abort()``.
@@ -234,6 +244,47 @@ You may need to call other commands from your command. You can use
     $command = new OtherCommand($otherArgs);
     $this->executeCommand($command, ['--verbose', 'deploy']);
 
+.. note::
+
+    When calling ``executeCommand()`` in a loop, it is recommended to pass in the
+    parent command's ``ConsoleIo`` instance as the optional 3rd argument to
+    avoid a potential "open files" limit that could occur in some environments.
+
+.. _console-command-description:
+
+Setting Command Description
+===========================
+
+You may want to set a command description via::
+
+    class UserCommand extends Command
+    {
+        public static function getDescription(): string
+        {
+            return 'My custom description';
+        }
+    }
+
+This will show your description in the Cake CLI:
+
+.. code-block:: console
+
+    bin/cake
+
+    App:
+      - user
+      └─── My custom description
+
+As well as in the help section of your command:
+
+.. code-block:: console
+
+    cake user --help
+    My custom description
+
+    Usage:
+    cake user [-h] [-q] [-v]
+
 .. _console-integration-testing:
 
 Testing Commands
@@ -247,6 +298,10 @@ To get started testing your console application, create a test case that uses th
 ``Cake\TestSuite\ConsoleIntegrationTestTrait`` trait. This trait contains a method
 ``exec()`` that is used to execute your command. You can pass the same string
 you would use in the CLI to this method.
+
+.. note::
+
+    For CakePHP 4.4 onwards the ``Cake\Console\TestSuite\ConsoleIntegrationTestTrait`` namespace should be used.
 
 Let's start with a very simple command, located in
 **src/Command/UpdateTableCommand.php**::
@@ -321,15 +376,16 @@ conventions. Let's continue by adding more logic to our command::
             return $parser;
         }
 
-        public function execute(Arguments $args, ConsoleIo $io)
+        public function execute(Arguments $args, ConsoleIo $io): int
         {
             $table = $args->getArgument('table');
-            $this->fetchTable($table)->query()
-                ->update()
+            $this->fetchTable($table)->updateQuery()
                 ->set([
                     'modified' => new FrozenTime()
                 ])
                 ->execute();
+                
+            return static::CODE_SUCCESS;
         }
     }
 
@@ -417,19 +473,21 @@ Update the command class to the following::
             return $parser;
         }
 
-        public function execute(Arguments $args, ConsoleIo $io)
+        public function execute(Arguments $args, ConsoleIo $io): int
         {
             $table = $args->getArgument('table');
-            if ($io->ask('Are you sure?', 'n', ['y', 'n']) === 'n') {
+            if ($io->ask('Are you sure?', 'n', ['y', 'n']) !== 'y') {
                 $io->error('You need to be sure.');
                 $this->abort();
             }
-            $this->fetchTable($table)->query()
-                ->update()
+            // Prior to 4.5 use query() instead.
+            $this->fetchTable($table)->updateQuery()
                 ->set([
                     'modified' => new FrozenTime()
                 ])
                 ->execute();
+                
+            return static::CODE_SUCCESS;
         }
     }
 

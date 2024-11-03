@@ -46,11 +46,11 @@ configuration into multiple files. After creating each of the files in your
 .. _environment-variables:
 
 Environment Variables
-=====================
+---------------------
 
 Many modern cloud providers, like Heroku, let you define environment
 variables for configuration data. You can configure your CakePHP through
-environment variables in the `12factor app style <http://12factor.net/>`_.
+environment variables in the `12factor app style <https://12factor.net/>`_.
 Environment variables allow your application to require less state making your
 application easier to manage when it is deployed across a number of
 environments.
@@ -113,7 +113,7 @@ App.baseUrl
 App.base
     The base directory the app resides in. If ``false`` this
     will be auto detected. If not ``false``, ensure your string starts
-    with a `/` and does NOT end with a `/`. E.g., `/basedir` is a valid
+    with a `/` and does NOT end with a `/`. For example, `/basedir` is a valid
     App.base. Otherwise, the AuthComponent will not work properly.
 App.encoding
     Define what encoding your application uses.  This encoding
@@ -131,7 +131,7 @@ App.fullBaseUrl
     manipulating the ``Host`` header.
     In a CLI context (from shells) the `fullBaseUrl` cannot be read from $_SERVER,
     as there is no webserver involved. You do need to specify it yourself if
-    you do need to generate URLs from a shell (e.g. when sending emails).
+    you do need to generate URLs from a shell (for example, when sending emails).
 App.imageBaseUrl
     Web path to the public images directory under webroot. If you are using
     a :term:`CDN` you should set this value to the CDN's location.
@@ -164,8 +164,8 @@ Asset.timestamp
 Asset.cacheTime
     Sets the asset cache time. This determines the http header ``Cache-Control``'s
     ``max-age``, and the http header's ``Expire``'s time for assets.
-    This can take anything that you version of php's `strtotime function
-    <http://php.net/manual/en/function.strtotime.php>`_ can take.
+    This can take anything that you version of PHP's `strtotime function
+    <https://php.net/manual/en/function.strtotime.php>`_ can take.
     The default is ``+1 day``.
 
 Using a CDN
@@ -423,7 +423,7 @@ CakePHP comes with two built-in configuration file engines.
 :php:class:`Cake\\Core\\Configure\\Engine\\PhpConfig` is able to read PHP config
 files, in the same format that Configure has historically read.
 :php:class:`Cake\\Core\\Configure\\Engine\\IniConfig` is able to read ini config
-files.  See the `PHP documentation <http://php.net/parse_ini_file>`_ for more
+files.  See the `PHP documentation <https://php.net/parse_ini_file>`_ for more
 information on the specifics of ini files.  To use a core config engine, you'll
 need to attach it to Configure using :php:meth:`Configure::config()`::
 

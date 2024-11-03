@@ -9,7 +9,7 @@ online in HTML, PDF and EPUB formats at https://book.cakephp.org.
 
 Contributing to the documentation is pretty simple. Please read the
 documentation on contributing to the documentation over on [the
-cookbook](https://book.cakephp.org/3/en/contributing/documentation.html) for
+cookbook](https://book.cakephp.org/4/en/contributing/documentation.html) for
 help. You can read all of the documentation within as its just in plain text
 files, marked up with ReST text formatting.
 
@@ -92,14 +92,6 @@ make epub
 make epub-en
 ```
 
-##### Populate the search index: #####
-```bash
-make populate-index
-```
-
-This will generate all the documentation in an HTML form. Other output such as
-'htmlhelp' are not fully complete at this time.
-
 After making changes to the documentation, you can build the HTML version of the
 docs by using `make html` again.  This will build only the HTML files that have
 had changes made to them.
@@ -114,7 +106,7 @@ Building the PDF is a non-trivial task.
 2. Run `make latex-en`.
 3. Run `make pdf-en`.
 
-At this point the completed PDF should be in `build/latex/en/CakePHPCookbook.pdf`.
+At this point the completed PDF should be in `build/latex/en/CakePHPBook.pdf`.
 
 Contributing
 ------------
@@ -152,5 +144,6 @@ Making Search Work Locally
 * Modify `searchUrl` in `themes/cakephp/static/app.js` to point at the
   baseurl for your docs_search clone.
 * Start elasticsearch with the default configuration.
-* Populate the search index using `make populate-index`.
+* Populate the search using tooling found in the [cakephp docs builder](https://github.com/cakephp/docs-builder) project.
 * You should now be able to search the docs using elasticsearch.
+

@@ -190,7 +190,7 @@ TreeBehavior を Categories テーブルに追加
 
 データベーステーブルの階層的なツリー構造を管理するのに :doc:`TreeBehavior </orm/behaviors/tree>`
 が役に立つでしょう。データ管理の際に `MPTT logic
-<http://www.sitepoint.com/hierarchical-data-database-2/>`_ を利用しています。
+<https://www.sitepoint.com/hierarchical-data-database-2/>`_ を利用しています。
 MPTT ツリー構造は読み込みに最適化されているので、
 ときにブログのような読み込みが重いアプリケーションに適しています。
 
@@ -212,11 +212,11 @@ bake は ``lft`` 列と ``rght`` 列が存在するあらゆるテーブルに�
 さらに、Categories テーブルモデルの ``lft`` 列と ``rght`` 列のバリデーターの中の
 requirePresense を無効にするか削除してください。 ::
 
-    public function validationDefault(Validator $validator)
+    public function validationDefault(Validator $validator): Validator
     {
         $validator
             ->add('id', 'valid', ['rule' => 'numeric'])
-            ->allowEmpty('id', 'create');
+            ->allowEmptyString('id', 'create');
 
         $validator
             ->add('lft', 'valid', ['rule' => 'numeric'])
@@ -247,9 +247,10 @@ categories の index テンプレートファイルでは、categories を一覧
         public function index()
         {
             $categories = $this->Categories->find()
-                ->order(['lft' => 'ASC']);
+                ->order(['lft' => 'ASC'])
+                ->all();
             $this->set(compact('categories'));
-            $this->set('_serialize', ['categories']);
+            $this->viewBuilder()->setOption('serialize', ['categories']);
         }
 
         public function moveUp($id = null)
@@ -337,14 +338,12 @@ Articles コントローラーを編集する
 
     class ArticlesController extends AppController
     {
-
         // ...
 
         public function add()
         {
             $article = $this->Articles->newEmptyEntity();
             if ($this->request->is('post')) {
-                // 3.4.0 より前は $this->request->data() が使われました。
                 $article = $this->Articles->patchEntity($article, $this->request->getData());
                 if ($this->Articles->save($article)) {
                     $this->Flash->success(__('Your article has been saved.'));
@@ -354,8 +353,9 @@ Articles コントローラーを編集する
             }
             $this->set('article', $article);
 
-            // 記事のカテゴリーを１つ選択するためにカテゴリーの一覧を追加
-            $categories = $this->Articles->Categories->find('treeList');
+            // Just added the categories list to be able to choose
+            // one category for an article
+            $categories = $this->Articles->Categories->find('treeList')->all();
             $this->set(compact('categories'));
         }
     }

@@ -5,6 +5,10 @@ Pagination
 
 .. php:class:: PaginatorComponent
 
+.. deprecated:: 4.4.0
+    The paginator component is deprecated as of 4.4.0 and will be removed in 5.0.
+    You can use pagination from controllers as explained :doc:`here </controllers/pagination>`
+
 One of the main obstacles of creating flexible and user-friendly web
 applications is designing an intuitive user interface. Many applications tend to
 grow in size and complexity quickly, and designers and programmers alike find
@@ -145,7 +149,7 @@ not do a count query::
 
         // Load the paginator component with the simple paginator strategy.
         $this->loadComponent('Paginator', [
-            'paginator' => new \Cake\Datasource\SimplePaginator(),
+            'className' => 'Simple',
         ]);
     }
 
@@ -171,8 +175,6 @@ settings to use for pagination. This array should have the same structure as the
 ``$paginate`` property on a controller. When paginating a ``Query`` object, the
 ``finder`` option will be ignored. It is assumed that you are passing in
 the query you want paginated.
-
-.. _paginating-multiple-queries:
 
 Paginating Multiple Queries
 ===========================
@@ -244,8 +246,6 @@ additional details on how to use the table registry::
             'scope' => 'unpublished_articles'
         ])->where(['published' => false])
     );
-
-.. _control-which-fields-used-for-ordering:
 
 Control which Fields Used for Ordering
 ======================================

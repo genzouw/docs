@@ -12,17 +12,17 @@ CakePHP クックブックは、オープンに開発されている、コミュ
 
 .. container:: offline-download
 
-    **クックブックがどこででも読める**
+    **公式ドキュメントがどこででも読める！**
 
     .. image:: /_static/img/read-the-book.jpg
        :alt: Read the Book - CakePHP
 
-    どこでも CakePHP のレシピをお楽しみ頂けます。PDF と EPUB をご用意しましたので、
+    どこでも CakePHP のレシピをお楽しみいただけます。PDF と EPUB をご用意しましたので、
     多くのデバイス上でオフラインでドキュメントを読むことができます。
 
-    - `PDF (英語) <../_downloads/en/CakePHPCookbook.pdf>`_
+    - `PDF (英語) <../_downloads/en/CakePHPBook.pdf>`_
     - `EPUB <../_downloads/ja/CakePHP.epub>`_
-    - `オリジナルソース <http://github.com/cakephp/docs>`_
+    - `オリジナルソース <https://github.com/cakephp/docs>`_
 
 助けを得るには
 ==============
@@ -51,5 +51,5 @@ CakePHP クックブックは、オープンに開発されている、コミュ
   バリデーションやあなたのアプリケーションのドメインロジックを処理します。
 
 .. meta::
-    :title lang=ja: .. CakePHP Cookbook documentation master file, created by
-    :keywords lang=ja: doc models,documentation master,presentation layer,documentation project,quickstart,original source,sphinx,liking,cookbook,validity,conventions,validation,cakephp,accuracy,storage and retrieval,heart,blog,project hope
+    :title lang=ja: .. CakePHP Book documentation master file, created by
+    :keywords lang=ja: doc models,documentation master,presentation layer,documentation project,quickstart,original source,sphinx,liking,book,validity,conventions,validation,cakephp,accuracy,storage and retrieval,heart,blog,project hope

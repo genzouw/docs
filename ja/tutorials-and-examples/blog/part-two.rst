@@ -22,7 +22,7 @@ CakePHP のモデルクラスのファイルは、 ``Table`` オブジェクト�
 
     class ArticlesTable extends Table
     {
-        public function initialize(array $config)
+        public function initialize(array $config): void
         {
             $this->addBehavior('Timestamp');
         }
@@ -82,10 +82,9 @@ Articles コントローラーの作成
 
     class ArticlesController extends AppController
     {
-
         public function index()
         {
-            $articles = $this->Articles->find('all');
+            $articles = $this->Articles->find()->all();
             $this->set(compact('articles'));
         }
     }
@@ -187,7 +186,7 @@ CakePHP のリバースルーティング機能を活用することができま
 この時点で、ブラウザーから http://www.example.com/articles/index を開いてみてください。
 タイトルと投稿内容のテーブル一覧がまとめられているビューが表示されるはずです。
 
-ビューの中のリンク (投稿記事のタイトルから ``/articles/view/どれかのID番号``いう表示を出します。
+ビューの中のリンク (投稿記事のタイトル) は ``/articles/view/どれかのID番号`` というリンクを表示します。
 もしそういう表示が出ない場合には、何かおかしくなってしまったか、もうすでにあなたが
 その定義作業をしてしまったから（仕事がハヤイ！）か、のどちらかです。
 そうでないなら、これから ``ArticlesController`` の中に作ってみましょう。 ::
@@ -255,7 +254,6 @@ Articles テーブルに対して ``get()`` を用いるとき、存在するレ
 
     class ArticlesController extends AppController
     {
-
         public function initialize(): void
         {
             parent::initialize();
@@ -265,7 +263,7 @@ Articles テーブルに対して ``get()`` を用いるとき、存在するレ
 
         public function index()
         {
-            $this->set('articles', $this->Articles->find('all'));
+            $this->set('articles', $this->Articles->find()->all());
         }
 
         public function view($id)
@@ -313,7 +311,7 @@ POST なら、Articles モデルを使ってデータの保存を試みます。
 
 FlashComponent の ``success()`` および ``error()`` メソッドを使って
 セッション変数にメッセージをセットします。これらのメソッドは PHP の `マジックメソッド
-<http://php.net/manual/en/language.oop5.overloading.php#object.call>`_ を利用しています。
+<https://php.net/manual/en/language.oop5.overloading.php#object.call>`_ を利用しています。
 Flash メッセージはリダイレクト後のページに表示されます。
 レイアウトでは ``<?= $this->Flash->render() ?>`` を用いてメッセージを表示し、
 対応するセッション変数を削除します。コントローラーの :php:meth:`Cake\\Controller\\Controller::redirect`
@@ -391,7 +389,7 @@ Article モデルを見直して、幾つか修正してみましょう。 ::
 
     class ArticlesTable extends Table
     {
-        public function initialize(array $config)
+        public function initialize(array $config): void
         {
             $this->addBehavior('Timestamp');
         }
@@ -399,10 +397,10 @@ Article モデルを見直して、幾つか修正してみましょう。 ::
         public function validationDefault(Validator $validator): Validator
         {
             $validator
-                ->notEmpty('title')
-                ->requirePresence('title')
+                ->notEmptyString('title')
+                ->requirePresence('title', 'create')
                 ->notEmptyString('body')
-                ->requirePresence('body');
+                ->requirePresence('body', 'create');
 
             return $validator;
         }
@@ -617,7 +615,7 @@ CakePHP のルーティングは、 **config/routes.php** の中にあります�
 
 .. code-block:: php
 
-    $routes->connect('/', ['controller' => 'Articles', 'action' => 'index']);
+    $builder->connect('/', ['controller' => 'Articles', 'action' => 'index']);
 
 これで、「/」でリクエストしてきたユーザーを、ArticlesController の index() アクションに
 接続させることができます。

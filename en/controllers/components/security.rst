@@ -1,6 +1,10 @@
 Security
 ########
 
+.. deprecated:: 4.0.0
+    ``SecurityComponent`` has been deprecated. Use :doc:`/controllers/components/form-protection` instead
+    for form tampering protection or :doc:`/security/https-enforcer` to enforce use of HTTPS (TLS) for requests.
+
 .. php:class:: SecurityComponent(ComponentCollection $collection, array $config = [])
 
 The Security Component creates a way to integrate tighter
@@ -32,8 +36,8 @@ components in your ``initialize()`` method.
     created and managed by the FormHelper (especially those created in
     :php:meth:`~Cake\\View\\Helper\\FormHelper::create()` and
     :php:meth:`~Cake\\View\\Helper\\FormHelper::end()`).  Dynamically altering
-    the fields that are submitted in a POST request (e.g.  disabling, deleting
-    or creating new fields via JavaScript) is likely to cause the request to be
+    the fields that are submitted in a POST request, such as disabling, deleting
+    or creating new fields via JavaScript, is likely to cause the request to be
     send to the blackhole callback.
 
     You should always verify the HTTP method being used before executing to avoid
@@ -58,7 +62,7 @@ works::
     public function beforeFilter(EventInterface $event)
     {
         parent::beforeFilter($event);
-        
+
         $this->Security->setConfig('blackHoleCallback', 'blackhole');
     }
 
@@ -68,11 +72,11 @@ works::
             // Reword the exception message with a translatable string.
             $exception->setMessage(__('Please access the requested page through HTTPS'));
         }
-        
+
         // Re-throw the conditionally reworded exception.
         throw $exception;
 
-        // Alternatively, handle the error, e.g. set a flash message &
+        // Alternatively, handle the error. For example, set a flash message &
         // redirect to HTTPS version of the requested page.
     }
 

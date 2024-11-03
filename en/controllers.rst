@@ -227,7 +227,7 @@ the view file in **templates/Recipes/search.php** will be rendered::
     }
 
 Although CakePHP will automatically call it after every action's logic
-(unless you've set ``$this->autoRender`` to ``false``), you can use it to specify
+(unless you've called ``$this->disableAutoRender()``), you can use it to specify
 an alternate view file by specifying a view file name as first argument of
 ``Controller::render()`` method.
 
@@ -276,6 +276,104 @@ For example::
     }
 
 This would render **plugins/Users/templates/UserDetails/custom_file.php**
+
+.. _controller-viewclasses:
+
+Content Type Negotiation
+========================
+
+.. php:method:: viewClasses()
+
+Controllers can define a list of view classes they support. After the
+controller's action is complete CakePHP will use the view list to perform
+content-type negotiation. This enables your application to re-use the same
+controller action to render an HTML view or render a JSON or XML response. To
+define the list of supported view classes for a controller is done with the
+``viewClasses()`` method::
+
+    namespace App\Controller;
+
+    use Cake\View\JsonView;
+    use Cake\View\XmlView;
+
+    class PostsController extends AppController
+    {
+        public function viewClasses(): array
+        {
+            return [JsonView::class, XmlView::class];
+        }
+    }
+
+The application's ``View`` class is automatically used as a fallback when no
+other view can be selected based on the requests' ``Accept`` header or routing
+extension. If your application needs to perform different logic for different
+response formats you can use ``$this->request->is()`` to build the required
+conditional logic. You can also set your controllers' supported view classes
+using the ``addViewClasses()`` method which will merge the provided views with
+those held in the ``viewClasses`` property.
+
+.. note::
+    View classes must implement the static ``contentType()`` hook method to
+    participate in content-type negotiation.
+
+
+.. versionadded:: 4.5.0
+    ``addViewClasses()`` was added.
+
+
+Content Type Negotiation Fallbacks
+==================================
+
+If no View can be matched with the request's content type preferences, CakePHP
+will use the base ``View`` class. If you want to require content-type
+negotiation, you can use the ``NegotiationRequiredView`` which sets a 406 status
+code::
+
+    public function viewClasses(): array
+    {
+        // Require Accept header negotiation or return a 406 response.
+        return [JsonView::class, NegotiationRequiredView::class];
+    }
+
+You can use the ``TYPE_MATCH_ALL`` content type value to build your own fallback
+view logic::
+
+    namespace App\View;
+
+    use Cake\View\View;
+
+    class CustomFallbackView extends View
+    {
+        public static function contentType(): string
+        {
+            return static::TYPE_MATCH_ALL;
+        }
+
+    }
+
+It is important to remember that match-all views are applied only *after*
+content-type negotiation is attempted.
+
+.. versionadded:: 4.4.0
+    Prior to 4.4 you must use :doc:`/controllers/components/request-handling`
+    instead of ``viewClasses()``.
+
+Using AjaxView
+==============
+
+In applications that use hypermedia or AJAX clients, you often need to render
+view contents without the wrapping layout. You can use the ``AjaxView`` that
+is bundled with the application skeleton::
+
+    // In a controller action, or in beforeRender.
+    if ($this->request->is('ajax')) {
+        $this->viewBuilder()->setClassName('Ajax');
+    }
+
+``AjaxView`` will respond as ``text/html`` and use the ``ajax`` layout.
+Generally this layout is minimal or contains client specific markup. This
+replaces usage of ``RequestHandlerComponent`` automatically using the
+``AjaxView``.
 
 Redirecting to Other Pages
 ==========================
@@ -334,12 +432,30 @@ the named action::
     // list page.
     $this->setAction('index');
 
+
+.. deprecated:: 4.2.0
+    Use redirects or call the other action as a method.
+
 Loading Additional Models
 =========================
 
+.. php:method:: fetchModel(string $alias, array $config = [])
+
+The ``fetchModel()`` method is useful to load models or ORM tables that
+are not the controller's default. Models retrieved with this method will not be
+set as properties on your controller::
+
+    // Get an ElasticSearch model
+    $articles = $this->fetchModel('Articles', 'Elastic');
+
+    // Get a webservices model
+    $github = $this->fetchModel('GitHub', 'Webservice');
+
+.. versionadded:: 4.5.0
+
 .. php:method:: fetchTable(string $alias, array $config = [])
 
-The ``fetchTable()`` function comes handy when you need to use a table that is not
+The ``fetchTable()`` method comes handy when you need to use an ORM table that is not
 the controller's default one::
 
     // In a controller method.
@@ -352,6 +468,11 @@ the controller's default one::
 .. versionadded:: 4.3.0
     ``Controller::fetchTable()`` was added. Prior to 4.3 you need to use ``Controller::loadModel()``.
 
+.. note::
+
+    ``Controller::fetchTable()`` does not create a proeprty controller property with the name of the table alias,
+    e.g. ``$this->Articles``, as  ``Controller::loadModel()`` does.
+
 Paginating a Model
 ==================
 
@@ -359,7 +480,7 @@ Paginating a Model
 
 This method is used for paginating results fetched by your models.
 You can specify page sizes, model find conditions and more. See the
-:doc:`pagination <controllers/components/pagination>` section for more details on
+:doc:`pagination <controllers/pagination>` section for more details on
 how to use ``paginate()``.
 
 The ``$paginate`` attribute gives you a way to customize how ``paginate()``

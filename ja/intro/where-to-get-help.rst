@@ -63,7 +63,7 @@ IRC チャンネル
 
 途方にくれたら、CakePHP の IRC チャンネルで叫んでみましょう。（注：ただし英語）
 北アメリカと南アメリカの昼間の時間帯であれば、たいていは `開発チーム
-<https://github.com/cakephp?tab=members>`_ のだれかがそこにいます。
+<https://cakephp.org/team>`_ のだれかがそこにいます。
 助けが必要な場合でも、同じ地域での知り合いが必要でも、最新のスポーツカーを
 寄付したいという場合でも、喜んで聞いてくれるはずです。
 
@@ -71,7 +71,7 @@ IRC チャンネル
 
 公式 CakePHP フォーラム
 =======================
-`CakePHP 公式フォーラム <http://discourse.cakephp.org>`_
+`CakePHP 公式フォーラム <https://discourse.cakephp.org>`_
 
 公式フォーラムは、助けを求めたり、アイディアを提案したり、CakePHP について
 語り合う場所です。素早く答えや助けを得るために最適です。
@@ -88,11 +88,6 @@ Stack Overflow の既存ユーザーが質問を見つけやすくするため�
 あなたの言語で情報を得るには
 ============================
 
-ブラジルポルトガル語
---------------------
-
-- `Brazilian CakePHP Community <http://cakephp-br.org>`_
-
 デンマーク語
 ------------
 
@@ -101,7 +96,7 @@ Stack Overflow の既存ユーザーが質問を見つけやすくするため�
 フランス語
 ----------
 
-- `French CakePHP Community <http://cakephp-fr.org>`_
+- `French CakePHP Community <https://cakephp-fr.org>`_
 
 ドイツ語
 --------
@@ -109,8 +104,13 @@ Stack Overflow の既存ユーザーが質問を見つけやすくするため�
 - `German CakePHP Slack Channel <https://cakesf.slack.com/messages/german/>`_
 - `German CakePHP Facebook Group <https://www.facebook.com/groups/146324018754907/>`_
 
-オランダ語
-----------
+Iranian
+-------
+
+- `Iranian CakePHP Community <https://cakephp.ir>`_
+
+Dutch
+-----
 
 - `Dutch CakePHP Slack Channel <https://cakesf.slack.com/messages/netherlands/>`_
 
@@ -123,14 +123,14 @@ Stack Overflow の既存ユーザーが質問を見つけやすくするため�
 ポルトガル語
 ------------
 
-- `Portuguese CakePHP Google Group <http://groups.google.com/group/cakephp-pt>`_
+- `Portuguese CakePHP Google Group <https://groups.google.com/group/cakephp-pt>`_
 
 スペイン語
 ----------
 
 - `Spanish CakePHP Slack Channel <https://cakesf.slack.com/messages/spanish/>`_
 - `Spanish CakePHP IRC Channel <irc://irc.freenode.net/cakephp-es>`_
-- `Spanish CakePHP Google Group <http://groups.google.com/group/cakephp-esp>`_
+- `Spanish CakePHP Google Group <https://groups.google.com/group/cakephp-esp>`_
 
 .. meta::
     :title lang=ja: Where to Get Help

@@ -156,16 +156,16 @@ icon     image/x-icon
     // 新旧両方のブラウザーでアイコンをダウンロードさせるための
     // ２つのタグを作成します。
     <link
-        href="/subdir/favicon.ico" 
-        type="image/x-icon" 
+        href="/subdir/favicon.ico"
+        type="image/x-icon"
         rel="icon"
     />
     <link
-        href="/subdir/favicon.ico" 
-        type="image/x-icon" 
+        href="/subdir/favicon.ico"
+        type="image/x-icon"
         rel="shortcut icon"
     />
-    
+
     <?= $this->Html->meta(
         'Comments',
         '/comments/index.rss',
@@ -321,7 +321,7 @@ HTML リンクを作成するための多目的なメソッドです。
 
     <a href="/pages/home" class="button" target="_blank">Enter</a>
 
-絶対 URL には ``'_full'=>true`` オプションを使用してください。 ::
+絶対URLにするためには ``'_full'=>true`` オプションを使用してください。 ::
 
     echo $this->Html->link(
         'Dashboard',
@@ -483,13 +483,13 @@ script タグの配列を使用すると、生成されたすべての script �
 
 また、リモートの URL にリンクすることができます。 ::
 
-    echo $this->Html->script('http://code.jquery.com/jquery.min.js');
+    echo $this->Html->script('https://code.jquery.com/jquery.min.js');
 
 出力結果:
 
 .. code-block:: html
 
-    <script src="http://code.jquery.com/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery.min.js"></script>
 
 最初のパラメーターは、複数のファイルをインクルードするために配列することができます。 ::
 

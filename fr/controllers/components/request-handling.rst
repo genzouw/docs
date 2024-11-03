@@ -166,7 +166,7 @@ ajouter un gestionnaire de CSV pourrait ressembler à ceci::
         }
     }
 
-Vous pouvez utiliser n'importe quel `callback <http://php.net/callback>`_ pour
+Vous pouvez utiliser n'importe quel `callback <https://php.net/callback>`_ pour
 la fonction de gestion. Vous pouvez aussi passer des arguments supplémentaires
 au callback, c'est très utile pour les callbacks comme ``json_decode``::
 
@@ -276,6 +276,10 @@ la configuration ``viewClassMap``::
             ]
         ]);
     }
+
+.. deprecated:: 4.4.0
+    Au lieu de définir ``viewClassMap``, vous devriez utiliser
+    :ref:`controller-viewclasses` instead.
 
 .. deprecated:: 3.1.0
     Depuis 3.1.0, la méthode ``viewClassMap()`` est dépréciée. Vous devez

@@ -117,6 +117,7 @@ Mailer
 - ``'transport'``: トランスポート名。 トランスポート設定を参照。
 - ``'log'``: メールヘッダーとメッセージをログに記録するログレベル。
   ``true`` なら LOG_DEBUG を使用します。 :ref:`logging-levels` を参照。
+  ログはスコープ名 ``email`` で出力されることに注意してください。 :ref:`logging-scopes` を参照。
 - ``'helpers'``: メールテンプレート内で使用するヘルパーの配列。 ``ViewBuilder::setHelpers()`` 。
 
 .. note::
@@ -144,12 +145,12 @@ CakePHP は、 :doc:`ビューレイヤー </views>` を使用してメールを
 
     $mailer = new Mailer();
     $mailer
-                 ->setEmailFormat('html')
-                 ->setTo('bob@example.com')
-                 ->setFrom('app@domain.com')
-                 ->viewBuilder()
-                     ->setTemplate('welcome')
-                     ->setLayout('fancy');
+                ->setEmailFormat('html')
+                ->setTo('bob@example.com')
+                ->setFrom('app@domain.com')
+                ->viewBuilder()
+                    ->setTemplate('welcome')
+                    ->setLayout('fancy');
 
     $mailer->deliver();
 

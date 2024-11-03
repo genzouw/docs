@@ -269,7 +269,7 @@ Le deuxième paramètre du proxy doit être une chaîne avec une IP ou un domain
 sans protocole. Le nom d'utilisateur et le mot de passe seront passés dans
 les en-têtes de la requête, alors que la chaîne du proxy sera passée dans
 `stream_context_create()
-<http://php.net/manual/en/function.stream-context-create.php>`_.
+<https://php.net/manual/en/function.stream-context-create.php>`_.
 
 .. _http_client_scoped_client:
 
@@ -492,13 +492,15 @@ option du constructeur::
 Tests
 =====
 
-.. php:trait:: Cake\TestSuite\HttpClientTrait
+.. php:namespace:: Cake\Http\TestSuite
+
+.. php:trait:: HttpClientTrait
 
 Dans les tests, vous voudrez souvent créer des réponses de mocks vers des API
 externes. Vous pouvez utiliser ``HttpClientTrait`` pour définir des réponses aux
 requêtes faites par votre application::
 
-    use Cake\TestSuite\HttpClientTrait;
+    use Cake\Http\TestSuite\HttpClientTrait;
     use Cake\TestSuite\TestCase;
 
     class CartControllerTests extends TestCase
@@ -525,7 +527,7 @@ Il existe des méthodes pour mocker les méthodes HTTP les plus courantes::
     $this->mockClientPut(...);
     $this->mockClientDelete(...);
 
-... php:method:: newClientResponse(int $code = 200, array $headers = [], string $body = '')
+.. php:method:: newClientResponse(int $code = 200, array $headers = [], string $body = '')
 
 Comme vu précédemment, vous pouvez utiliser la méthode ``newClientResponse()``
 pour créer des réponses pour les requêtes que fera votre application. Les

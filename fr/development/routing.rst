@@ -424,7 +424,7 @@ spécifiquement utiliser leur signification.
 * ``_full`` Si à ``true``, la valeur de ``App.fullBaseUrl`` vue dans
   :ref:`general-configuration` sera ajoutée devant les URL générées.
 * ``#`` Vous permet de définir les fragments de hash d'URL.
-* ``_ssl`` Défini à ``true`` pour convertir l'URL générée à https, ou ``false``
+* ``_https`` Défini à ``true`` pour convertir l'URL générée à https, ou ``false``
   pour forcer http.
 * ``_method`` Definit la méthode HTTP à utiliser. Utile si vous travaillez avec
   :ref:`resource-routes`.
@@ -1423,7 +1423,7 @@ vous générez des URLs:
 * ``_method`` Définit le verbe HTTP à utiliser pour cette URL.
 * ``_full`` Si à ``true``, la valeur de ``App.fullBaseUrl`` vue dans
   :ref:`general-configuration` sera ajoutée devant les URL générées.
-* ``_ssl`` Défini à ``true`` pour convertir l'URL générée à https, ou ``false``
+* ``_https`` Défini à ``true`` pour convertir l'URL générée à https, ou ``false``
   pour forcer http.
 * ``_method`` Definit la méthode HTTP à utiliser. Utile si vous travaillez avec
   :ref:`resource-routes`.
@@ -1585,10 +1585,10 @@ permet d'utiliser différentes routes pour définir où la chaine URL devrait
 utilisant des chaines URLs pour destination::
 
     $routes->scope('/', function (RouteBuilder $routes) {
-        $routes->redirect('/articles/*', 'http://google.com', ['status' => 302]);
+        $routes->redirect('/articles/*', 'https://google.com', ['status' => 302]);
     });
 
-Cela redirigerait ``/articles/*`` vers ``http://google.com`` avec un statut
+Cela redirigerait ``/articles/*`` vers ``https://google.com`` avec un statut
 HTTP 302.
 
 .. _entity-routing:

@@ -394,10 +394,10 @@ for more examples of different types of URLs.
 If you want to use route path strings, you can do that using this method::
 
     echo $this->Html->linkFromPath('Index', 'Articles::index');
-    // results in: <a href="/articles">Index</a>
+    // outputs: <a href="/articles">Index</a>
 
     echo $this->Html->linkFromPath('View', 'MyBackend.Admin/Articles::view', [3]);
-    // results in e.g.: <a href="/admin/my-backend/articles/view/3">View</a>
+    // outputs: <a href="/admin/my-backend/articles/view/3">View</a>
 
 .. versionadded:: 4.1.0
     ``linkFromPath()`` was added.
@@ -487,13 +487,13 @@ that are not in **webroot/js**::
 
 You can also link to a remote URL::
 
-    echo $this->Html->script('http://code.jquery.com/jquery.min.js');
+    echo $this->Html->script('https://code.jquery.com/jquery.min.js');
 
 Will output:
 
 .. code-block:: html
 
-    <script src="http://code.jquery.com/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery.min.js"></script>
 
 The first parameter can be an array to include multiple files. ::
 
@@ -510,7 +510,7 @@ Will output:
 You can append the script tag to a specific block using the ``block``
 option::
 
-    echo $this->Html->script('wysiwyg', ['block' => 'scriptBottom']);
+    $this->Html->script('wysiwyg', ['block' => 'scriptBottom']);
 
 In your layout you can output all the script tags added to 'scriptBottom'::
 

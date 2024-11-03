@@ -107,7 +107,7 @@ the specific multipart HTTP request you want::
 Sending Request Bodies
 ======================
 
-When dealing with REST API's you often need to send request bodies that are not
+When dealing with REST APIs you often need to send request bodies that are not
 form encoded. Http\\Client exposes this through the type option::
 
     // Send a JSON request body.
@@ -156,8 +156,8 @@ addition request information.  The following keys can be used in ``$options``:
   either be a string, or the ``_content`` option to be set when doing GET
   requests.
 - ``redirect`` - Number of redirects to follow. Defaults to ``false``.
-- ``curl`` - An array of additional curl options (if the curl adapter is used).
-  For e.g. ``[CURLOPT_SSLKEY => 'key.pem']``.
+- ``curl`` - An array of additional curl options (if the curl adapter is used),
+  for example, ``[CURLOPT_SSLKEY => 'key.pem']``.
 
 The options parameter is always the 3rd parameter in each of the HTTP methods.
 They can also be used when constructing ``Client`` to create
@@ -203,12 +203,22 @@ An example of basic authentication::
     ]);
 
 By setting the 'type' key to 'digest', you tell the authentication subsystem to
-use digest authentication.
+use digest authentication. Digest authentication supports the following
+algorithms:
+
+* MD5
+* SHA-256
+* SHA-512-256
+* MD5-sess
+* SHA-256-sess
+* SHA-512-256-sess
+
+The algorithm will be automatically chosen based on the server challenge.
 
 OAuth 1 Authentication
 ----------------------
 
-Many modern web-services require OAuth authentication to access their API's.
+Many modern web-services require OAuth authentication to access their APIs.
 The included OAuth authentication assumes that you already have your consumer
 key and consumer secret::
 
@@ -255,7 +265,7 @@ The second proxy parameter must be a string with an IP or a domain without
 protocol. The username and password information will be passed through the
 request headers, while the proxy string will be passed through
 `stream_context_create()
-<http://php.net/manual/en/function.stream-context-create.php>`_.
+<https://php.net/manual/en/function.stream-context-create.php>`_.
 
 .. _http_client_scoped_client:
 
@@ -469,13 +479,15 @@ instead. You can force select a transport adapter using a constructor option::
 Testing
 =======
 
-.. php:trait:: Cake\TestSuite\HttpClientTrait
+.. php:namespace:: Cake\Http\TestSuite
+
+.. php:trait:: HttpClientTrait
 
 In tests you will often want to create mock responses to external APIs. You can
 use the ``HttpClientTrait`` to define responses to the requests your application
 is making::
 
-    use Cake\TestSuite\HttpClientTrait;
+    use Cake\Http\TestSuite\HttpClientTrait;
     use Cake\TestSuite\TestCase;
 
     class CartControllerTests extends TestCase
@@ -502,7 +514,7 @@ There are methods to mock the most commonly used HTTP methods::
     $this->mockClientPut(...);
     $this->mockClientDelete(...);
 
-... php:method:: newClientResponse(int $code = 200, array $headers = [], string $body = '')
+.. php:method:: newClientResponse(int $code = 200, array $headers = [], string $body = '')
 
 As seen above you can use the ``newClientResponse()`` method to create responses
 for the requests your application will make. The headers need to be a list of
