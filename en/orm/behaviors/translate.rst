@@ -35,8 +35,8 @@ fields to be translated. For that we create a shadow table ``articles_translatio
     CREATE TABLE `articles_translations` (
         `id` int(11) NOT NULL,
         `locale` varchar(5) NOT NULL,
-        `title` varchar(255) NOT NULL,
-        `body` text NOT NULL,
+        `title` varchar(255),
+        `body` text,
         PRIMARY KEY (`id`,`locale`)
     );
 
@@ -57,7 +57,7 @@ language abbreviation with area code `UN M.49
     :doc:`Internationalization and Localization
     </core-libraries/internationalization-and-localization>`. Thus you are
     consistent and switching the language works identical for both, the
-    ``Translate Behaviour`` and ``Internationalization and Localization``.
+    ``Translate`` behavior and ``Internationalization and Localization``.
 
 So it's recommended to use either the two letter ISO code of the language like
 ``en``, ``fr``, ``de`` or the full locale name such as ``fr_FR``, ``es_AR``,
@@ -206,7 +206,7 @@ for each different table::
         {
             $this->addBehavior('Translate', [
                 'fields' => ['title', 'body'],
-                'translationTable' => 'ArticlesI18n'
+                'translationTable' => 'ArticlesI18n',
             ]);
         }
     }
@@ -470,7 +470,7 @@ Now, You can populate translations before saving them::
 
     $translations = [
         'fr' => ['title' => "Un article"],
-        'es' => ['title' => 'Un artículo']
+        'es' => ['title' => 'Un artículo'],
     ];
 
     foreach ($translations as $lang => $data) {
@@ -516,7 +516,7 @@ behavior during ``newEntity()`` or ``patchEntity()``::
         {
             $this->addBehavior('Translate', [
                 'fields' => ['title'],
-                'validator' => 'translated'
+                'validator' => 'translated',
             ]);
         }
     }

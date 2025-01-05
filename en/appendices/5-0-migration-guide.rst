@@ -28,15 +28,21 @@ Global
 - Type declarations were added to all class properties where possible. These also include some fixes for
   incorrect annotations.
 - The ``SECOND``, ``MINUTE``, ``HOUR``, ``DAY``,  ``WEEK``, ``MONTH``, ``YEAR`` constants were removed.
-- Global functions are now opt-in. If your application uses global function
-  aliases be sure to add ``require CAKE . 'functions.php'`` to you application's
-  ``config/bootstrap.php``.
+- Use of ``#[\AllowDynamicProperties]`` removed everywhere. It was used for the following classes:
+   - ``Command/Command``
+   - ``Console/Shell``
+   - ``Controller/Component``
+   - ``Controller/Controller``
+   - ``Mailer/Mailer``
+   - ``View/Cell``
+   - ``View/Helper``
+   - ``View/View``
 - The supported database engine versions were updated:
-  -  MySQL (5.7 or higher)
-  -  MariaDB (10.1 or higher)
-  -  PostgreSQL (9.6 or higher)
-  -  Microsoft SQL Server (2012 or higher)
-  -  SQLite 3
+   - MySQL (5.7 or higher)
+   - MariaDB (10.1 or higher)
+   - PostgreSQL (9.6 or higher)
+   - Microsoft SQL Server (2012 or higher)
+   - SQLite 3 (3.16 or higher)
 
 Auth
 ----
@@ -50,20 +56,38 @@ Cache
 - The ``Wincache`` engine was removed. The wincache extension is not supported
   on PHP 8.
 
+Collection
+----------
+
+- ``combine()`` now throws an exception if the key path or group path doesn't exist or contains a null value.
+  This matches the behavior of ``indexBy()`` and ``groupBy()``.
+
 Console
 -------
 
-- ``BaseCommand::__constructor()`` was removed.
+- ``BaseCommand::__construct()`` was removed.
 - ``ConsoleIntegrationTestTrait::useCommandRunner()`` was removed since it's no longer needed.
 - ``Shell`` has been removed and should be replaced with `Command <https://book.cakephp.org/5/en/console-commands/commands.html>`__
+- ``ConsoleOptionParser::addSubcommand()`` was removed alongside the removal of
+  ``Shell``. Subcommands should be replaced with ``Command`` classes that
+  implement ``Command::defaultName()`` to define the necessary command name.
 - ``BaseCommand`` now emits ``Command.beforeExecute`` and
   ``Command.afterExecute`` events around the command's ``execute()`` method
   being invoked by the framework.
 
+Connection
+----------
+
+- ``Connection::prepare()`` has been removed. You can use ``Connection::execute()``
+  instead to execute a SQL query by specifing the SQL string, params and types in a single call.
+- ``Connection::enableQueryLogging()`` has been removed. If you haven't enabled logging
+  through the connection config then you can later set the logger instance for the
+  driver to enable query logging ``$connection->getDriver()->setLogger()``.
+
 Controller
 ----------
 
-- The method signature for ``Controller::__constructor()`` has changed.
+- The method signature for ``Controller::__construct()`` has changed.
   So you need to adjust your code accordingly if you are overriding the constructor.
 - After loading components are no longer set as dynamic properties. Instead
   ``Controller`` uses ``__get()`` to provide property access to components. This
@@ -75,6 +99,11 @@ Controller
 - ``RequestHandlerComponent`` has been removed. See the `4.4 migration <https://book.cakephp.org/4/en/appendices/4-4-migration-guide.html#requesthandlercomponent>`__ guide for how to upgrade
 - ``SecurityComponent`` has been removed. Use ``FormProtectionComponent`` for form tampering protection
   or ``HttpsEnforcerMiddleware`` to enforce use of HTTPS for requests instead.
+- ``Controller::paginate()`` no longer accepts query options like ``contain`` for
+  its ``$settings`` argument. You should instead use the ``finder`` option
+  ``$this->paginate($this->Articles, ['finder' => 'published'])``. Or you can
+  create required select query before hand and then pass it to ``paginate()``
+  ``$query = $this->Articles->find()->where(['is_published' => true]); $this->paginate($query);``.
 
 Core
 ----
@@ -109,7 +138,10 @@ Database
   ``QueryExpression::case()`` or ``CaseStatementExpression``
 - ``Connection::connect()`` has been removed. Use
   ``$connection->getDriver()->connect()`` instead.
+- ``Connection::disconnect()`` has been removed. Use
+  ``$connection->getDriver()->disconnect()`` instead.
 - ``cake.database.queries`` has been added as an alternative to the ``queriesLog`` scope
+- The ability to enable/disable ResultSet buffering has been removed. Results are always buffered.
 
 Datasource
 ----------
@@ -150,6 +182,8 @@ I18n
 
 - ``FrozenDate`` was renamed to `Date` and ``FrozenTime`` was renamed to `DateTime`.
 - ``Time`` now extends ``Cake\Chronos\ChronosTime`` and is therefore immutable.
+- ``Date`` objects do not extend ``DateTimeInterface`` anymore - therefore you can't compare them with ``DateTime`` objects.
+  See the `cakephp/chronos release documentation <https://github.com/cakephp/chronos/releases/tag/3.0.2>`__ for more information.
 - ``Date::parseDateTime()`` was removed.
 - ``Date::parseTime()`` was removed.
 - ``Date::setToStringFormat()`` and ``Date::setJsonEncodeFormat()`` no longer accept an array.
@@ -176,6 +210,7 @@ ORM
 - ``EntityTrait::has()`` now returns ``true`` when an attribute exists and is
   set to ``null``. In previous versions of CakePHP this would return ``false``.
   See the release notes for 4.5.0 for how to adopt this behavior in 4.x.
+- ``EntityTrait::extractOriginal()`` now returns only existing fields, similar to ``extractOriginalChanged()``.
 - Finder arguments are now required to be associative arrays as they were always expected to be.
 - ``TranslateBehavior`` now defaults to the ``ShadowTable`` strategy. If you are
   using the ``Eav`` strategy you will need to update your behavior configuration
@@ -281,11 +316,13 @@ Core
 ----
 
 - The ``services()`` method was added to ``PluginInterface``.
-- ``PluginCollection::addFromConfig()`` has been added to :ref:`simplify plugin loading <loading-plugins-via-configuration-array>`.
+- ``PluginCollection::addFromConfig()`` has been added to :ref:`simplify plugin loading <loading-a-plugin>`.
 
 Database
 --------
 
+- ``ConnectionManager`` now supports read and write connection roles. Roles can be configured
+  with ``read`` and ``write`` keys in the connection config that override the shared config.
 - ``Query::all()`` was added which runs result decorator callbacks and returns a result set for select queries.
 - ``Query::comment()`` was added to add a SQL comment to the executed query. This makes it easier to debug queries.
 - ``EnumType`` was added to allow mapping between PHP backed enums and a string or integer column.
@@ -368,7 +405,7 @@ A similar change has been applied to the ``RepositoryInterface::get()`` method::
     {
         $author = $this->Authors->get($id, [
             'contain' => ['Books'],
-            'finder' => 'latest'
+            'finder' => 'latest',
         ]);
     }
 
@@ -383,3 +420,9 @@ TestSuite
 ---------
 
 - ``IntegrationTestTrait::requestAsJson()`` has been added to set JSON headers for the next request.
+
+Plugin Installer
+----------------
+- The plugin installer has been updated to automatically handle class autoloading
+  for your app plugins. So you can remove the namespace to path mappings for your
+  plugins from your ``composer.json`` and just run ``composer dumpautoload``.

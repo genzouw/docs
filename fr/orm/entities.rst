@@ -150,10 +150,10 @@ vérifier si un champ contient une valeur 'non-empty'::
     $article->isEmpty('title');  // false
     $article->hasValue('title'); // true
 
-    $article->has('user_id'); // false
+    $article->has('user_id'); // true
     $article->isEmpty('user_id');  // true
     $article->hasValue('user_id'); // false
- 
+
     $article->has('text'); // true
     $article->isEmpty('text');  // true
     $article->hasValue('text'); // false
@@ -398,7 +398,7 @@ d'indiquer s'ils peuvent être assignés en masse ou non. Les valeurs ``true`` e
 
     class Article extends Entity
     {
-        protected $_accessible = [
+        protected array $_accessible = [
             'title' => true,
             'body' => true
         ];
@@ -413,7 +413,7 @@ comportement par défaut si un champ n'est pas nommé spécifiquement::
 
     class Article extends Entity
     {
-        protected $_accessible = [
+        protected array $_accessible = [
             'title' => true,
             'body' => true,
             '*' => false,

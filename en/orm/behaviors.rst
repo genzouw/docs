@@ -189,6 +189,7 @@ To prevent the save from continuing, simply stop event propagation in your callb
         if (...) {
             $event->stopPropagation();
             $event->setResult(false);
+
             return;
         }
         $this->slug($entity);
@@ -222,7 +223,7 @@ these cases you can use the ``implementedFinders`` configuration key to rename
 or exclude finder methods. For example if we wanted to rename our ``find(slug)``
 method we could do the following::
 
-    protected $_defaultConfig = [
+    protected array $_defaultConfig = [
         'implementedFinders' => [
             'slugged' => 'findSlug',
         ]

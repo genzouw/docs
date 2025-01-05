@@ -10,6 +10,8 @@ necessary tables:
 
 .. code-block:: SQL
 
+    CREATE DATABASE cake_cms;
+
     USE cake_cms;
 
     CREATE TABLE users (
@@ -108,7 +110,7 @@ following SQL instead:
     (1, 'First Post', 'first-post', 'This is the first post.', TRUE, NOW(), NOW());
 
 
-You may have noticed that the ``articles_tags`` table used a composite primary
+You may have noticed that the ``articles_tags`` table uses a composite primary
 key. CakePHP supports composite primary keys almost everywhere, allowing you to
 have simpler schemas that don't require additional ``id`` columns.
 
@@ -128,101 +130,81 @@ with those that apply to your setup. A sample completed configuration array
 might look something like the following::
 
     <?php
+    // config/app_local.php
     return [
         // More configuration above.
         'Datasources' => [
             'default' => [
-                'className' => 'Cake\Database\Connection',
-                // Replace Mysql with Postgres if you are using PostgreSQL
-                'driver' => 'Cake\Database\Driver\Mysql',
-                'persistent' => false,
                 'host' => 'localhost',
                 'username' => 'cakephp',
                 'password' => 'AngelF00dC4k3~',
                 'database' => 'cake_cms',
-                // Comment out the line below if you are using PostgreSQL
-                'encoding' => 'utf8mb4',
-                'timezone' => 'UTC',
-                'cacheMetadata' => true,
+                'url' => env('DATABASE_URL', null),
             ],
         ],
         // More configuration below.
     ];
 
-Once you've saved your **config/app.php** file, you should see that the 'CakePHP is
+Once you've saved your **config/app_local.php** file, you should see that the 'CakePHP is
 able to connect to the database' section has a green chef hat.
 
 .. note::
 
-    If you have **config/app_local.php** in your app folder, you need to
-    configure your database connection in that file instead.
+    The file **config/app_local.php** is a local override of the file **config/app.php**
+    used to configure your development environment quickly.
 
-Creating our First Model
-========================
+Migrations
+==========
 
-Models are the heart of CakePHP applications. They enable us to read and
-modify our data. They allow us to build relations between our data, validate
-data, and apply application rules. Models provide the foundation necessary to
-create our controller actions and templates.
+The SQL statements to create the tables for this tutorial can also be generated
+using the Migrations Plugin. Migrations provide a platform-independent way to
+run queries so the subtle differences between MySQL, PostgreSQL, SQLite, etc.
+don't become obstacles.
 
-CakePHP's models are composed of ``Table`` and ``Entity`` objects. ``Table``
-objects provide access to the collection of entities stored in a specific table.
-They are stored in **src/Model/Table**. The file we'll be creating will be saved
-to **src/Model/Table/ArticlesTable.php**. The completed file should look like
-this::
+.. code-block:: console
 
-    <?php
-    // src/Model/Table/ArticlesTable.php
-    namespace App\Model\Table;
-
-    use Cake\ORM\Table;
-
-    class ArticlesTable extends Table
-    {
-        public function initialize(array $config): void
-        {
-            $this->addBehavior('Timestamp');
-        }
-    }
-
-We've attached the :doc:`/orm/behaviors/timestamp` behavior, which will
-automatically populate the ``created`` and ``modified`` columns of our table.
-By naming our Table object ``ArticlesTable``, CakePHP can use naming conventions
-to know that our model uses the ``articles`` table. CakePHP also uses
-conventions to know that the ``id`` column is our table's primary key.
+    bin/cake bake migration CreateUsers email:string password:string created modified
+    bin/cake bake migration CreateArticles user_id:integer title:string slug:string[191]:unique body:text published:boolean created modified
+    bin/cake bake migration CreateTags title:string[191]:unique created modified
+    bin/cake bake migration CreateArticlesTags article_id:integer:primary tag_id:integer:primary created modified
 
 .. note::
+    Some adjustments to the generated code might be necessary. For example, the
+    composite primary key on ``articles_tags`` will be set to auto-increment
+    both columns::
 
-    CakePHP will dynamically create a model object for you if it
-    cannot find a corresponding file in **src/Model/Table**. This also means
-    that if you accidentally name your file wrong (i.e. articlestable.php or
-    ArticleTable.php), CakePHP will not recognize any of your settings and will
-    use the generated model instead.
+        $table->addColumn('article_id', 'integer', [
+            'autoIncrement' => true,
+            'default' => null,
+            'limit' => 11,
+            'null' => false,
+        ]);
+        $table->addColumn('tag_id', 'integer', [
+            'autoIncrement' => true,
+            'default' => null,
+            'limit' => 11,
+            'null' => false,
+        ]);
 
-We'll also create an Entity class for our Articles. Entities represent a single
-record in the database and provide row-level behavior for our data. Our entity
-will be saved to **src/Model/Entity/Article.php**. The completed file should
-look like this::
+    Remove those lines to prevent foreign key problems. Once adjustments are
+    done::
 
-    <?php
-    // src/Model/Entity/Article.php
-    namespace App\Model\Entity;
+        bin/cake migrations migrate
 
-    use Cake\ORM\Entity;
+Likewise, the starter data records can be done with seeds.
 
-    class Article extends Entity
-    {
-        protected $_accessible = [
-            '*' => true,
-            'id' => false,
-            'slug' => false,
-        ];
-    }
+.. code-block:: console
 
-Right now, our entity is quite slim; we've only set up the ``_accessible``
-property, which controls how properties can be modified by
-:ref:`entities-mass-assignment`.
+    bin/cake bake seed Users
+    bin/cake bake seed Articles
 
-We can't do much with our models yet. Next, we'll create our first
-:doc:`Controller and Template </tutorials-and-examples/cms/articles-controller>` to allow us to interact
-with our model.
+Fill the seed data above into the new ``UsersSeed`` and ``ArticlesSeed``
+classes, then::
+
+    bin/cake migrations seed
+
+Read more about building migrations and data seeding: `Migrations
+<https://book.cakephp.org/migrations/4/>`__
+
+With the database built, we can now build :doc:`Models
+</tutorials-and-examples/cms/articles-model>`.

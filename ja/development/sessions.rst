@@ -258,6 +258,7 @@ IO をもたらします。
             if ($result) {
                 return $result;
             }
+
             return parent::read($id);
         }
 
@@ -265,6 +266,7 @@ IO をもたらします。
         public function write($id, $data): bool
         {
             Cache::write($id, $data, $this->cacheKey);
+
             return parent::write($id, $data);
         }
 
@@ -272,6 +274,7 @@ IO をもたらします。
         public function destroy($id): bool
         {
             Cache::delete($id, $this->cacheKey);
+
             return parent::destroy($id);
         }
 
@@ -283,7 +286,7 @@ IO をもたらします。
     }
 
 このクラスはビルトインの ``DatabaseSession`` を継承しそのロジックや振る舞いを重複して
-定義することを避けています。それぞれのオペレーションを :php:class:`Cake\\Cache\\Cache`
+定義することを避けています。それぞれのオペレーションを :php:class:`\\Cake\\Cache\\Cache`
 オペレーションでラップします。これで高速なキャッシュからセッションを取得しつつ、
 キャッシュ限度の考慮を不要にしています。このセッションハンドラーを使うのもまた簡単です。
 **app.php** のセッションブロックを以下のように設定します。 ::

@@ -3,7 +3,7 @@ Depuración
 
 La depuración es una parte inevitable y necesaria de cualquier ciclo de desarrollo.
 Aunque CakePHP no ofrece ninguna herramienta que se conecte directamente
-con algun IDE o editor, CakePHP proporciona varias herramientas para
+con algún IDE o editor, CakePHP proporciona varias herramientas para
 asistirte en la depuración y exponer lo que se está ejecutando bajo el capó de
 tu aplicación.
 
@@ -113,7 +113,7 @@ Generando seguimientos de pila
 .. php:staticmethod:: trace($options)
 
 Devuelve el seguimiento de pila actual. Cada línea de la pila incluye
-cual método llama, incluyendo el archivo y la línea en la que se originó
+cuál método llama, incluyendo el archivo y la línea en la que se originó
 la llamada::
 
     // En PostsController::index()
@@ -163,7 +163,7 @@ Usando El Registro Para Depurar
 ===============================
 
 Registrar mensajes es otra buena manera de depurar aplicaciones, puedes usar
-:php:class:`Cake\\Log\\Log` para hacer registros en tu aplicación. Todos los
+:php:class:`\\Cake\\Log\\Log` para hacer registros en tu aplicación. Todos los
 objetos que usen ``LogTrait`` tienen una instancia del método ``log()`` que
 puede ser usado para registrar mensajes::
 
@@ -171,7 +171,7 @@ puede ser usado para registrar mensajes::
 
 Lo anterior escribiría ``Llegó aquí`` en el registro de depuración. Puedes usar
 entradas de registro para ayudar a los métodos de depuración que involucran redireccionamientos
-o búcles complejos. También puedes usar :php:meth:`Cake\\Log\\Log::write()` para
+o búcles complejos. También puedes usar :php:meth:`\\Cake\\Log\\Log::write()` para
 escribir mensajes de registro. Este método puede ser llamado estáticamente en
 cualquier lugar de tu aplicación que un Log haya sido cargado::
 
@@ -185,7 +185,7 @@ Kit De Depuración
 =================
 
 DebugKit es un complemento que proporciona una serie de buenas herramientas de depuración.
-Principalmente provee una barra de herramientas en el HTML
+Principalmente, provee una barra de herramientas en el HTML
 renderizado, que porporciona una gran cantidad de información sobre tu aplicación
 y la solicitud actual. Ver el capítulo :doc:`/debug-kit` para saber cómo instalar
 y usar DebugKit.

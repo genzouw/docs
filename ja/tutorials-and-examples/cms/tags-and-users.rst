@@ -79,6 +79,7 @@ ArticlesTable の ``initialize`` メソッドに以下を追加することで�
 
                 if ($this->Articles->save($article)) {
                     $this->Flash->success(__('Your article has been saved.'));
+
                     return $this->redirect(['action' => 'index']);
                 }
                 $this->Flash->error(__('Unable to add your article.'));
@@ -117,6 +118,7 @@ edit メソッドは次のようになります。 ::
             $this->Articles->patchEntity($article, $this->request->getData());
             if ($this->Articles->save($article)) {
                 $this->Flash->success(__('Your article has been updated.'));
+
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('Unable to update your article.'));
@@ -320,7 +322,7 @@ CakePHP では、コントローラーのアクションをスリムに保ち、
     use Cake\Collection\Collection;
 
     // アクセス可能なプロパティに `tag_string` を含めるよう更新します
-    protected $_accessible = [
+    protected array $_accessible = [
         // その他のフィールドも追加可能
         'tag_string' => true
     ];
@@ -337,6 +339,7 @@ CakePHP では、コントローラーのアクションをスリムに保ち、
         $str = $tags->reduce(function ($string, $tag) {
             return $string . $tag->title . ', ';
         }, '');
+
         return trim($str, ', ');
     }
 
@@ -422,6 +425,7 @@ CakePHP では、コントローラーのアクションをスリムに保ち、
         foreach ($newTags as $tag) {
             $out[] = $this->Tags->newEntity(['title' => $tag]);
         }
+
         return $out;
     }
 

@@ -31,7 +31,7 @@ version_list = [
     {'name': '1.2', 'number': '1.2', 'title': '1.2 Book'},
     {'name': '1.1', 'number': '1.1', 'title': '1.1 Book'},
 ]
-# 5.x is pre-release still.
+# Enables the 'development version banner'
 is_prerelease = False
 
 # Languages available.
@@ -63,7 +63,7 @@ html_use_opensearch = 'https://book.cakephp.org/' + version + '/' + language
 # (source start file, target name, title, author,
 # documentclass [howto/manual]).
 latex_documents = [
-    ('pdf-contents', 'CakePHPCookbook.tex', u'CakePHP Cookbook Documentation',
+    ('pdf-contents', 'CakePHPBook.tex', u'CakePHP Book',
      u'Cake Software Foundation', 'manual'),
 ]
 
@@ -72,7 +72,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'cakephpcookbook', u'CakePHP Cookbook Documentation',
+    ('index', 'cakephpbook', u'CakePHP Book',
      [u'CakePHP'], 1)
 ]
 
@@ -80,7 +80,7 @@ man_pages = [
 # -- Options for Epub output -------------------------------------------------
 
 # Bibliographic Dublin Core info.
-epub_title = u'CakePHP Cookbook'
+epub_title = u'CakePHP Book'
 epub_author = u'Cake Software Foundation, Inc.'
 epub_publisher = u'Cake Software Foundation, Inc.'
 epub_copyright = u'%d, Cake Software Foundation, Inc.' % datetime.datetime.now().year
@@ -98,7 +98,7 @@ epub_scheme = 'URL'
 epub_identifier = 'https://cakephp.org'
 
 # A unique identification for the text.
-epub_uid = 'cakephpcookbook1393624653'
+epub_uid = 'cakephpbook1393624653'
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = [
@@ -112,6 +112,12 @@ epub_exclude_files = [
 epub_tocdepth = 2
 
 rst_epilog = """
-.. |phpversion| replace:: **8.2**
+.. |phpversion| replace:: **8.4**
 .. |minphpversion| replace:: 8.1
 """
+
+# todo_include_todos = True
+
+# turn off contents entries for classes/functions
+# generally we add titles for methods and classes instead.
+toc_object_entries = False

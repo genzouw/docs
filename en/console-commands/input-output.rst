@@ -148,6 +148,19 @@ progress bar as necessary::
     $progress->increment(4);
     $progress->draw();
 
+Banner Helper
+-------------
+
+The ``BannerHelper`` can be used to format one or more lines of text into
+a banner with a background and horizontal padding::
+
+    $io->helper('Banner')
+        ->withPadding(5)
+        ->withStyle('success.bg')
+        ->output(['Work complete']);
+
+.. versionadded:: 5.1.0
+   The ``BannerHelper`` was added in 5.1
 
 Getting User Input
 ==================
@@ -195,7 +208,7 @@ Writing to ``stdout`` and ``stderr`` is another common operation in CakePHP::
     $io->err('Error message');
 
 In addition to vanilla output methods, CakePHP provides wrapper methods that
-style output with appropriate ANSI colours::
+style output with appropriate ANSI colors::
 
     // Green text on stdout
     $io->success('Success message');
@@ -300,6 +313,10 @@ are several built-in styles, and you can create more. The built-in ones are
 * ``info`` Informational messages. Cyan text.
 * ``comment`` Additional text. Blue text.
 * ``question`` Text that is a question, added automatically by shell.
+* ``info.bg`` White background with cyan text.
+* ``warning.bg`` Yellow background with black text.
+* ``error.bg`` Red background with black text.
+* ``success.bg`` Green background with black text.
 
 You can create additional styles using ``$io->setStyle()``. To declare a
 new output style you could do::
@@ -307,9 +324,9 @@ new output style you could do::
     $io->setStyle('flashy', ['text' => 'magenta', 'blink' => true]);
 
 This would then allow you to use a ``<flashy>`` tag in your shell output, and if
-ansi colours are enabled, the following would be rendered as blinking magenta
+ansi colors are enabled, the following would be rendered as blinking magenta
 text ``$this->out('<flashy>Whoooa</flashy> Something went wrong');``. When
-defining styles you can use the following colours for the ``text`` and
+defining styles you can use the following colors for the ``text`` and
 ``background`` attributes:
 
 * black
@@ -332,10 +349,13 @@ truthy value enables them.
 Adding a style makes it available on all instances of ConsoleOutput as well,
 so you don't have to redeclare styles for both stdout and stderr objects.
 
-Turning Off Colouring
-=====================
+.. versionchanged:: 5.1.0
+    The ``info.bg``, ``warning.bg``, ``error.bg``, and ``success.bg`` were added.
 
-Although colouring is pretty, there may be times when you want to turn it off,
+Turning Off Coloring
+====================
+
+Although coloring is pretty, there may be times when you want to turn it off,
 or force it on::
 
     $io->outputAs(ConsoleOutput::RAW);
@@ -350,6 +370,6 @@ no styling is done at all. There are three modes you can use.
   This is a good mode to use if you are outputting XML or, want to debug why
   your styling isn't working.
 
-By default on \*nix systems ConsoleOutput objects default to colour output.
+By default on \*nix systems ConsoleOutput objects default to color output.
 On Windows systems, plain output is the default unless the ``ANSICON``
 environment variable is present.

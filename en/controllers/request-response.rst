@@ -100,13 +100,40 @@ If you want to access all the query parameters you can use
 
     $query = $this->request->getQueryParams();
 
+You can use the casting utility functions to provide typesafe access to request
+data and other input::
+
+    use function Cake\Core\toBool;
+    use function Cake\Core\toInt;
+    use function Cake\Core\toString;
+    use function Cake\I18n\toDate;
+    use function Cake\I18n\toDateTime;
+
+    // $active is bool|null.
+    $active = toBool($this->request->getQuery('active'));
+
+    // $page is int|null.
+    $page = toInt($this->request->getQuery('page'));
+
+    // $query is string|null.
+    $query = toString($this->request->getQuery('query'));
+
+    // Parse a date based on the format or null
+    $date = toDate($this->request->getQuery('date'), 'Y-m-d');
+
+    // Parse a datetime based on a format or null
+    $date = toDateTime($this->request->getQuery('datetime'), 'Y-m-d H:i:s');
+
+.. versionadded:: 5.1.0
+    Casting functions were added.
+
 Request Body Data
 -----------------
 
 .. php:method:: getData($name, $default = null)
 
 All POST data normally available through PHP's ``$_POST`` global variable can be
-accessed using :php:meth:`Cake\\Http\\ServerRequest::getData()`. For example::
+accessed using :php:meth:`\\Cake\\Http\\ServerRequest::getData()`. For example::
 
     // An input with a name attribute equal to 'title' is accessible at
     $title = $this->request->getData('title');
@@ -133,7 +160,7 @@ If you want to access all the data parameters you can use
 File Uploads
 ------------
 
-Uploaded files can be accessed through the request body data, using the :php:meth:`Cake\\Http\\ServerRequest::getData()`
+Uploaded files can be accessed through the request body data, using the :php:meth:`\\Cake\\Http\\ServerRequest::getData()`
 method described above. For example, a file from an input element with a name attribute of ``attachment``, can
 be accessed like this::
 
@@ -168,11 +195,11 @@ origins, which makes testing file uploads possible.
 .. php:method:: getUploadedFile($path)
 
 Returns the uploaded file at a specific path. The path uses the same dot syntax as the
-:php:meth:`Cake\\Http\\ServerRequest::getData()` method::
+:php:meth:`\\Cake\\Http\\ServerRequest::getData()` method::
 
     $attachment = $this->request->getUploadedFile('attachment');
 
-Unlike :php:meth:`Cake\\Http\\ServerRequest::getData()`, :php:meth:`Cake\\Http\\ServerRequest::getUploadedFile()` would
+Unlike :php:meth:`\\Cake\\Http\\ServerRequest::getData()`, :php:meth:`\\Cake\\Http\\ServerRequest::getUploadedFile()` would
 only return data when an actual file upload exists for the given path, if there is regular, non-file request body data
 present at the given path, then this method will return ``null``, just like it would for any non-existent path.
 
@@ -217,46 +244,54 @@ replace all possibly existing uploaded files::
 .. note::
 
     Uploaded files that have been added to the request via this method, will *not* be available in the request body
-    data, ie you cannot retrieve them via :php:meth:`Cake\\Http\\ServerRequest::getData()`! If you need them in the
-    request data (too), then you have to set them via :php:meth:`Cake\\Http\\ServerRequest::withData()` or
-    :php:meth:`Cake\\Http\\ServerRequest::withParsedBody()`.
+    data, ie you cannot retrieve them via :php:meth:`\\Cake\\Http\\ServerRequest::getData()`! If you need them in the
+    request data (too), then you have to set them via :php:meth:`\\Cake\\Http\\ServerRequest::withData()` or
+    :php:meth:`\\Cake\\Http\\ServerRequest::withParsedBody()`.
 
 PUT, PATCH or DELETE Data
 -------------------------
 
-.. php:method:: input($callback, [$options])
+.. php:method:: getBody()
 
 When building REST services, you often accept request data on ``PUT`` and
 ``DELETE`` requests. Any ``application/x-www-form-urlencoded`` request body data
-will automatically be parsed and set to ``$this->data`` for ``PUT`` and
-``DELETE`` requests. If you are accepting JSON or XML data, see below for how
-you can access those request bodies.
+will automatically be parsed and available via ``$request->getData()`` for ``PUT`` and
+``DELETE`` requests. If you are accepting JSON or XML data, you can
+access the raw data with ``getBody()``::
 
-When accessing the input data, you can decode it with an optional function.
-This is useful when interacting with XML or JSON request body content.
-Additional parameters for the decoding function can be passed as arguments to
-``input()``::
+    // Get the stream wrapper on the request body
+    $body = $request->getBody();
 
-    $jsonData = $this->request->input('json_decode');
+    // Get the request body as a string
+    $bodyString = (string)$request->getBody();
+
+If your requests contain XML or JSON request content, you should consider using
+:ref:`body-parser-middleware` to have CakePHP automatically parse those content
+types making the parsed data available in ``$request->getData()`` and
+``$request->getParsedBody()``.
 
 Environment Variables (from $_SERVER and $_ENV)
 -----------------------------------------------
 
-.. php:method:: putenv($key, $value = null)
+.. php:method:: getEnv($key, $default = null)
 
 ``ServerRequest::getEnv()`` is a wrapper for ``getenv()`` global function and acts as
-a getter/setter for environment variables without having to modify globals
-``$_SERVER`` and ``$_ENV``::
+a getter for environment variables without possible undefined keys::
 
-    // Get the host
     $host = $this->request->getEnv('HTTP_HOST');
-
-    // Set a value, generally helpful in testing.
-    $this->request->withEnv('REQUEST_METHOD', 'POST');
 
 To access all the environment variables in a request use ``getServerParams()``::
 
     $env = $this->request->getServerParams();
+
+.. php:method:: withEnv($key, $value)
+
+``ServerRequest::withEnv()`` is a wrapper for ``putenv()`` global function and acts as
+a setter for environment variables without having to modify globals
+``$_SERVER`` and ``$_ENV``::
+
+    // Set a value, generally helpful in testing.
+    $this->request->withEnv('REQUEST_METHOD', 'POST');
 
 XML or JSON Data
 ----------------
@@ -310,7 +345,7 @@ conditions, as well as inspect other application specific request criteria::
     $isPost = $this->request->is('post');
 
 You can also extend the request detectors that are available, by using
-:php:meth:`Cake\\Http\\ServerRequest::addDetector()` to create new kinds of
+:php:meth:`\\Cake\\Http\\ServerRequest::addDetector()` to create new kinds of
 detectors. There are different types of detectors that you can create:
 
 * Environment value comparison - Compares a value fetched from :php:func:`env()`
@@ -394,15 +429,15 @@ There are several built-in detectors that you can use:
   X-Requested-With = XMLHttpRequest.
 * ``is('ssl')`` Check to see whether the request is via SSL.
 * ``is('flash')`` Check to see whether the request has a User-Agent of Flash.
-* ``is('json')`` Check to see whether the request has 'json' extension and
-  accept 'application/json' mimetype.
-* ``is('xml')`` Check to see whether the request has 'xml' extension and accept
-  'application/xml' or 'text/xml' mimetype.
+* ``is('json')`` Check to see whether the request URL has 'json' extension or the
+  `Accept` header is set to 'application/json'.
+* ``is('xml')`` Check to see whether the request URL has 'xml' extension or the `Accept` header is set to
+  'application/xml' or 'text/xml'.
 
 ``ServerRequest`` also includes methods like
-:php:meth:`Cake\\Http\\ServerRequest::domain()`,
-:php:meth:`Cake\\Http\\ServerRequest::subdomains()` and
-:php:meth:`Cake\\Http\\ServerRequest::host()` to make applications that use
+:php:meth:`\\Cake\\Http\\ServerRequest::domain()`,
+:php:meth:`\\Cake\\Http\\ServerRequest::subdomains()` and
+:php:meth:`\\Cake\\Http\\ServerRequest::host()` to make applications that use
 subdomains simpler.
 
 Session Data
@@ -571,7 +606,7 @@ Request cookies can be read through a number of methods::
     // Get a CookieCollection instance
     $cookies = $this->request->getCookieCollection()
 
-See the :php:class:`Cake\\Http\\Cookie\\CookieCollection` documentation for how
+See the :php:class:`\\Cake\\Http\\Cookie\\CookieCollection` documentation for how
 to work with cookie collection.
 
 
@@ -614,7 +649,7 @@ Response
 
 .. php:class:: Response
 
-:php:class:`Cake\\Http\\Response` is the default response class in CakePHP.
+:php:class:`\\Cake\\Http\\Response` is the default response class in CakePHP.
 It encapsulates a number of features and functionality for generating HTTP
 responses in your application. It also assists in testing, as it can be
 mocked/stubbed allowing you to inspect headers that will be sent.
@@ -633,7 +668,7 @@ Dealing with Content Types
 .. php:method:: withType($contentType = null)
 
 You can control the Content-Type of your application's responses with
-:php:meth:`Cake\\Http\\Response::withType()`. If your application needs to deal
+:php:meth:`\\Cake\\Http\\Response::withType()`. If your application needs to deal
 with content types that are not built into Response, you can map them with
 ``setTypeMap()`` as well::
 
@@ -644,19 +679,18 @@ with content types that are not built into Response, you can map them with
     $this->response = $this->response->withType('vcf');
 
 Usually, you'll want to map additional content types in your controller's
-:php:meth:`~Controller::beforeFilter()` callback, so you can leverage the
-automatic view switching features of :php:class:`RequestHandlerComponent` if you
-are using it.
+:php:meth:`~Controller::beforeFilter()` callback, so you can benefit from
+automatic view switching provided by :ref:`controller-viewclasses`.
 
 .. _cake-response-file:
 
 Sending Files
 -------------
 
-.. php:method:: withFile($path, $options = [])
+.. php:method:: withFile(string $path, array $options = [])
 
 There are times when you want to send files as responses for your requests.
-You can accomplish that by using :php:meth:`Cake\\Http\\Response::withFile()`::
+You can accomplish that by using :php:meth:`\\Cake\\Http\\Response::withFile()`::
 
     public function sendFile($id)
     {
@@ -670,8 +704,8 @@ You can accomplish that by using :php:meth:`Cake\\Http\\Response::withFile()`::
 As shown in the above example, you must pass the file path to the method.
 CakePHP will send a proper content type header if it's a known file type listed
 in `Cake\\Http\\Response::$_mimeTypes`. You can add new types prior to calling
-:php:meth:`Cake\\Http\\Response::withFile()` by using the
-:php:meth:`Cake\\Http\\Response::withType()` method.
+:php:meth:`\\Cake\\Http\\Response::withFile()` by using the
+:php:meth:`\\Cake\\Http\\Response::withType()` method.
 
 If you want, you can also force a file to be downloaded instead of displayed in
 the browser by specifying the options::
@@ -719,7 +753,7 @@ Setting Headers
 
 .. php:method:: withHeader($header, $value)
 
-Setting headers is done with the :php:meth:`Cake\\Http\\Response::withHeader()`
+Setting headers is done with the :php:meth:`\\Cake\\Http\\Response::withHeader()`
 method. Like all of the PSR-7 interface methods, this method returns a *new*
 instance with the new header::
 
@@ -737,7 +771,7 @@ Headers are not sent when set. Instead, they are held until the response is
 emitted by ``Cake\Http\Server``.
 
 You can now use the convenience method
-:php:meth:`Cake\\Http\\Response::withLocation()` to directly set or get the
+:php:meth:`\\Cake\\Http\\Response::withLocation()` to directly set or get the
 redirect location header.
 
 Setting the Body
@@ -803,7 +837,7 @@ Interacting with Browser Caching
 .. php:method:: withDisabledCache()
 
 You sometimes need to force browsers not to cache the results of a controller
-action. :php:meth:`Cake\\Http\\Response::withDisabledCache()` is intended for just
+action. :php:meth:`\\Cake\\Http\\Response::withDisabledCache()` is intended for just
 that::
 
     public function index()
@@ -820,7 +854,7 @@ that::
 .. php:method:: withCache($since, $time = '+1 day')
 
 You can also tell clients that you want them to cache responses. By using
-:php:meth:`Cake\\Http\\Response::withCache()`::
+:php:meth:`\\Cake\\Http\\Response::withCache()`::
 
     public function index()
     {
@@ -848,7 +882,7 @@ Rather than forcing you to code the logic for caching and for invalidating
 (refreshing) it once the data has changed, HTTP uses two models, expiration and
 validation, which usually are much simpler to use.
 
-Apart from using :php:meth:`Cake\\Http\\Response::withCache()`, you can also use
+Apart from using :php:meth:`\\Cake\\Http\\Response::withCache()`, you can also use
 many other methods to fine-tune HTTP cache headers to take advantage of browser
 or reverse proxy caching.
 
@@ -926,7 +960,7 @@ that uniquely identifies the requested resource, as a checksum does for a file,
 in order to determine whether it matches a cached resource.
 
 To take advantage of this header, you must either call the
-``checkNotModified()`` method manually or include the
+``isNotModified()`` method manually or include the
 :doc:`/controllers/components/check-http-cache` in your controller::
 
     public function index()
@@ -939,7 +973,7 @@ To take advantage of this header, you must either call the
         $checksum = md5(json_encode($articles));
 
         $response = $this->response->withEtag($checksum);
-        if ($response->checkNotModified($this->request)) {
+        if ($response->isNotModified($this->request)) {
             return $response;
         }
 
@@ -963,14 +997,14 @@ last time. Setting this header helps CakePHP tell caching clients whether the
 response was modified or not based on their cache.
 
 To take advantage of this header, you must either call the
-``checkNotModified()`` method manually or include the
+``isNotModified()`` method manually or include the
 :doc:`/controllers/components/check-http-cache` in your controller::
 
     public function view()
     {
         $article = $this->Articles->find()->first();
         $response = $this->response->withModified($article->modified);
-        if ($response->checkNotModified($this->request)) {
+        if ($response->isNotModified($this->request)) {
             return $response;
         }
         $this->response;
@@ -994,14 +1028,14 @@ header::
 Sending Not-Modified Responses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. php:method:: checkNotModified(Request $request)
+.. php:method:: isNotModified(Request $request)
 
 Compares the cache headers for the request object with the cache header from the
 response and determines whether it can still be considered fresh. If so, deletes
 the response content, and sends the `304 Not Modified` header::
 
     // In a controller action.
-    if ($this->response->checkNotModified($this->request)) {
+    if ($this->response->isNotModified($this->request)) {
         return $this->response;
     }
 
@@ -1010,7 +1044,7 @@ the response content, and sends the `304 Not Modified` header::
 Setting Cookies
 ---------------
 
-Cookies can be added to response using either an array or a :php:class:`Cake\\Http\\Cookie\\Cookie`
+Cookies can be added to response using either an array or a :php:class:`\\Cake\\Http\\Cookie\\Cookie`
 object::
 
     use Cake\Http\Cookie\Cookie;
@@ -1040,7 +1074,7 @@ will make the browser remove its local cookie::
 .. _cors-headers:
 
 Setting Cross Origin Request Headers (CORS)
-===========================================
+-------------------------------------------
 
 The ``cors()`` method is used to define `HTTP Access Control
 <https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS>`__
@@ -1066,6 +1100,21 @@ criteria are met:
     CakePHP has no built-in CORS middleware because dealing with CORS requests
     is very application specific. We recommend you build your own ``CORSMiddleware``
     if you need one and adjust the response object as desired.
+
+Running logic after the Response has been sent
+----------------------------------------------
+
+In fastcgi based environments you can listen to the ``Server.terminate`` event
+to run logic **after** the response has been sent to the client. The
+``terminate`` event will be passed a ``request`` and ``response``. The
+``request`` is fetched from the applications' DI container, or from
+``Router::getRequest()`` if the DI container does not have a request registered.
+
+.. warning::
+   In non fastcgi environments the ``Server.terminate`` event is fired before
+   the response is sent.
+
+.. versionadded:: 5.1.0
 
 Common Mistakes with Immutable Responses
 ========================================

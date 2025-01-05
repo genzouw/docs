@@ -81,6 +81,7 @@ CakePHP にバンドルされているコード生成ユーティリティを利
                 $user = $this->Users->patchEntity($user, $this->request->getData());
                 if ($this->Users->save($user)) {
                     $this->Flash->success(__('The user has been saved.'));
+
                     return $this->redirect(['action' => 'add']);
                 }
                 $this->Flash->error(__('Unable to add the user.'));
@@ -139,7 +140,7 @@ composerを使ってAuthenticationプラグインをインストールします�
     class User extends Entity
     {
         // 主キーフィールドである「id」以外のすべてのフィールドを一括代入可能にします。
-        protected $_accessible = [
+        protected array $_accessible = [
             '*' => true,
             'id' => false
         ];
@@ -255,7 +256,7 @@ composerを使ってAuthenticationプラグインをインストールします�
 デフォルトでは、認証情報はリクエストデータの ``email`` と ``password`` フィールドから
 抽出されます。認証結果は ``authentication`` という名前のリクエスト属性に注入されます。
 この結果はいつでもコントローラのアクションから
-``$this->request->getAttribute('authentication')``を使って調べることができます。
+``$this->request->getAttribute('authentication')`` を使って調べることができます。
 すべてのページは ``AuthenticationComponent`` がリクエストごとに結果をチェックしているため、
 制限されてしまいます。認証されたユーザを見つけられなかった場合は ユーザーを ``/users/login``
 のページにリダイレクトします。
@@ -342,6 +343,7 @@ composerを使ってAuthenticationプラグインをインストールします�
         // POSTやGETに関係なく、ユーザーがログインしていればリダイレクトします
         if ($result->isValid()) {
             $this->Authentication->logout();
+
             return $this->redirect(['controller' => 'Users', 'action' => 'login']);
         }
     }

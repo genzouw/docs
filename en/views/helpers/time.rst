@@ -29,7 +29,7 @@ posts using the TimeHelper::
     echo $this->Time->format(
       $post->created,
       \IntlDateFormatter::FULL,
-      null,
+      false,
       $user->time_zone
     );
     // Will display 'Saturday, August 22, 2011 at 11:53:00 PM GMT'
@@ -39,11 +39,11 @@ posts using the TimeHelper::
 
 Most of TimeHelper's features are intended as backwards compatible interfaces
 for applications that are upgrading from older versions of CakePHP. Because the
-ORM returns :php:class:`Cake\\I18n\\Time` instances for every ``timestamp``
+ORM returns :php:class:`\\Cake\\I18n\\Time` instances for every ``timestamp``
 and ``datetime`` column, you can use the methods there to do most tasks.
 For example, to read about the accepted formatting strings take a look at the
 `Cake\\I18n\\Time::i18nFormat()
-<https://api.cakephp.org/4.x/class-Cake.I18n.Time.html#i18nFormat()>`_ method.
+<https://api.cakephp.org/5.x/class-Cake.I18n.Time.html#i18nFormat()>`_ method.
 
 .. meta::
     :title lang=en: TimeHelper

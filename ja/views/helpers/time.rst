@@ -30,7 +30,7 @@ TimeHelper を使って投稿日時を補正することができます。 ::
     echo $this->Time->format(
       $post->created,
       \IntlDateFormatter::FULL,
-      null,
+      false,
       $user->time_zone
     );
     // GMT+0 のユーザーには 'Saturday, August 22, 2011 at 11:53:00 PM GMT' と
@@ -41,7 +41,7 @@ TimeHelper を使って投稿日時を補正することができます。 ::
 TimeHelper のほとんどの機能は、古いバージョンの CakePHP からアップグレードしている
 アプリケーションのための下位互換性のあるインターフェースとして意図されています。
 なぜなら、 ORM は ``timestamp`` 型と ``datetime`` 型の列ごとに
-:php:class:`Cake\\I18n\\Time` インスタンスを返すので、そのメソッドを使用して
+:php:class:`\\Cake\\I18n\\Time` インスタンスを返すので、そのメソッドを使用して
 ほとんどのタスクを実行できるからです。例えば、受け入れられた書式指定文字列について
 読むには、 `Cake\\I18n\\Time::i18nFormat()
 <https://api.cakephp.org/4.x/class-Cake.I18n.Time.html#i18nFormat()>`_

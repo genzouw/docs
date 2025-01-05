@@ -292,8 +292,19 @@ Loading a specific Helper just for a specific cell can be done via the following
 
     class FavoritesCell extends Cell
     {
-        public function initialize(): void {
+        public function initialize(): void
+        {
             $this->viewBuilder()->addHelper('MyCustomHelper');
         }
     }
 
+
+Cell Events
+===========
+
+Cells trigger the following events around the cell action:
+
+* ``Cell.beforeAction``
+* ``Cell.afterAction``
+
+.. versionadded:: 5.1.0

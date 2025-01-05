@@ -251,6 +251,7 @@ A classe deve se parecer com::
             if ($result) {
                 return $result;
             }
+
             return parent::read($id);
         }
 
@@ -258,6 +259,7 @@ A classe deve se parecer com::
         public function write($id, $data)
         {
             Cache::write($id, $data, $this->cacheKey);
+
             return parent::write($id, $data);
         }
 
@@ -265,6 +267,7 @@ A classe deve se parecer com::
         public function destroy($id)
         {
             Cache::delete($id, $this->cacheKey);
+
             return parent::destroy($id);
         }
 
@@ -276,7 +279,7 @@ A classe deve se parecer com::
     }
 
 Nossa classe estende o ``DatabaseSession`` interno, para que não tenhamos que duplicar
-toda a sua lógica e comportamento. Envolvemos cada operação com uma operação :php:class:`Cake\\Cache\\Cache`.
+toda a sua lógica e comportamento. Envolvemos cada operação com uma operação :php:class:`\\Cake\\Cache\\Cache`.
 Isso nos permite buscar sessões no cache rápido e não ter que nos preocupar com o que acontece quando o
 cache é preenchido. Usar este manipulador de sessões também é fácil. No seu **app.php**,
 faça com que o bloco de sessões esteja como o seguinte::

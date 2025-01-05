@@ -27,7 +27,7 @@ simple Hello world command. In your application's **src/Command** directory crea
         public function execute(Arguments $args, ConsoleIo $io): int
         {
             $io->out('Hello world.');
-            
+
             return static::CODE_SUCCESS;
         }
     }
@@ -60,8 +60,9 @@ command line::
         protected function buildOptionParser(ConsoleOptionParser $parser): ConsoleOptionParser
         {
             $parser->addArgument('name', [
-                'help' => 'What is your name'
+                'help' => 'What is your name',
             ]);
+
             return $parser;
         }
 
@@ -69,7 +70,7 @@ command line::
         {
             $name = $args->getArgument('name');
             $io->out("Hello {$name}.");
-            
+
             return static::CODE_SUCCESS;
         }
     }
@@ -111,11 +112,11 @@ add a ``yell`` option to our ``HelloCommand``::
     {
         $parser
             ->addArgument('name', [
-                'help' => 'What is your name'
+                'help' => 'What is your name',
             ])
             ->addOption('yell', [
                 'help' => 'Shout the name',
-                'boolean' => true
+                'boolean' => true,
             ]);
 
         return $parser;
@@ -128,7 +129,7 @@ add a ``yell`` option to our ``HelloCommand``::
             $name = mb_strtoupper($name);
         }
         $io->out("Hello {$name}.");
-        
+
         return static::CODE_SUCCESS;
     }
 
@@ -202,7 +203,7 @@ to terminate execution::
             $io->error('Name must be at least 4 characters long.');
             $this->abort();
         }
-        
+
         return static::CODE_SUCCESS;
     }
 
@@ -215,7 +216,7 @@ You can also use ``abort()`` on the ``$io`` object to emit a message and code::
             // Halt execution, output to stderr, and set exit code to 99
             $io->abort('Name must be at least 4 characters long.', 99);
         }
-        
+
         return static::CODE_SUCCESS;
     }
 
@@ -335,12 +336,6 @@ moment, but let's just test that our command's description is displayed in ``std
     {
         use ConsoleIntegrationTestTrait;
 
-        public function setUp(): void
-        {
-            parent::setUp();
-            $this->useCommandRunner();
-        }
-
         public function testDescriptionOutput()
         {
             $this->exec('update_table --help');
@@ -382,7 +377,7 @@ conventions. Let's continue by adding more logic to our command::
                     'modified' => new DateTime()
                 ])
                 ->execute();
-                
+
             return static::CODE_SUCCESS;
         }
     }
@@ -403,7 +398,7 @@ Modify your test case to the following snippet of code::
 
         protected $fixtures = [
             // assumes you have a UsersFixture
-            'app.Users'
+            'app.Users',
         ];
 
         public function testDescriptionOutput()
@@ -438,8 +433,8 @@ the ``modified`` column to the current time.
 Remember, ``exec()`` will take the same string you type into your CLI, so you
 can include options and arguments in your command string.
 
-Testing Interactive Shells
---------------------------
+Testing Interactive Commands
+----------------------------
 
 Consoles are often interactive. Testing interactive commands with the
 ``Cake\TestSuite\ConsoleIntegrationTestTrait`` trait only requires passing the
@@ -483,12 +478,12 @@ Update the command class to the following::
                     'modified' => new DateTime()
                 ])
                 ->execute();
-                
+
             return static::CODE_SUCCESS;
         }
     }
 
-Now that we have an interactive subcommand, we can add a test case that tests
+Now that we have an interactive command, we can add a test case that tests
 that we receive the proper response, and one that tests that we receive an
 incorrect response. Remove the ``testUpdateModified`` method and, add the following methods to
 **tests/TestCase/Command/UpdateTableCommandTest.php**::

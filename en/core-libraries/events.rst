@@ -65,8 +65,10 @@ has been created. To keep your Orders model clean you could use events::
                     'order' => $order
                 ]);
                 $this->getEventManager()->dispatch($event);
+
                 return true;
             }
+
             return false;
         }
     }
@@ -150,6 +152,43 @@ application.
 * :ref:`Controller events <controller-life-cycle>`
 * :ref:`View events <view-events>`
 
+``Server.terminate``
+--------------------
+
+The ``Server.terminate`` event is triggered after the response has been sent to the
+client. This event is useful for performing tasks that should be done after the
+response has been sent, such as logging or sending emails.
+
+You can listen to this event using an event manager instance::
+
+    use Cake\Event\EventManager;
+
+    EventManager::instance()->on('Server.terminate', function ($event) {
+        // Perform tasks that should be done after the response has been
+        // sent to the client.
+    });
+
+Or using the ``events`` hook in your Application/Plugin class::
+
+    use Cake\Event\EventManagerInterface;
+
+    public function events(EventManagerInterface $eventManager): EventManagerInterface
+    {
+        $eventManager->on('Server.terminate', function ($event) {
+            // Perform tasks that should be done after the response has been
+            // sent to the client.
+        });
+
+        return $eventManager;
+    }
+
+.. tip::
+    This is called even if an exception is thrown during the request, e.g. on 404 pages.
+
+.. note::
+    The ``Server.terminate`` event only works for PHP-FPM implementations which
+    support the ``fastcgi_finish_request`` function.
+
 .. _registering-event-listeners:
 
 Registering Listeners
@@ -195,6 +234,30 @@ as necessary. Our ``UserStatistics`` listener might start out like::
 As you can see in the above code, the ``on()`` function will accept instances
 of the ``EventListener`` interface. Internally, the event manager will use
 ``implementedEvents()`` to attach the correct callbacks.
+
+.. versionadded:: 5.1.0
+    The ``events`` hook was added to the ``BaseApplication`` as well as the ``BasePlugin`` class
+
+As of CakePHP 5.1 it is recommended to register event listeners by adding them via the ``events`` hook in your application or plugin class::
+
+    namespace App;
+
+    use App\Event\UserStatistic;
+    use Cake\Event\EventManagerInterface;
+    use Cake\Http\BaseApplication;
+
+    class Application extends BaseApplication
+    {
+        // The rest of your Application class
+
+        public function events(EventManagerInterface $eventManager): EventManagerInterface
+        {
+            $statistics = new UserStatistic();
+            $eventManager->on($statistics);
+
+            return $eventManager;
+        }
+    }
 
 Registering Anonymous Listeners
 -------------------------------
@@ -456,6 +519,7 @@ directly or returning the value in the callback itself::
     {
         // ...
         $alteredData = $event->getData('order') + $moreData;
+
         return $alteredData;
     }
 

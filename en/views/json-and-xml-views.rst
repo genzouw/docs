@@ -4,7 +4,7 @@ JSON and XML views
 The ``JsonView`` and ``XmlView`` integration with CakePHP's
 :ref:`controller-viewclasses` features and  let you create JSON and XML responses.
 
-These view classes are most commonly used alongside :php:meth:`\Cake\Controller\Controller::viewClasses()`.
+These view classes are most commonly used alongside :php:meth:`Cake\\Controller\\Controller::viewClasses()`.
 
 There are two ways you can generate data views. The first is by using the
 ``serialize`` option, and the second is by creating normal template files.
@@ -60,7 +60,7 @@ serialize::
 
         public function index()
         {
-            // Set the view vars that have to be serialized.
+            // Set the view vars
             $this->set('articles', $this->paginate());
             // Specify which view vars JsonView should serialize.
             $this->viewBuilder()->setOption('serialize', 'articles');
@@ -84,7 +84,7 @@ You can also define ``serialize`` as an array of view variables to combine::
         {
             // Some code that created $articles and $comments
 
-            // Set the view vars that have to be serialized.
+            // Set the view vars
             $this->set(compact('articles', 'comments'));
 
             // Specify which view vars JsonView should serialize.
@@ -142,6 +142,13 @@ An example of using ``XmlView`` would be to generate a `sitemap.xml
 change ``rootNode`` and set attributes. Attributes are defined using the ``@``
 prefix::
 
+    use Cake\View\XmlView;
+
+    public function viewClasses(): array
+    {
+        return [XmlView::class];
+    }
+
     public function sitemap()
     {
         $pages = $this->Pages->find()->all();
@@ -151,7 +158,7 @@ prefix::
                 'loc' => Router::url(['controller' => 'Pages', 'action' => 'view', $page->slug, '_full' => true]),
                 'lastmod' => $page->modified->format('Y-m-d'),
                 'changefreq' => 'daily',
-                'priority' => '0.5'
+                'priority' => '0.5',
             ];
         }
 
@@ -162,7 +169,7 @@ prefix::
         $this->set([
             // Define an attribute on the root node.
             '@xmlns' => 'http://www.sitemaps.org/schemas/sitemap/0.9',
-            'url' => $urls
+            'url' => $urls,
         ]);
     }
 
@@ -238,3 +245,6 @@ total control over view class selection you can directly choose the view class::
         }
     }
 
+.. meta::
+    :title lang=en: JSON and XML views
+    :keywords lang=en: json,xml,presentation layer,view,ajax,logic,syntax,templates,cakephp

@@ -132,9 +132,9 @@ de configuration complétée ressemblera à ceci::
         // D'autres configurations au dessus
         'Datasources' => [
             'default' => [
-                'className' => 'Cake\Database\Connection',
+                'className' => Connection::class,
                 // Remplacez Mysql par Postgres si vous utilisez PostgreSQL
-                'driver' => 'Cake\Database\Driver\Mysql',
+                'driver' => Mysql::class,
                 'persistent' => false,
                 'host' => 'localhost',
                 'username' => 'cakephp',
@@ -214,7 +214,7 @@ Le fichier devra ressembler à ceci::
 
     class Article extends Entity
     {
-        protected $_accessible = [
+        protected array $_accessible = [
             '*' => true,
             'id' => false,
             'slug' => false,

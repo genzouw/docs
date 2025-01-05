@@ -17,12 +17,13 @@ use the ``Number`` class::
         public function initialize(): void
         {
             parent::initialize();
-            $this->loadComponent('Auth');
+            $this->loadComponent('Authentication.Authentication');
         }
 
         public function afterLogin()
         {
-            $storageUsed = $this->Auth->user('storage_used');
+            $identity = $this->Authentication->getIdentity();
+            $storageUsed = $identity->storage_used;
             if ($storageUsed > 5000000) {
                 // Notify users of quota
                 $this->Flash->success(__('You are using {0} storage', Number::toReadableSize($storageUsed)));
@@ -108,7 +109,7 @@ Setting the Default Currency
 .. php:method:: setDefaultCurrency($currency)
 
 Setter for the default currency. This removes the need to always pass the
-currency to :php:meth:`Cake\\I18n\\Number::currency()` and change all
+currency to :php:meth:`\\Cake\\I18n\\Number::currency()` and change all
 currency outputs by setting other default. If ``$currency`` is set to ``null``,
 it will clear the currently stored value.
 
@@ -118,7 +119,7 @@ Getting the Default Currency
 .. php:method:: getDefaultCurrency()
 
 Getter for the default currency. If default currency was set earlier using
-``setDefaultCurrency()``, then that value will be returned. By default, it will 
+``setDefaultCurrency()``, then that value will be returned. By default, it will
 retrieve the ``intl.default_locale`` ini value if set and ``'en_US'`` if not.
 
 Formatting Floating Point Numbers
@@ -151,7 +152,7 @@ Formatting Percentages
 |                     | multiplied by 100. Useful for decimal percentages. |
 +---------------------+----------------------------------------------------+
 
-Like :php:meth:`Cake\\I18n\\Number::precision()`, this method formats a number
+Like :php:meth:`\\Cake\\I18n\\Number::precision()`, this method formats a number
 according to the supplied precision (where numbers are rounded to meet the
 given precision). This method also expresses the number as a percentage
 and appends the output with a percent sign. ::

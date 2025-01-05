@@ -265,7 +265,7 @@ Try to avoid unnecessary nesting by bailing early::
     {
         ...
         if (!$success) {
-            throw new RuntimeException(...);
+            throw new RuntimeException(/* ... */);
         }
 
         ...
@@ -568,6 +568,17 @@ If a constant name consists of multiple words, they should be separated by an
 underscore character, for example::
 
     define('LONG_NAMED_CONSTANT', 2);
+
+Enums
+-----
+
+Enum cases are defined in ``CamelCase`` style::
+
+    enum ArticleStatus: string
+    {
+        case Published = 'Y';
+        case NotPublishedYet = 'N';
+    }
 
 Careful when using empty()/isset()
 ==================================

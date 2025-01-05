@@ -94,11 +94,11 @@ self-associated tables to create parent-child relationships::
         public function initialize(array $config): void
         {
             $this->hasMany('SubCategories', [
-                'className' => 'Categories'
+                'className' => 'Categories',
             ]);
 
             $this->belongsTo('ParentCategories', [
-                'className' => 'Categories'
+                'className' => 'Categories',
             ]);
         }
     }
@@ -113,10 +113,10 @@ table names indexed by association type as an argument::
         {
            $this->addAssociations([
                'belongsTo' => [
-                   'Users' => ['className' => 'App\Model\Table\UsersTable']
+                   'Users' => ['className' => 'App\Model\Table\UsersTable'],
                ],
                'hasMany' => ['Comments'],
-               'belongsToMany' => ['Tags']
+               'belongsToMany' => ['Tags'],
            ]);
         }
     }
@@ -186,18 +186,18 @@ If you want to break different addresses into multiple associations, you can do 
     {
         public function initialize(array $config): void
         {
-            $this->hasOne('HomeAddress', [
+            $this->hasOne('HomeAddresses', [
                     'className' => 'Addresses'
                 ])
                 ->setProperty('home_address')
-                ->setConditions(['HomeAddress.label' => 'Home'])
+                ->setConditions(['HomeAddresses.label' => 'Home'])
                 ->setDependent(true);
 
-            $this->hasOne('WorkAddress', [
+            $this->hasOne('WorkAddresses', [
                     'className' => 'Addresses'
                 ])
                 ->setProperty('work_address')
-                ->setConditions(['WorkAddress.label' => 'Work'])
+                ->setConditions(['WorkAddresses.label' => 'Work'])
                 ->setDependent(true);
         }
     }
@@ -205,7 +205,7 @@ If you want to break different addresses into multiple associations, you can do 
 .. note::
 
     If a column is shared by multiple hasOne associations, you must qualify it with the association alias.
-    In the above example, the 'label' column is qualified with the 'HomeAddress' and 'WorkAddress' aliases.
+    In the above example, the 'label' column is qualified with the 'HomeAddresses' and 'WorkAddresses' aliases.
 
 Possible keys for hasOne association arrays include:
 
@@ -394,7 +394,7 @@ Sometimes you may want to configure composite keys in your associations::
     $this->hasMany('Comments')
         ->setForeignKey([
             'article_id',
-            'article_hash'
+            'article_hash',
         ]);
 
 Relying on the example above, we have passed an array containing the desired
@@ -407,11 +407,11 @@ manually with ``setBindingKey()``::
     $this->hasMany('Comments')
         ->setForeignKey([
             'article_id',
-            'article_hash'
+            'article_hash',
         ])
         ->setBindingKey([
             'whatever_id',
-            'whatever_hash'
+            'whatever_hash',
         ]);
 
 Like hasOne associations, ``foreignKey`` is in the other (Comments)
@@ -510,7 +510,8 @@ example above we would need tables for ``articles``, ``tags`` and
 ``articles_tags``.  The ``articles_tags`` table contains the data that links
 tags and articles together. The joining table is named after the two tables
 involved, separated with an underscore by convention. In its simplest form, this
-table consists of ``article_id`` and ``tag_id``.
+table consists of ``article_id`` and ``tag_id`` and a multi-column
+``PRIMARY KEY`` index spanning both columns.
 
 **belongsToMany** requires a separate join table that includes both *model*
 names.

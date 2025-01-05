@@ -56,7 +56,7 @@ Selecionando Linhas de uma Tabela
     }
 
 Para os exemplos restantes, suponha que ``$articles`` seja um
-:php:class:`~Cake\\ORM\\Table`. Quando dentro de controladores,
+:php:class:`\\Cake\\ORM\\Table`. Quando dentro de controladores,
 você pode usar ``$this->Articles`` em vez de ``$articles``.
 
 Quase todos os métodos em um objeto ``Query`` retornam a mesma
@@ -103,6 +103,7 @@ A maneira mais fácil é chamar os métodos ``all()`` ou ``toList()``::
     $resultsArray = $articles
         ->find()
         ->where(['id >' => 1])
+        ->all()
         ->toList();
 
     foreach ($resultsArray as $article) {
@@ -176,6 +177,7 @@ você também pode fazer em um objeto Query::
         ->order(['title' => 'DESC'])
         ->map(function ($row) { // map() é um método de coleção, ele executa a consulta
             $row->trimmedTitle = trim($row->title);
+
             return $row;
         })
         ->combine('id', 'trimmedTitle') // combine() é outro método de coleção
@@ -573,6 +575,7 @@ um formatador de resultados::
     $query->formatResults(function (\Cake\Collection\CollectionInterface $results) {
         return $results->map(function ($row) {
             $row['age'] = $row['birth_date']->diff(new \DateTime)->y;
+
             return $row;
         });
     });
@@ -594,6 +597,7 @@ funcionaria conforme o esperado::
         return $q->formatResults(function (\Cake\Collection\CollectionInterface $authors) {
             return $authors->map(function ($author) {
                 $author['age'] = $author['birth_date']->diff(new \DateTime)->y;
+
                 return $author;
             });
         });
@@ -666,7 +670,7 @@ criam novos objetos de expressão que mudam **como** as condições são combina
 segundo tipo de métodos são **condições**. As condições são adicionadas a uma expressão
 em que são alinhadas com o combinador atual.
 
-Por exemplo, chamar ``$exp->and_(...)`` criará um novo objeto ``Expression`` que
+Por exemplo, chamar ``$exp->and_(/* ... */)`` criará um novo objeto ``Expression`` que
 combina todas as condições que ele contém com ``AND``. Enquanto ``$exp->or_()`` criará
 um novo objeto ``Expression`` que combina todas as condições adicionadas a ele
 com ``OR``. Um exemplo de adição de condições com um objeto ``Expression`` seria::
@@ -705,6 +709,7 @@ No entanto, se quisermos usar as condições ``AND`` e ``OR``, poderíamos fazer
         ->where(function (QueryExpression $exp) {
             $orConditions = $exp->or_(['author_id' => 2])
                 ->eq('author_id', 5);
+
             return $exp
                 ->add($orConditions)
                 ->eq('published', true)
@@ -731,6 +736,7 @@ Muitas vezes, é mais fácil ler do que encadear métodos::
                 return $or->eq('author_id', 2)
                     ->eq('author_id', 5);
             });
+
             return $exp
                 ->not($orConditions)
                 ->lte('view_count', 10);
@@ -742,6 +748,7 @@ Você pode negar sub-expressões usando ``not()``::
         ->where(function (QueryExpression $exp) {
             $orConditions = $exp->or_(['author_id' => 2])
                 ->eq('author_id', 5);
+
             return $exp
                 ->not($orConditions)
                 ->lte('view_count', 10);
@@ -764,6 +771,7 @@ Também é possível construir expressões usando as funções SQL::
             $year = $q->func()->year([
                 'created' => 'identifier'
             ]);
+
             return $exp
                 ->gte($year, 2014)
                 ->eq('published', true);
@@ -1288,7 +1296,7 @@ Para inserir várias linhas com apenas uma consulta, você pode encadear o méto
         ->execute();
 
 Geralmente, é mais fácil inserir dados usando entidades e
-:php:meth:`~Cake\\ORM\\Table::save()`. Ao compor uma consulta ``SELECT`` e ``INSERT`` juntas,
+:php:meth:`\\Cake\\ORM\\Table::save()`. Ao compor uma consulta ``SELECT`` e ``INSERT`` juntas,
 você pode criar consultas de estilo  ``INSERT INTO ... SELECT``
 
     $select = $articles->find()
@@ -1338,10 +1346,10 @@ de exclusão. Em vez disso, crie um novo objeto de consulta usando ``query()``::
         ->execute();
 
 Generally, it is easier to delete data using entities and
-:php:meth:`~Cake\\ORM\\Table::delete()`.
+:php:meth:`\\Cake\\ORM\\Table::delete()`.
 
 Geralmente, é mais fácil excluir dados usando entidades
-e :php:meth:`~Cake\\ORM\\Table::delete()`.
+e :php:meth:`\\Cake\\ORM\\Table::delete()`.
 
 Prevenção de SQL Injection
 ==========================

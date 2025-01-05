@@ -301,7 +301,7 @@ Accéder à des Connexions
 .. php:staticmethod:: get($name)
 
 Une fois configurées, les connexions peuvent être récupérées en utilisant
-:php:meth:`Cake\\Datasource\\ConnectionManager::get()`. Cette méthode va
+:php:meth:`\\Cake\\Datasource\\ConnectionManager::get()`. Cette méthode va
 construire et charger une connexion si elle n'a pas été déjà construite
 avant, ou retourner la connexion connue existante::
 
@@ -390,7 +390,7 @@ binary
     Correspond au type ``BLOB`` ou ``BYTEA`` fourni par la base de données.
 date
     Correspond au type de colonne natif ``DATE``. La valeur de retour de ce
-    type de colonne est :php:class:`Cake\\I18n\\Date` qui étend la classe
+    type de colonne est :php:class:`\\Cake\\I18n\\Date` qui étend la classe
     native ``DateTime``.
 datetime
     Consultez :ref:`datetime-type`.
@@ -503,6 +503,7 @@ type JSON, nous pourrions créer la classe de type suivante::
             if ($value === null) {
                 return null;
             }
+
             return json_decode($value, true);
         }
 
@@ -511,6 +512,7 @@ type JSON, nous pourrions créer la classe de type suivante::
             if (is_array($value) || $value === null) {
                 return $value;
             }
+
             return json_decode($value, true);
         }
 
@@ -524,6 +526,7 @@ type JSON, nous pourrions créer la classe de type suivante::
             if ($value === null) {
                 return PDO::PARAM_NULL;
             }
+
             return PDO::PARAM_STR;
         }
 
@@ -609,6 +612,7 @@ spécifique::
             if (isset($data['null') && $data['null'] === false) {
                 $sql .= ' NOT NULL';
             }
+
             return $sql;
         }
 
@@ -714,6 +718,7 @@ faire correspondre les données dans cet objet et les expressions SQL::
             if (is_array($value)) {
                 return new Point($value[0], $value[1]);
             }
+
             return null;
         }
 
@@ -1032,7 +1037,7 @@ log de requêtes à la volée, en utilisant ``enableQueryLogging``::
     $connection->enableQueryLogging(false);
 
 Quand les logs de requêtes sont activés, les requêtes sont loguées dans
-:php:class:`Cake\\Log\\Log` en utilisant le niveau 'debug', et le scope
+:php:class:`\\Cake\\Log\\Log` en utilisant le niveau 'debug', et le scope
 'queriesLog'. Vous aurez besoin d'avoir un logger configuré pour capter
 ce niveau et ce scope. Faire des logs vers ``stderr`` peut être utile lorsque vous
 travaillez sur les tests unitaires, et les logs de fichiers/syslog peuvent être

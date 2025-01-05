@@ -516,6 +516,7 @@ série de chamadas de métodos::
             'short' => 'm',
             'help' => __('The specific method you want help on.')
         ])->description(__('Lookup doc block comments for classes in CakePHP.'));
+
         return $parser;
     }
 
@@ -788,8 +789,8 @@ Dentro da especificação do interpretador, você pode definir as chaves para
 ``arguments``, ``options``, ``description`` e ``epilog``. Você não pode definir
 ``subcommands`` dentro de um construtor estilo array. Os valores para os
 argumentos e opções, devem seguir o formato que
-:php:func:`Cake\\Console\\ConsoleOptionParser::addArguments()` e
-:php:func:`Cake\\Console\\ConsoleOptionParser::addOptions()` usam. Você também
+:php:func:`\\Cake\\Console\\ConsoleOptionParser::addArguments()` e
+:php:func:`\\Cake\\Console\\ConsoleOptionParser::addOptions()` usam. Você também
 pode usar buildFromArray por conta própria, para construir um interpretador de
 opção::
 

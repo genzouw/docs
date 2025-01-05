@@ -6,7 +6,7 @@ Security Utility
 .. php:class:: Security
 
 The `security library
-<https://api.cakephp.org/4.x/class-Cake.Utility.Security.html>`_
+<https://api.cakephp.org/5.x/class-Cake.Utility.Security.html>`_
 handles basic security measures such as providing methods for
 hashing and encrypting data.
 
@@ -31,7 +31,7 @@ An example use would be::
 
 If you do not supply an HMAC salt, the value of ``Security::getSalt()`` will be used.
 Encrypted values can be decrypted using
-:php:meth:`Cake\\Utility\\Security::decrypt()`.
+:php:meth:`\\Cake\\Utility\\Security::decrypt()`.
 
 This method should **never** be used to store passwords.
 
