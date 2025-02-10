@@ -132,13 +132,13 @@ value::
         'title' => 'First post',
         'user_id' => null,
         'text' => '',
-        'links' => []
+        'links' => [],
     ]);
     $article->has('title'); // true
     $article->isEmpty('title');  // false
     $article->hasValue('title'); // true
 
-    $article->has('user_id'); // false
+    $article->has('user_id'); // true
     $article->isEmpty('user_id');  // true
     $article->hasValue('user_id'); // false
 
@@ -371,7 +371,7 @@ indicate whether a field can or cannot be mass-assigned::
 
     class Article extends Entity
     {
-        protected $_accessible = [
+        protected array $_accessible = [
             'title' => true,
             'body' => true
         ];
@@ -386,7 +386,7 @@ fallback behavior if a field is not specifically named::
 
     class Article extends Entity
     {
-        protected $_accessible = [
+        protected array $_accessible = [
             'title' => true,
             'body' => true,
             '*' => false,

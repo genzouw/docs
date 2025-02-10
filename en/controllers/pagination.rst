@@ -26,8 +26,8 @@ You can call ``paginate()`` using an ORM table instance or ``Query`` object::
         // Paginate the ORM table.
         $this->set('articles', $this->paginate($this->Articles));
 
-        // Paginate a partially completed query
-        $query = $this->Articles->find('published');
+        // Paginate a select query
+        $query = $this->Articles->find('published')->contain('Comments');
         $this->set('articles', $this->paginate($query));
     }
 
@@ -45,19 +45,15 @@ from the URL::
         protected array $paginate = [
             'limit' => 25,
             'order' => [
-                'Articles.title' => 'asc'
-            ]
+                'Articles.title' => 'asc',
+            ],
         ];
     }
 
 .. tip::
     Default ``order`` options must be defined as an array.
 
-While you can include any of the options supported by
-:php:meth:`~Cake\\ORM\\Table::find()` such as ``fields`` in your pagination
-settings. It is cleaner and simpler to bundle your pagination options into
-a :ref:`custom-find-methods`. You can use your finder in pagination by using the
-``finder`` option::
+You can also use :ref:`custom-find-methods` in pagination by using the ``finder`` option::
 
     class ArticlesController extends AppController
     {
@@ -65,6 +61,8 @@ a :ref:`custom-find-methods`. You can use your finder in pagination by using the
             'finder' => 'published',
         ];
     }
+
+Note: This only works with Table as string input in ``$this->paginate('MyTable')``. Once you use ``$this->MyTable->find()`` as input for ``paginate()``, you must directly use that Query object instead.
 
 If your finder method requires additional options you can pass those
 as values for the finder::
@@ -108,8 +106,8 @@ as a key in the ``$paginate`` property::
         ];
     }
 
-The values of the ``Articles`` and ``Authors`` keys could contain all the
-properties that a basic ``$paginate`` array would.
+The values of the ``Articles`` and ``Authors`` keys could contain all the keys
+that a basic ``$paginate`` array would.
 
 ``Controller::paginate()`` returns an instance of ``Cake\Datasource\Paging\PaginatedResultSet``
 which implements the ``Cake\Datasource\Paging\PaginatedInterface``.
@@ -219,8 +217,8 @@ pagination query::
 
     protected array $paginate = [
         'sortableFields' => [
-            'id', 'title', 'Users.username', 'created'
-        ]
+            'id', 'title', 'Users.username', 'created',
+        ],
     ];
 
 Any requests that attempt to sort on fields not in the allowed list will be
@@ -244,21 +242,6 @@ example reducing it to ``10``::
 
 If the request's limit param is greater than this value, it will be reduced to
 the ``maxLimit`` value.
-
-Joining Additional Associations
-===============================
-
-Additional associations can be loaded to the paginated table by using the
-``contain`` parameter::
-
-    public function index()
-    {
-        $this->paginate = [
-            'contain' => ['Authors', 'Comments']
-        ];
-
-        $this->set('articles', $this->paginate($this->Articles));
-    }
 
 Out of Range Page Requests
 ==========================
@@ -288,7 +271,7 @@ Using a paginator class directly
 You can also use a paginator directly.::
 
         // Create a paginator
-        $paginator = new \Cake\Datasource\Paginator\Paginator();
+        $paginator = new \Cake\Datasource\Paginator\NumericPaginator();
 
         // Paginate the model
         $results = $paginator->paginate(

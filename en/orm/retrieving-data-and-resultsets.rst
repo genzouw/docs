@@ -19,7 +19,7 @@ be more complicated than in previous CakePHP versions. There are now various
 ways to inspect the data returned by the ORM.
 
 - ``debug($query)`` Shows the SQL and bound parameters, does not show results.
-- ``sql($query)`` Shows the final rendered SQL, but only when having DebugKit installed.
+- ``sql($query)`` Shows the final rendered SQL when DebugKit is installed.
 - ``debug($query->all())`` Shows the ResultSet properties (not the results).
 - ``debug($query->toList())`` Show results in an array.
 - ``debug(iterator_to_array($query))`` Shows query results in an array format.
@@ -41,9 +41,7 @@ viewing entities and their related data. You can do this by using ``get()``::
     $article = $articles->get($id);
 
     // Get a single article, and related comments
-    $article = $articles->get($id, [
-        'contain' => ['Comments']
-    ]);
+    $article = $articles->get($id, contain: ['Comments']);
 
 If the get operation does not find any results a
 ``Cake\Datasource\Exception\RecordNotFoundException`` will be raised. You can
@@ -56,27 +54,19 @@ Like ``find()``, ``get()`` also has caching integrated. You can use the
     // In a controller or table method.
 
     // Use any cache config or CacheEngine instance & a generated key
-    $article = $articles->get($id, [
-        'cache' => 'custom',
-    ]);
+    $article = $articles->get($id, cache: 'custom');
 
     // Use any cache config or CacheEngine instance & specific key
-    $article = $articles->get($id, [
-        'cache' => 'custom', 'key' => 'mykey'
-    ]);
+    $article = $articles->get($id, cache: 'custom', key: 'mykey');
 
     // Explicitly disable caching
-    $article = $articles->get($id, [
-        'cache' => false
-    ]);
+    $article = $articles->get($id, cache: false);
 
 Optionally you can ``get()`` an entity using :ref:`custom-find-methods`. For
 example you may want to get all translations for an entity. You can achieve that
 by using the ``finder`` option::
 
-    $article = $articles->get($id, [
-        'finder' => 'translations',
-    ]);
+    $article = $articles->get($id, 'translations');
 
 The list of options supported by get() are:
 
@@ -146,8 +136,7 @@ execute until you start fetching rows, convert it to an array, or when the
         ->contain(['Comments', 'Authors'])
         ->limit(10);
 
-You can also provide many commonly used options to ``find()``. This can help
-with testing as there are fewer methods to mock::
+You can also provide many commonly used options to ``find()``::
 
     // In a controller or table method.
     $query = $articles->find('all',
@@ -529,18 +518,18 @@ statements::
                 'fields' => [
                     // Aliased fields in contain() must include
                     // the model prefix to be mapped correctly.
-                    'Attributes__name' => 'attr_name'
-                ]
-            ]
-        ]
+                    'Attributes__name' => 'attr_name',
+                ],
+            ],
+        ],
     ])
     ->contain([
         'RealestateAttributes' => [
             'fields' => [
                 'RealestateAttributes.realestate_id',
-                'RealestateAttributes.value'
-            ]
-        ]
+                'RealestateAttributes.value',
+            ],
+        ],
     ])
     ->where($condition);
 
@@ -625,7 +614,7 @@ Use the ``queryBuilder`` option to customize the query when using an array::
         'Authors' => [
             'foreignKey' => false,
             'queryBuilder' => function (SelectQuery $q) {
-                return $q->where(...); // Full conditions for filtering
+                return $q->where(/* ... */); // Full conditions for filtering
             }
         ]
     ]);
@@ -928,24 +917,7 @@ and you can use any collection method on ResultSet objects.
 
 Result set objects will lazily load rows from the underlying prepared statement.
 By default results will be buffered in memory allowing you to iterate a result
-set multiple times, or cache and iterate the results. If you need work with
-a data set that does not fit into memory you can disable buffering on the query
-to stream results::
-
-    $query->disableBufferedResults();
-
-Turning buffering off has a few caveats:
-
-#. You will not be able to iterate a result set more than once.
-#. You will also not be able to iterate & cache the results.
-#. Buffering cannot be disabled for queries that eager load hasMany or
-   belongsToMany associations, as these association types require eagerly
-   loading all results so that dependent queries can be generated.
-
-.. warning::
-
-    Streaming results will still allocate memory for the entire results when
-    using PostgreSQL and SQL Server. This is due to limitations in PDO.
+set multiple times, or cache and iterate the results.
 
 Result sets allow you to cache/serialize or JSON encode results for API
 results::
@@ -975,6 +947,7 @@ extract a list of unique tags on a collection of articles by running::
         if (!in_array($value, $output)) {
             $output[] = $value;
         }
+
         return $output;
     };
 
@@ -1043,8 +1016,8 @@ can load additional associations using ``loadInto()``::
     $articles = $this->Articles->find()->all();
     $withMore = $this->Articles->loadInto($articles, ['Comments', 'Users']);
 
-It is possible to restrict the data returned by the associations and filter them 
-by conditions. To specify conditions, pass an anonymous function that receives 
+It is possible to restrict the data returned by the associations and filter them
+by conditions. To specify conditions, pass an anonymous function that receives
 as the first argument a query object, ``\Cake\ORM\Query``::
 
     $user = $this->Users->get($id);
@@ -1260,6 +1233,7 @@ This is particularly useful for building custom finder methods as described in t
         // Same as in the common words example in the previous section
         $mapper = ...;
         $reducer = ...;
+
         return $query->mapReduce($mapper, $reducer);
     }
 

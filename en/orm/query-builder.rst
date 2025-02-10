@@ -58,7 +58,7 @@ that ``SelectQuery`` objects are lazy, and will not be executed unless you tell 
 to::
 
     $query->where(['id' => 1]); // Return the same query object
-    $query->order(['title' => 'DESC']); // Still same object, no SQL executed
+    $query->orderBy(['title' => 'DESC']); // Still same object, no SQL executed
 
 You can of course chain the methods you call on SelectQuery objects::
 
@@ -66,7 +66,7 @@ You can of course chain the methods you call on SelectQuery objects::
         ->find()
         ->select(['id', 'name'])
         ->where(['id !=' => 1])
-        ->order(['created' => 'DESC']);
+        ->orderBy(['created' => 'DESC']);
 
     foreach ($query->all() as $article) {
         debug($article->created);
@@ -97,6 +97,7 @@ The easiest way is to either call the ``all()`` or ``toList()`` methods::
     $resultsArray = $articles
         ->find()
         ->where(['id >' => 1])
+        ->all()
         ->toList();
 
     foreach ($resultsArray as $article) {
@@ -149,12 +150,12 @@ You can also get a key-value list out of a query result::
 For more information on how to customize the fields used for populating the list
 refer to :ref:`table-find-list` section.
 
-Resultset Are Collection Objects
+ResultSet Is A Collection Object
 --------------------------------
 
 Once you get familiar with the Query object methods, it is strongly encouraged
 that you visit the :doc:`Collection </core-libraries/collections>` section to
-improve your skills in efficiently traversing the results. The resultset (returned
+improve your skills in efficiently traversing the results. The ResultSet (returned
 by calling the ``SelectQuery``'s ``all()`` method) implements the collection interface::
 
     // Use the combine() method from the collections library
@@ -164,10 +165,11 @@ by calling the ``SelectQuery``'s ``all()`` method) implements the collection int
     // An advanced example
     $results = $articles->find()
         ->where(['id >' => 1])
-        ->order(['title' => 'DESC'])
+        ->orderBy(['title' => 'DESC'])
         ->all()
         ->map(function ($row) {
             $row->trimmedTitle = trim($row->title);
+
             return $row;
         })
         ->combine('id', 'trimmedTitle') // combine() is another collection method
@@ -366,7 +368,7 @@ safely add user data to SQL functions. For example::
         ' - Age: ',
         $query->func()->dateDiff([
             'NOW()' => 'literal',
-            'Articles.created' => 'identifier'
+            'Articles.created' => 'identifier',
         ])
     ]);
     $query->select(['link_title' => $concat]);
@@ -430,20 +432,20 @@ Ordering Results
 To apply ordering, you can use the ``order`` method::
 
     $query = $articles->find()
-        ->order(['title' => 'ASC', 'id' => 'ASC']);
+        ->orderBy(['title' => 'ASC', 'id' => 'ASC']);
 
-When calling ``order()`` multiple times on a query, multiple clauses will be
+When calling ``orderBy()`` multiple times on a query, multiple clauses will be
 appended.  However, when using finders you may sometimes need to overwrite the
-``ORDER BY``.  Set the second parameter of ``order()`` (as well as
-``orderAsc()`` or ``orderDesc()``) to ``SelectQuery::OVERWRITE`` or to ``true``::
+``ORDER BY``.  Set the second parameter of ``orderBy()`` (as well as
+``orderByAsc()`` or ``orderByDesc()``) to ``SelectQuery::OVERWRITE`` or to ``true``::
 
     $query = $articles->find()
-        ->order(['title' => 'ASC']);
+        ->orderBy(['title' => 'ASC']);
     // Later, overwrite the ORDER BY clause instead of appending to it.
     $query = $articles->find()
-        ->order(['created' => 'DESC'], SelectQuery::OVERWRITE);
+        ->orderBy(['created' => 'DESC'], SelectQuery::OVERWRITE);
 
-The ``orderAsc`` and ``orderDesc`` methods can be used when you need to sort on
+The ``orderByAsc`` and ``orderByDesc`` methods can be used when you need to sort on
 complex expressions::
 
     $query = $articles->find();
@@ -451,12 +453,12 @@ complex expressions::
         'title' => 'identifier',
         'synopsis' => 'identifier'
     ]);
-    $query->orderAsc($concat);
+    $query->orderByAsc($concat);
 
 To build complex order clauses, use a Closure to build order expressions::
 
-    $query->orderAsc(function (QueryExpression $exp, SelectQuery $query) {
-        return $exp->addCase(...);
+    $query->orderByAsc(function (QueryExpression $exp, SelectQuery $query) {
+        return $exp->addCase(/* ... */);
     });
 
 
@@ -591,27 +593,6 @@ Also, it's possible to create the simple variant by passing a value to ``case()`
 
     # CASE published WHEN true THEN 'Y' ELSE 'N' END;
 
-Prior to 4.3.0, you would need to use::
-
-    $query = $articles->find();
-    $publishedCase = $query->newExpr()
-        ->addCase(
-            $query->newExpr()->add(['published' => 'Y']),
-            1,
-            'integer'
-        );
-    $unpublishedCase = $query->newExpr()
-        ->addCase(
-            $query->newExpr()->add(['published' => 'N']),
-            1,
-            'integer'
-        );
-
-    $query->select([
-        'number_published' => $query->func()->count($publishedCase),
-        'number_unpublished' => $query->func()->count($unpublishedCase)
-    ]);
-
 The ``addCase`` function can also chain together multiple statements to create
 ``if .. then .. [elseif .. then .. ] [ .. else ]`` logic inside your SQL.
 
@@ -688,6 +669,7 @@ of people, you could calculate their age with a result formatter::
     $query->formatResults(function (\Cake\Collection\CollectionInterface $results) {
         return $results->map(function ($row) {
             $row['age'] = $row['birth_date']->diff(new \DateTime)->y;
+
             return $row;
         });
     });
@@ -709,6 +691,7 @@ expect::
         return $q->formatResults(function (\Cake\Collection\CollectionInterface $authors) {
             return $authors->map(function ($author) {
                 $author['age'] = $author['birth_date']->diff(new \DateTime)->y;
+
                 return $author;
             });
         });
@@ -723,6 +706,28 @@ expect::
 As seen above, the formatters attached to associated query builders are scoped
 to operate only on the data in the association. CakePHP will ensure that
 computed values are inserted into the correct entity.
+
+If you want to replace the results of an association finder with
+``formatResults`` and your replacement data is an associative array, use
+``preserveKeys`` to retain keys when results are mapped to the parent query. For
+example::
+
+    public function findSlugged(SelectQuery $query): SelectQuery
+    {
+        return $query->applyOptions(['preserveKeys' => true])
+            ->formatResults(function ($results) {
+                return $results->indexBy(function ($record) {
+                    return Text::slug($record->name);
+                });
+            });
+    }
+
+The ``preserveKeys`` option can be set as a contain option as well.
+
+.. versionadded:: 5.1.0
+    The ``preserveKeys`` option was added.
+
+
 
 .. _advanced-query-conditions:
 
@@ -823,6 +828,7 @@ following::
         ->where(function (QueryExpression $exp) {
             $orConditions = $exp->or(['author_id' => 2])
                 ->eq('author_id', 5);
+
             return $exp
                 ->add($orConditions)
                 ->eq('published', true)
@@ -851,6 +857,7 @@ the method chaining::
                 return $or->eq('author_id', 2)
                     ->eq('author_id', 5);
             });
+
             return $exp
                 ->not($orConditions)
                 ->lte('view_count', 10);
@@ -862,6 +869,7 @@ You can negate sub-expressions using ``not()``::
         ->where(function (QueryExpression $exp) {
             $orConditions = $exp->or(['author_id' => 2])
                 ->eq('author_id', 5);
+
             return $exp
                 ->not($orConditions)
                 ->lte('view_count', 10);
@@ -885,6 +893,7 @@ It is also possible to build expressions using SQL functions::
             $year = $q->func()->year([
                 'created' => 'identifier'
             ]);
+
             return $exp
                 ->gte($year, 2014)
                 ->eq('published', true);
@@ -1044,7 +1053,7 @@ can may be able to use ``bind()`` to manually bind parameters into conditions::
 
     $query = $cities->find()
         ->where([
-            'start_date BETWEEN :start AND :end'
+            'start_date BETWEEN :start AND :end',
         ])
         ->bind(':start', '2014-01-01', 'date')
         ->bind(':end',   '2014-12-31', 'date');
@@ -1082,7 +1091,7 @@ You can use ``identifier()`` in comparisons to aggregations too::
     $query = $this->Orders->find();
     $query->select(['Customers.customer_name', 'total_orders' => $query->func()->count('Orders.order_id')])
         ->contain('Customers')
-        ->group(['Customers.customer_name'])
+        ->groupBy(['Customers.customer_name'])
         ->having(['total_orders >=' => $query->identifier('Customers.minimum_order_count')]);
 
 .. warning::
@@ -1144,7 +1153,7 @@ use the ``IS`` operator to automatically create the correct expression::
     $query = $categories->find()
         ->where(['parent_id IS' => $parentId]);
 
-The above will create ``parent_id` = :c1`` or ``parent_id IS NULL`` depending on
+The above will generate``parent_id = :c1`` or ``parent_id IS NULL`` depending on
 the type of ``$parentId``
 
 Automatic IS NOT NULL Creation
@@ -1156,7 +1165,7 @@ can use the ``IS NOT`` operator to automatically create the correct expression::
     $query = $categories->find()
         ->where(['parent_id IS NOT' => $parentId]);
 
-The above will create ``parent_id` != :c1`` or ``parent_id IS NOT NULL``
+The above will generate``parent_id != :c1`` or ``parent_id IS NOT NULL``
 depending on the type of ``$parentId``
 
 
@@ -1213,6 +1222,7 @@ And can be used combined with aggregations too::
                     $query->newExpr(['Stocks.quantity', 'Products.unit_price'])
                         ->setConjunction('*')
             );
+
             return [
                 'Products.name',
                 'stock_quantity' => $stockQuantity,
@@ -1236,7 +1246,7 @@ typically using comparison operators like ``<, >, =``::
                 ['unit_price' => 20, 'tax_percentage <=' => 5],
             ]
         ]);
-   
+
     # WHERE (unit_price < 20 OR (unit_price = 20 AND tax_percentage <= 5))
 
 The same result can be achieved using ``TupleComparison``::
@@ -1255,7 +1265,7 @@ The same result can be achieved using ``TupleComparison``::
 
     # WHERE (unit_price, tax_percentage) <= (20, 5))
 
-Tuple Comparison can also be used with ``IN`` and the result can be transformed 
+Tuple Comparison can also be used with ``IN`` and the result can be transformed
 even on DBMS that does not natively support it::
 
     $articles->find()
@@ -1491,11 +1501,15 @@ SQL. In addition to ``join()`` you can use ``rightJoin()``, ``leftJoin()`` and
     $query->innerJoin(
         ['Authors' => 'authors'],
         [
-        'Authors.promoted' => true,
-        'Authors.created' => new DateTime('-5 days'),
-        'Authors.id = Articles.author_id'
+            'Authors.promoted' => true,
+            'Authors.created' => new DateTime('-5 days'),
+            'Authors.id = Articles.author_id',
         ],
-        ['Authors.promoted' => 'boolean', 'Authors.created' => 'datetime']);
+        [
+            'Authors.promoted' => 'boolean',
+            'Authors.created' => 'datetime',
+        ]
+    );
 
 It should be noted that if you set the ``quoteIdentifiers`` option to ``true`` when
 defining your ``Connection``, join conditions between table fields should be set as follow::
@@ -1506,8 +1520,8 @@ defining your ``Connection``, join conditions between table fields should be set
                 'table' => 'comments',
                 'type' => 'LEFT',
                 'conditions' => [
-                    'c.article_id' => new \Cake\Database\Expression\IdentifierExpression('articles.id')
-                ]
+                    'c.article_id' => new \Cake\Database\Expression\IdentifierExpression('articles.id'),
+                ],
             ],
         ]);
 
@@ -1524,7 +1538,7 @@ Instead, create a new ``InsertQuery`` object using ``insertQuery()``::
     $query->insert(['title', 'body'])
         ->values([
             'title' => 'First post',
-            'body' => 'Some body text'
+            'body' => 'Some body text',
         ])
         ->execute();
 
@@ -1535,11 +1549,11 @@ method as many times as you need::
     $query->insert(['title', 'body'])
         ->values([
             'title' => 'First post',
-            'body' => 'Some body text'
+            'body' => 'Some body text',
         ])
         ->values([
             'title' => 'Second post',
-            'body' => 'Another body text'
+            'body' => 'Another body text',
         ])
         ->execute();
 
@@ -1652,7 +1666,7 @@ example given above::
     $query
         ->where([
             'MATCH (comment) AGAINST (:userData)',
-            'created < NOW() - :moreUserData'
+            'created < NOW() - :moreUserData',
         ])
         ->bind(':userData', $userData, 'string')
         ->bind(':moreUserData', $moreUserData, 'datetime');
@@ -1691,6 +1705,34 @@ You can create ``UNION ALL`` queries using the ``unionAll()`` method::
         ->where(['published' => false]);
 
     $unpublished->unionAll($inReview);
+
+Intersections
+-------------
+
+Intersections allow you to combine the result sets of two queries together and
+finding results with overlapping results. Intersections are created by composing
+one or more select queries together::
+
+    $inReview = $articles->find()
+        ->where(['need_review' => true]);
+
+    $unpublished = $articles->find()
+        ->where(['published' => false]);
+
+    $unpublished->intersect($inReview);
+
+You can create ``INTERSECT ALL`` queries using the ``intersectAll()`` method::
+
+    $inReview = $articles->find()
+        ->where(['need_review' => true]);
+
+    $unpublished = $articles->find()
+        ->where(['published' => false]);
+
+    $unpublished->intersectAll($inReview);
+
+.. versionadded:: 5.1.0
+    ``intersect()`` and ``intersectAll()`` were added.
 
 Subqueries
 ----------
@@ -1789,14 +1831,14 @@ through ``FunctionsBuilder::aggregate()``.
 These are the most commonly supported window features. Most features are provided
 by ``AggregateExpresion``, but make sure you follow your database documentation on use and restrictions.
 
-- ``order($fields)`` Order the aggregate group the same as a query ORDER BY.
+- ``orderBy($fields)`` Order the aggregate group the same as a query ORDER BY.
 - ``partition($expressions)`` Add one or more partitions to the window based on column
   names.
 - ``rows($start, $end)`` Define a offset of rows that precede and/or follow the
   current row that should be included in the aggregate function.
 - ``range($start, $end)`` Define a range of row values that precede and/or follow
   the current row that should be included in the aggregate function. This
-  evaluates values based on the ``order()`` field.
+  evaluates values based on the ``orderBy()`` field.
 
 If you need to re-use the same window expression multiple times you can create
 named windows using the ``window()`` method::
@@ -1858,7 +1900,7 @@ To build that query with the ORM query builder we would use::
         $q = $this->Orders->subquery();
         $q->select([
             'order_count' => $q->func()->count('*'),
-            'customer_id'
+            'customer_id',
         ])
         ->groupBy('customer_id');
 
@@ -1877,9 +1919,11 @@ To build that query with the ORM query builder we would use::
         // Define the join with our table expression
         'orders_per_customer' => [
             'table' => 'orders_per_customer',
-            'conditions' => 'orders_per_customer.customer_id = Customers.id'
-        ]
+            'conditions' => 'orders_per_customer.customer_id = Customers.id',
+        ],
     ]);
+
+If you need to build a recursive query (``WITH RECURSIVE …``), chain ``->recursive()`` onto ``return $cte``.
 
 Executing Complex Queries
 -------------------------

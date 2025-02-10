@@ -6,7 +6,7 @@ Validation
 The validation package in CakePHP provides features to build validators that can
 validate arbitrary arrays of data with ease. You can find a `list of available
 Validation rules in the API
-<https://api.cakephp.org/4.x/class-Cake.Validation.Validation.html>`__.
+<https://api.cakephp.org/5.x/class-Cake.Validation.Validation.html>`__.
 
 .. _creating-validators:
 
@@ -38,12 +38,12 @@ validate::
         ])
         ->allowEmptyDateTime('published')
         ->add('published', 'boolean', [
-            'rule' => 'boolean'
+            'rule' => 'boolean',
         ])
         ->requirePresence('body')
         ->add('body', 'length', [
             'rule' => ['minLength', 50],
-            'message' => 'Articles must have a substantial body.'
+            'message' => 'Articles must have a substantial body.',
         ]);
 
 As seen in the example above, validators are built with a fluent interface that
@@ -87,7 +87,7 @@ If you have multiple fields that are required, you can define them as a list::
         'published' => [
             'mode' => 'update',
             'message' => 'The published state is required.',
-        ]
+        ],
     ]);
 
 Allowing Empty Fields
@@ -146,7 +146,7 @@ like::
         ->lengthBetween('username', [4, 8]);
 
 See the `Validator API documentation
-<https://api.cakephp.org/4.x/class-Cake.Validation.Validator.html>`_ for the
+<https://api.cakephp.org/5.x/class-Cake.Validation.Validator.html>`_ for the
 full set of validator methods.
 
 .. _custom-validation-rules:
@@ -289,6 +289,7 @@ conditions only::
         if (isset($context['data']['action'])) {
             return $context['data']['action'] === 'subscribe';
         }
+
         return false;
     });
     $validator->requirePresence('email');
@@ -321,12 +322,12 @@ a specific rule has failed, you can set the ``last`` option to ``true``::
             'minLength' => [
                 'rule' => ['minLength', 10],
                 'last' => true,
-                'message' => 'Comments must have a substantial body.'
+                'message' => 'Comments must have a substantial body.',
             ],
             'maxLength' => [
                 'rule' => ['maxLength', 250],
-                'message' => 'Comments cannot be too long.'
-            ]
+                'message' => 'Comments cannot be too long.',
+            ],
         ]);
 
 If the minLength rule fails in the example above, the maxLength rule will not be
@@ -450,8 +451,8 @@ and need to store an article and its comments::
     $data = [
         'title' => 'Best article',
         'comments' => [
-            ['comment' => '']
-        ]
+            ['comment' => ''],
+        ],
     ];
 
 To validate the comments you would use a nested validator::
@@ -521,7 +522,7 @@ sending an email you could do the following::
         ->requirePresence('email')
         ->add('email', 'validFormat', [
             'rule' => 'email',
-            'message' => 'E-mail must be valid'
+            'message' => 'E-mail must be valid',
         ])
         ->requirePresence('name')
         ->notEmptyString('name', 'We need your name.')
@@ -537,7 +538,7 @@ The ``getErrors()`` method will return a non-empty array when there are validati
 failures. The returned array of errors will be structured like::
 
     $errors = [
-        'email' => ['E-mail must be valid']
+        'email' => ['E-mail must be valid'],
     ];
 
 If you have multiple errors on a single field, an array of error messages will
@@ -546,7 +547,7 @@ the 'create' mode. If you'd like to apply 'update' rules you can do the
 following::
 
     $errors = $validator->validate($this->request->getData(), false);
-    if (empty($errors)) {
+    if (!$errors) {
         // Send an email.
     }
 
@@ -590,12 +591,12 @@ methods allow you to specify which associations are validated, and which
 validation sets to apply using the ``options`` parameter::
 
     $valid = $this->Articles->newEntity($article, [
-      'associated' => [
-        'Comments' => [
-          'associated' => ['User'],
-          'validate' => 'special',
-        ]
-      ]
+        'associated' => [
+            'Comments' => [
+                'associated' => ['User'],
+                'validate' => 'special',
+            ],
+        ],
     ]);
 
 Apart from validating user provided data maintaining integrity of data regardless
@@ -611,7 +612,7 @@ class. The Validation class contains a variety of static methods that provide
 validators for several common validation situations.
 
 The `API documentation
-<https://api.cakephp.org/4.x/class-Cake.Validation.Validation.html>`_ for the
+<https://api.cakephp.org/5.x/class-Cake.Validation.Validation.html>`_ for the
 ``Validation`` class provides a good list of the validation rules that are
 available, and their basic usage.
 
@@ -622,10 +623,10 @@ options as follows::
     $validator = new Validator();
     $validator
         ->add('title', 'minLength', [
-            'rule' => ['minLength', 10]
+            'rule' => ['minLength', 10],
         ])
         ->add('rating', 'validValue', [
-            'rule' => ['range', 1, 5]
+            'rule' => ['range', 1, 5],
         ]);
 
 Core rules that take additional parameters should have an array for the

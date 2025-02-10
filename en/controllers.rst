@@ -68,8 +68,8 @@ is invoked at the end of a Controller's constructor for this kind of use::
     {
         public function initialize(): void
         {
-            // Always enable the CSRF component.
-            $this->loadComponent('Csrf');
+            // Always enable the FormProtection component.
+            $this->loadComponent('FormProtection');
         }
     }
 
@@ -282,14 +282,15 @@ This would render **plugins/Users/templates/UserDetails/custom_file.php**
 Content Type Negotiation
 ========================
 
-.. php:method:: viewClasses()
+.. php:method:: addViewClasses()
 
 Controllers can define a list of view classes they support. After the
 controller's action is complete CakePHP will use the view list to perform
-content-type negotiation. This enables your application to re-use the same
-controller action to render an HTML view or render a JSON or XML response. To
-define the list of supported view classes for a controller is done with the
-``viewClasses()`` method::
+content-type negotiation with either :ref:`file-extensions` or ``Accept``
+headers. This enables your application to re-use the same controller action to
+render an HTML view or render a JSON or XML response. To define the list of
+supported view classes for a controller is done with the ``addViewClasses()``
+method::
 
     namespace App\Controller;
 
@@ -298,19 +299,41 @@ define the list of supported view classes for a controller is done with the
 
     class PostsController extends AppController
     {
-        public function viewClasses(): array
+        public function initialize(): void
         {
-            return [JsonView::class, XmlView::class];
+            parent::initialize();
+
+            $this->addViewClasses([JsonView::class, XmlView::class]);
         }
     }
 
 The application's ``View`` class is automatically used as a fallback when no
-other view can be selected based on the requests' ``Accept`` header or routing
-extension. If your application needs to perform different logic for different
-response formats you can use ``$this->request->is()`` to build the required
-conditional logic. You can also set your controllers' supported view classes
-using the ``addViewClasses()`` method which will merge the provided views with
-those held in the ``viewClasses`` property.
+other view can be selected based on the request's ``Accept`` header or routing
+extension. If your application only supports content types for a specific
+actions, you can call ``addClasses()`` within your action too::
+
+    public function export(): void
+    {
+        // Use a custom CSV view for data exports.
+        $this->addViewClasses([CsvView::class]);
+
+        // Rest of the action code
+    }
+
+If within your controller actions you need to process the request or load data
+differently based on the content type you can use
+:ref:`check-the-request`::
+
+    // In a controller action
+
+    // Load additional data when preparing JSON responses
+    if ($this->request->is('json')) {
+        $query->contain('Authors');
+    }
+
+In case your app need more complex logic to decide which view classes to use
+then you can override the ``Controller::viewClasses()`` method and return
+an array of view classes as required.
 
 .. note::
     View classes must implement the static ``contentType()`` hook method to
@@ -321,13 +344,15 @@ Content Type Negotiation Fallbacks
 
 If no View can be matched with the request's content type preferences, CakePHP
 will use the base ``View`` class. If you want to require content-type
-negotiation, you can use the ``NegotiationRequiredView`` which sets a 406 status
+negotiation, you can use the ``NegotiationRequiredView`` which sets a ``406`` status
 code::
 
-    public function viewClasses(): array
+    public function initialize(): void
     {
+        parent::initialize();
+
         // Require Accept header negotiation or return a 406 response.
-        return [JsonView::class, NegotiationRequiredView::class];
+        $this->addViewClasses([JsonView::class, NegotiationRequiredView::class]);
     }
 
 You can use the ``TYPE_MATCH_ALL`` content type value to build your own fallback
@@ -349,6 +374,22 @@ view logic::
 It is important to remember that match-all views are applied only *after*
 content-type negotiation is attempted.
 
+Using AjaxView
+==============
+
+In applications that use hypermedia or AJAX clients, you often need to render
+view contents without the wrapping layout. You can use the ``AjaxView`` that
+is bundled with the application skeleton::
+
+    // In a controller action, or in beforeRender.
+    if ($this->request->is('ajax')) {
+        $this->viewBuilder()->setClassName('Ajax');
+    }
+
+``AjaxView`` will respond as ``text/html`` and use the ``ajax`` layout.
+Generally this layout is minimal or contains client specific markup. This
+replaces usage of ``RequestHandlerComponent`` automatically using the
+``AjaxView`` in 4.x.
 
 Redirecting to Other Pages
 ==========================
@@ -376,6 +417,7 @@ You can redirect using :term:`routing array` values::
 Or using a relative or absolute URL::
 
     return $this->redirect('/orders/confirm');
+
     return $this->redirect('http://www.example.com');
 
 Or to the referer page::
@@ -393,36 +435,8 @@ By using the second parameter you can define a status code for your redirect::
 See the :ref:`redirect-component-events` section for how to redirect out of
 a life-cycle handler.
 
-Forwarding to an Action on the Same Controller
-----------------------------------------------
-
-.. php:method:: setAction($action, $args...)
-
-If you need to forward the current action to a different action on the *same*
-controller, you can use ``Controller::setAction()`` to update the request
-object, modify the view template that will be rendered and forward execution to
-the named action::
-
-    // From a delete action, you can render the updated
-    // list page.
-    $this->setAction('index');
-
-Loading Additional Models
-=========================
-
-.. php:method:: fetchModel(string $alias, array $config = [])
-
-The ``fetchModel()`` method is useful to load models or ORM tables that
-are not the controller's default. Models retrieved with this method will not be
-set as properties on your controller::
-
-    // Get an ElasticSearch model
-    $articles = $this->fetchModel('Articles', 'Elastic');
-
-    // Get a webservices model
-    $github = $this->fetchModel('GitHub', 'Webservice');
-
-.. versionadded:: 4.5.0
+Loading Additional Tables/Models
+================================
 
 .. php:method:: fetchTable(string $alias, array $config = [])
 
@@ -435,6 +449,25 @@ the controller's default one::
             order: 'Articles.created DESC'
         )
         ->all();
+
+.. php:method:: fetchModel(string|null $modelClass = null, string|null $modelType = null)
+
+The ``fetchModel()`` method is useful to load non ORM models or ORM tables that
+are not the controller's default::
+
+    // ModelAwareTrait need to be explicity added to your controler first for fetchModel() to work.
+    use ModelAwareTrait;
+
+    // Get an ElasticSearch model
+    $articles = $this->fetchModel('Articles', 'Elastic');
+
+    // Get a webservices model
+    $github = $this->fetchModel('GitHub', 'Webservice');
+
+    // If you skip the 2nd argument it will by default try to load a ORM table.
+    $authors = $this->fetchModel('Authors');
+
+.. versionadded:: 4.5.0
 
 Paginating a Model
 ==================
@@ -453,8 +486,8 @@ behaves::
     {
         protected array $paginate = [
             'Articles' => [
-                'conditions' => ['published' => 1]
-            ]
+                'conditions' => ['published' => 1],
+            ],
         ];
     }
 
@@ -469,7 +502,7 @@ want loaded, and any configuration data for them::
     public function initialize(): void
     {
         parent::initialize();
-        $this->loadComponent('Csrf');
+        $this->loadComponent('Flash');
         $this->loadComponent('Comments', Configure::read('Comments'));
     }
 
@@ -515,7 +548,7 @@ methods are implemented by your controllers
     Called during the ``Controller.beforeRender`` event which occurs after
     controller action logic, but before the view is rendered. This callback is
     not used often, but may be needed if you are calling
-    :php:meth:`~Cake\\Controller\\Controller::render()` manually before the end
+    :php:meth:`Cake\\Controller\\Controller::render()` manually before the end
     of a given action.
 
 .. php:method:: afterFilter(EventInterface $event)

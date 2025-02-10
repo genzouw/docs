@@ -19,7 +19,7 @@ Setting the paginated resultset
 By default the helper uses the first instance of ``Cake\Datasource\Paging\PaginatedInterface``
 it finds in the view variables. (Generally the result of ``Controller::paginate()``).
 
-You can use ``PaginatorHelper::setPaginated()`` to explicity set the paginated
+You can use ``PaginatorHelper::setPaginated()`` to explicitly set the paginated
 resultset that the helper should use.
 
 .. _paginator-templates:
@@ -470,7 +470,7 @@ the PaginatorHelper available in views doesn't always need to be restricted as
 such.
 
 See the details on
-`PaginatorHelper <https://api.cakephp.org/4.x/class-Cake.View.Helper.PaginatorHelper.html>`_ in
+`PaginatorHelper <https://api.cakephp.org/5.x/class-Cake.View.Helper.PaginatorHelper.html>`_ in
 the API. As mentioned, the PaginatorHelper also offers sorting features which
 can be integrated into your table column headers:
 
@@ -573,8 +573,8 @@ you can include the scope names in ``options()``::
             // Additional URL parameters for the 'comments' scope
             'comments' => [
                 'articleId' => 1234,
-            ]
-        ]
+            ],
+        ],
     ]);
 
 .. meta::

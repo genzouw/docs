@@ -27,7 +27,7 @@ Hello world toute simple. Dans le répertoire **src/Command** de votre applicati
         public function execute(Arguments $args, ConsoleIo $io): int
         {
             $io->out('Hello world.');
-            
+
             return static::CODE_SUCCESS;
         }
     }
@@ -61,6 +61,7 @@ Notre méthode ``execute()`` n'est pas très intéressente, ajoutons des entrée
             $parser->addArgument('name', [
                 'help' => 'Quel est votre nom'
             ]);
+
             return $parser;
         }
 
@@ -68,7 +69,7 @@ Notre méthode ``execute()`` n'est pas très intéressente, ajoutons des entrée
         {
             $name = $args->getArgument('name');
             $io->out("Hello {$name}.");
-            
+
             return static::CODE_SUCCESS;
         }
     }
@@ -82,7 +83,7 @@ Après avoir sauvegardé ce fichier, vous devriez pouvoir exécuter la commande 
 
     # Affiche
     Hello jillian
- 
+
 Changer le Nom Par Défaut de la Commande
 ========================================
 
@@ -127,7 +128,7 @@ pour définir des arguments. Nous pouvons aussi définir des options. Par exempl
             $name = mb_strtoupper($name);
         }
         $io->out("Hello {$name}.");
-            
+
         return static::CODE_SUCCESS;
     }
 
@@ -216,7 +217,7 @@ message et un code::
             // Arrête l'exécution, affiche vers stderr, et définit le code de sortie à 99
             $io->abort('Le nom doit avoir au moins 4 caractères.', 99);
         }
-        
+
         return static::CODE_SUCCESS;
     }
 
@@ -337,16 +338,10 @@ moment, mais testons simplement si la description de notre shell description s'a
 
     use Cake\TestSuite\ConsoleIntegrationTestTrait;
     use Cake\TestSuite\TestCase;
- 
+
     class UpdateTableCommandTest extends TestCase
     {
         user ConsoleIntegrationTestTrait;
-
-        public function setUp(): void
-        {
-            parent::setUp();
-            $this->useCommandRunner();
-        }
 
         public function testDescriptionOutput()
         {
@@ -539,15 +534,6 @@ que nous recevons une réponse négative. Retirez la méthode
 Dans le premier cas de test, nous confirmons la question, et les enregistrements sont mis à jour. Dans le deuxième test, nous
 ne confirmons pas et les enregistrements ne sont pas mis à jour, et nous pouvons vérifier que le message d'erreur a été écrit
 dans ``stderr``.
-
-
-Tester le CommandRunner
------------------------
-
-Pour tester les shells qui sont dispatchés en utilisant la classe
-``CommandRunner``, activez-la dans vos cas de test avec la méthode suivante::
-
-    $this->useCommandRunner();
 
 Méthodes d'Assertion
 --------------------

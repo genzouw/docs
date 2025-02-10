@@ -106,7 +106,7 @@ Affichera:
 .. code-block:: html
 
     <form method="post" action="/articles/edit/5">
-    <input type="hidden" name="_method" value="PUT" />
+    <input type="hidden" name="_method" value="PUT">
 
 .. note::
 
@@ -400,7 +400,7 @@ méthodes de FormHelper.
 Par défaut, la méthode ``control()`` utilisera les templates de widget suivant::
 
     'inputContainer' => '<div class="input {{type}}{{required}}">{{content}}</div>'
-    'input' => '<input type="{{type}}" name="{{name}}"{{attrs}}/>'
+    'input' => '<input type="{{type}}" name="{{name}}"{{attrs}}>'
 
 En cas d'erreurs de validation, elle utilisera également::
 
@@ -592,11 +592,11 @@ couvrir les options spécifiques de ``FormHelper::control()``.
 
       <div class="input file">
           <label for="field">Field</label>
-          <input type="file" name="field" value="" id="field" />
+          <input type="file" name="field" value="" id="field">
       </div>
       <div class="input email">
           <label for="email">Email</label>
-          <input type="email" name="email" value="" id="email" />
+          <input type="email" name="email" value="" id="email">
       </div>
 
 * ``$options['label']`` Soit une chaîne qui sera utilisée comme valeur pour
@@ -617,7 +617,7 @@ couvrir les options spécifiques de ``FormHelper::control()``.
 
       <div class="input">
           <label for="name">The User Alias</label>
-          <input name="name" type="text" value="" id="name" />
+          <input name="name" type="text" value="" id="name">
       </div>
 
   Vous pouvez définir cette clé à ``false`` pour désactiver l'affichage de
@@ -631,7 +631,7 @@ couvrir les options spécifiques de ``FormHelper::control()``.
   .. code-block:: html
 
       <div class="input">
-          <input name="name" type="text" value="" id="name" />
+          <input name="name" type="text" value="" id="name">
       </div>
 
   Si le label est désactivé et qu'un attribut ``placeholder`` est fourni,
@@ -656,7 +656,7 @@ couvrir les options spécifiques de ``FormHelper::control()``.
 
       <div class="input">
           <label for="name" class="thingy">The User Alias</label>
-          <input name="name" type="text" value="" id="name" />
+          <input name="name" type="text" value="" id="name">
       </div>
 
 * ``$options['options']`` - Vous pouvez passer à cette option un tableau
@@ -845,7 +845,7 @@ Affichera:
 
 .. code-block:: html
 
-    <input name="id" type="hidden" />
+    <input name="id" type="hidden">
 
 Créer des Textareas
 -------------------
@@ -1000,8 +1000,8 @@ décrites dans les sections dédiées à ces méthodes).
 
   .. code-block:: html
 
-      <input type="hidden" name="published" value="0" />
-      <input type="checkbox" name="published" value="1" />
+      <input type="hidden" name="published" value="0">
+      <input type="checkbox" name="published" value="1">
 
   Ceci peut être désactivé en définissant l'option ``hiddenField`` à ``false``::
 
@@ -1025,34 +1025,34 @@ décrites dans les sections dédiées à ces méthodes).
   .. code-block:: html
 
       <h2>Couleurs primaires</h2>
-      <input type="hidden" name="color" value="0" />
+      <input type="hidden" name="color" value="0">
       <label for="color-red">
-          <input type="checkbox" name="color[]" value="5" id="color-red" />
+          <input type="checkbox" name="color[]" value="5" id="color-red">
           Rouge
       </label>
 
       <label for="color-blue">
-          <input type="checkbox" name="color[]" value="5" id="color-blue" />
+          <input type="checkbox" name="color[]" value="5" id="color-blue">
           Bleu
       </label>
 
       <label for="color-yellow">
-          <input type="checkbox" name="color[]" value="5" id="color-yellow" />
+          <input type="checkbox" name="color[]" value="5" id="color-yellow">
           Jaune
       </label>
 
       <h2>Couleurs tertiaires</h2>
-      <input type="hidden" name="color" value="0" />
+      <input type="hidden" name="color" value="0">
       <label for="color-green">
-          <input type="checkbox" name="color[]" value="5" id="color-green" />
+          <input type="checkbox" name="color[]" value="5" id="color-green">
           Vert
       </label>
       <label for="color-purple">
-          <input type="checkbox" name="color[]" value="5" id="color-purple" />
+          <input type="checkbox" name="color[]" value="5" id="color-purple">
           Magenta
       </label>
       <label for="color-orange">
-          <input type="checkbox" name="color[]" value="5" id="color-orange" />
+          <input type="checkbox" name="color[]" value="5" id="color-orange">
           Orange
       </label>
 
@@ -1714,7 +1714,7 @@ Affichera:
 
 .. code-block:: html
 
-    <input type="month" name="mob" />
+    <input type="month" name="mob">
 
 Créer des Éléments Année
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1950,7 +1950,7 @@ le chemin de l'image sera relatif à *webroot*, sinon, il sera relatif à *webro
 
 Par défaut, les templates de widgets utilisés sont::
 
-    'inputSubmit' => '<input type="{{type}}"{{attrs}}/>'
+    'inputSubmit' => '<input type="{{type}}"{{attrs}}>'
     'submitContainer' => '<div class="submit">{{content}}</div>'
 
 **Options pour les Submit**
@@ -2051,13 +2051,13 @@ Fermer le Formulaire
 
 * ``$secureAttributes`` - Optionnel. Vous permet de fournir des attributs qui
   seront utilisés comme attributs HTML aux inputs ``hidden`` générés par le
-  ``SecurityComponent``.
+  ``FormProtectionComponent``.
 
 La méthode ``end()`` ferme et complète le marquage du formulaire. Souvent,
 ``end()`` se contente d'afficher la balise fermante du formulaire, mais
 l'utilisation de ``end()`` est une bonne pratique puisqu'elle permet également
 au FormHelper d'ajouter les champs cachées dont le
-:php:class:`Cake\\Controller\\Component\\SecurityComponent` a besoin:
+:php:class:`Cake\\Controller\\Component\\FormProtectionComponent` a besoin:
 
 .. code-block:: php
 
@@ -2088,7 +2088,7 @@ Affichera:
 .. note::
 
     Si vous utilisez
-    :php:class:`Cake\\Controller\\Component\\SecurityComponent` dans votre
+    :php:class:`Cake\\Controller\\Component\\FormProtectionComponent` dans votre
     application, vous devrez obligatoirement terminer vos formulaires avec
     ``end()``.
 
@@ -2110,7 +2110,7 @@ Créer des Boutons POST
 
 Crée une balise ``<button>`` avec un ``<form>`` l'entourant qui soumet par
 défaut une requête POST. De plus, par défaut, cela générera des inputs
-``hidden`` pour le ``SecurityComponent``.
+``hidden`` pour le ``FormProtectionComponent``.
 
 **Options for POST Button**
 
@@ -2512,7 +2512,6 @@ vouliez construire un widget Autocomplete, vous pourriez le faire comme ceci::
 
     class AutocompleteWidget implements WidgetInterface
     {
-
         /**
          * StringTemplate instance.
          *
@@ -2543,6 +2542,7 @@ vouliez construire un widget Autocomplete, vous pourriez le faire comme ceci::
             $data += [
                 'name' => '',
             ];
+
             return $this->_templates->format('autocomplete', [
                 'name' => $data['name'],
                 'attrs' => $this->_templates->formatAttributes($data, ['name'])
@@ -2623,16 +2623,16 @@ widget en utilisant la méthode magique::
 
     echo $this->Form->autocomplete('search', $options);
 
-Travailler avec SecurityComponent
-=================================
+Travailler avec FormProtectionComponent
+=======================================
 
-:php:meth:`Cake\\Controller\\Component\\SecurityComponent` offre plusieurs
+:php:meth:`Cake\\Controller\\Component\\FormProtectionComponent` offre plusieurs
 fonctionnalités qui rendent vos formulaires plus sûrs et
-plus sécurisés. En incluant simplement le ``SecurityComponent`` dans votre
+plus sécurisés. En incluant simplement le ``FormProtectionComponent`` dans votre
 controller, vous bénéficierez automatiquement des fonctionnalités de prévention
 contre la falsification de formulaires.
 
-Comme mentionné précédemment, lorsque vous utilisez le SecurityComponent,
+Comme mentionné précédemment, lorsque vous utilisez le FormProtectionComponent,
 vous devez toujours fermer vos formulaires en utilisant
 :php:meth:`~Cake\\View\\Helper\\FormHelper::end()`. Cela assurera que les
 inputs spéciales ``_Token`` soient générées.
@@ -2642,7 +2642,7 @@ inputs spéciales ``_Token`` soient générées.
 * ``$name`` - Optionnel. Le nom du champ en notation avec point (sous la forme
   ``'Modelname.fieldname'``).
 
-Déverrouille un champ en l’exemptant du hachage par ``SecurityComponent``.
+Déverrouille un champ en l’exemptant du hachage par ``FormProtectionComponent``.
 Cela autorise également le client à manipuler le champ via JavaScript.
 Le paramètre ``$name`` doit correspondre au nom de la propriété de l'entity
 pour l'input::
@@ -2661,7 +2661,7 @@ Génère un ``input`` de type ``hidden`` avec un hash de sécurité basé sur le
 champs utilisés dans le formulaire, ou une chaîne vide si la sécurisation des
 formulaires n'est pas utilisée.
 Si l'option ``$secureAttributes`` est définie, ces attributs HTML seront
-fusionnés avec ceux générés par le SecurityComponent. C'est particulièrement
+fusionnés avec ceux générés par le FormProtectionComponent. C'est particulièrement
 utile pour définir des attributs HTML5 tels que ``'form'``.
 
 .. meta::

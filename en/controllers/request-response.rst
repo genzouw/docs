@@ -100,6 +100,33 @@ If you want to access all the query parameters you can use
 
     $query = $this->request->getQueryParams();
 
+You can use the casting utility functions to provide typesafe access to request
+data and other input::
+
+    use function Cake\Core\toBool;
+    use function Cake\Core\toInt;
+    use function Cake\Core\toString;
+    use function Cake\I18n\toDate;
+    use function Cake\I18n\toDateTime;
+
+    // $active is bool|null.
+    $active = toBool($this->request->getQuery('active'));
+
+    // $page is int|null.
+    $page = toInt($this->request->getQuery('page'));
+
+    // $query is string|null.
+    $query = toString($this->request->getQuery('query'));
+
+    // Parse a date based on the format or null
+    $date = toDate($this->request->getQuery('date'), 'Y-m-d');
+
+    // Parse a datetime based on a format or null
+    $date = toDateTime($this->request->getQuery('datetime'), 'Y-m-d H:i:s');
+
+.. versionadded:: 5.1.0
+    Casting functions were added.
+
 Request Body Data
 -----------------
 
@@ -224,39 +251,47 @@ replace all possibly existing uploaded files::
 PUT, PATCH or DELETE Data
 -------------------------
 
-.. php:method:: input($callback, [$options])
+.. php:method:: getBody()
 
 When building REST services, you often accept request data on ``PUT`` and
 ``DELETE`` requests. Any ``application/x-www-form-urlencoded`` request body data
-will automatically be parsed and set to ``$this->data`` for ``PUT`` and
-``DELETE`` requests. If you are accepting JSON or XML data, see below for how
-you can access those request bodies.
+will automatically be parsed and available via ``$request->getData()`` for ``PUT`` and
+``DELETE`` requests. If you are accepting JSON or XML data, you can
+access the raw data with ``getBody()``::
 
-When accessing the input data, you can decode it with an optional function.
-This is useful when interacting with XML or JSON request body content.
-Additional parameters for the decoding function can be passed as arguments to
-``input()``::
+    // Get the stream wrapper on the request body
+    $body = $request->getBody();
 
-    $jsonData = $this->request->input('json_decode');
+    // Get the request body as a string
+    $bodyString = (string)$request->getBody();
+
+If your requests contain XML or JSON request content, you should consider using
+:ref:`body-parser-middleware` to have CakePHP automatically parse those content
+types making the parsed data available in ``$request->getData()`` and
+``$request->getParsedBody()``.
 
 Environment Variables (from $_SERVER and $_ENV)
 -----------------------------------------------
 
-.. php:method:: putenv($key, $value = null)
+.. php:method:: getEnv($key, $default = null)
 
 ``ServerRequest::getEnv()`` is a wrapper for ``getenv()`` global function and acts as
-a getter/setter for environment variables without having to modify globals
-``$_SERVER`` and ``$_ENV``::
+a getter for environment variables without possible undefined keys::
 
-    // Get the host
     $host = $this->request->getEnv('HTTP_HOST');
-
-    // Set a value, generally helpful in testing.
-    $this->request->withEnv('REQUEST_METHOD', 'POST');
 
 To access all the environment variables in a request use ``getServerParams()``::
 
     $env = $this->request->getServerParams();
+
+.. php:method:: withEnv($key, $value)
+
+``ServerRequest::withEnv()`` is a wrapper for ``putenv()`` global function and acts as
+a setter for environment variables without having to modify globals
+``$_SERVER`` and ``$_ENV``::
+
+    // Set a value, generally helpful in testing.
+    $this->request->withEnv('REQUEST_METHOD', 'POST');
 
 XML or JSON Data
 ----------------
@@ -394,10 +429,10 @@ There are several built-in detectors that you can use:
   X-Requested-With = XMLHttpRequest.
 * ``is('ssl')`` Check to see whether the request is via SSL.
 * ``is('flash')`` Check to see whether the request has a User-Agent of Flash.
-* ``is('json')`` Check to see whether the request has 'json' extension and
-  accept 'application/json' mimetype.
-* ``is('xml')`` Check to see whether the request has 'xml' extension and accept
-  'application/xml' or 'text/xml' mimetype.
+* ``is('json')`` Check to see whether the request URL has 'json' extension or the
+  `Accept` header is set to 'application/json'.
+* ``is('xml')`` Check to see whether the request URL has 'xml' extension or the `Accept` header is set to
+  'application/xml' or 'text/xml'.
 
 ``ServerRequest`` also includes methods like
 :php:meth:`Cake\\Http\\ServerRequest::domain()`,
@@ -644,16 +679,15 @@ with content types that are not built into Response, you can map them with
     $this->response = $this->response->withType('vcf');
 
 Usually, you'll want to map additional content types in your controller's
-:php:meth:`~Controller::beforeFilter()` callback, so you can leverage the
-automatic view switching features of :php:class:`RequestHandlerComponent` if you
-are using it.
+:php:meth:`~Controller::beforeFilter()` callback, so you can benefit from
+automatic view switching provided by :ref:`controller-viewclasses`.
 
 .. _cake-response-file:
 
 Sending Files
 -------------
 
-.. php:method:: withFile($path, $options = [])
+.. php:method:: withFile(string $path, array $options = [])
 
 There are times when you want to send files as responses for your requests.
 You can accomplish that by using :php:meth:`Cake\\Http\\Response::withFile()`::
@@ -926,7 +960,7 @@ that uniquely identifies the requested resource, as a checksum does for a file,
 in order to determine whether it matches a cached resource.
 
 To take advantage of this header, you must either call the
-``checkNotModified()`` method manually or include the
+``isNotModified()`` method manually or include the
 :doc:`/controllers/components/check-http-cache` in your controller::
 
     public function index()
@@ -939,7 +973,7 @@ To take advantage of this header, you must either call the
         $checksum = md5(json_encode($articles));
 
         $response = $this->response->withEtag($checksum);
-        if ($response->checkNotModified($this->request)) {
+        if ($response->isNotModified($this->request)) {
             return $response;
         }
 
@@ -963,14 +997,14 @@ last time. Setting this header helps CakePHP tell caching clients whether the
 response was modified or not based on their cache.
 
 To take advantage of this header, you must either call the
-``checkNotModified()`` method manually or include the
+``isNotModified()`` method manually or include the
 :doc:`/controllers/components/check-http-cache` in your controller::
 
     public function view()
     {
         $article = $this->Articles->find()->first();
         $response = $this->response->withModified($article->modified);
-        if ($response->checkNotModified($this->request)) {
+        if ($response->isNotModified($this->request)) {
             return $response;
         }
         $this->response;
@@ -994,14 +1028,14 @@ header::
 Sending Not-Modified Responses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. php:method:: checkNotModified(Request $request)
+.. php:method:: isNotModified(Request $request)
 
 Compares the cache headers for the request object with the cache header from the
 response and determines whether it can still be considered fresh. If so, deletes
 the response content, and sends the `304 Not Modified` header::
 
     // In a controller action.
-    if ($this->response->checkNotModified($this->request)) {
+    if ($this->response->isNotModified($this->request)) {
         return $this->response;
     }
 
@@ -1040,7 +1074,7 @@ will make the browser remove its local cookie::
 .. _cors-headers:
 
 Setting Cross Origin Request Headers (CORS)
-===========================================
+-------------------------------------------
 
 The ``cors()`` method is used to define `HTTP Access Control
 <https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS>`__
@@ -1066,6 +1100,21 @@ criteria are met:
     CakePHP has no built-in CORS middleware because dealing with CORS requests
     is very application specific. We recommend you build your own ``CORSMiddleware``
     if you need one and adjust the response object as desired.
+
+Running logic after the Response has been sent
+----------------------------------------------
+
+In fastcgi based environments you can listen to the ``Server.terminate`` event
+to run logic **after** the response has been sent to the client. The
+``terminate`` event will be passed a ``request`` and ``response``. The
+``request`` is fetched from the applications' DI container, or from
+``Router::getRequest()`` if the DI container does not have a request registered.
+
+.. warning::
+   In non fastcgi environments the ``Server.terminate`` event is fired before
+   the response is sent.
+
+.. versionadded:: 5.1.0
 
 Common Mistakes with Immutable Responses
 ========================================

@@ -114,7 +114,7 @@ App.base
     The base directory the app resides in. If ``false`` this
     will be auto detected. If not ``false``, ensure your string starts
     with a `/` and does NOT end with a `/`. For example, `/basedir` is a valid
-    App.base. Otherwise, the AuthComponent will not work properly.
+    App.base.
 App.encoding
     Define what encoding your application uses.  This encoding
     is used to generate the charset in the layout, and encode entities.
@@ -269,17 +269,17 @@ paths for these resources. In your **config/app.php** you can set these variable
             'paths' => [
                 'plugins' => [
                     ROOT . DS . 'plugins' . DS,
-                    '/path/to/other/plugins/'
+                    '/path/to/other/plugins/',
                 ],
                 'templates' => [
                     ROOT . DS . 'templates' . DS,
-                    ROOT . DS . 'templates2' . DS
+                    ROOT . DS . 'templates2' . DS,
                 ],
                 'locales' => [
-                    ROOT . DS . 'resources' . DS . 'locales' . DS
-                ]
-            ]
-        ]
+                    ROOT . DS . 'resources' . DS . 'locales' . DS,
+                ],
+            ],
+        ],
     ];
 
 Paths should end with a directory separator, or they will not work properly.
@@ -362,7 +362,7 @@ If ``$key`` is left null, all values in Configure will be returned.
 
 .. php:staticmethod:: readOrFail($key)
 
-Reads configuration data just like :php:meth:`Cake\\Core\\Configure::read`
+Reads configuration data just like :php:meth:`Cake\\Core\\Configure::read()`
 but expects to find a key/value pair. In case the requested pair does not
 exist, a :php:class:`RuntimeException` will be thrown::
 
@@ -402,7 +402,7 @@ combine reading and deleting values in a single operation.
 
 .. php:staticmethod:: consumeOrFail($key)
 
-Consumes configuration data just like :php:meth:`Cake\\Core\\Configure::consume`
+Consumes configuration data just like :php:meth:`Cake\\Core\\Configure::consume()`
 but expects to find a key/value pair. In case the requested pair does not
 exist, a :php:class:`RuntimeException` will be thrown::
 
@@ -555,45 +555,15 @@ Configuration Engines
 CakePHP provides the ability to load configuration files from a number of
 different sources, and features a pluggable system for `creating your own
 configuration engines
-<https://api.cakephp.org/4.x/interface-Cake.Core.Configure.ConfigEngineInterface.html>`__.
+<https://api.cakephp.org/5.x/interface-Cake.Core.Configure.ConfigEngineInterface.html>`__.
 The built in configuration engines are:
 
-* `JsonConfig <https://api.cakephp.org/4.x/class-Cake.Core.Configure.Engine.JsonConfig.html>`__
-* `IniConfig <https://api.cakephp.org/4.x/class-Cake.Core.Configure.Engine.IniConfig.html>`__
-* `PhpConfig <https://api.cakephp.org/4.x/class-Cake.Core.Configure.Engine.PhpConfig.html>`__
+* `JsonConfig <https://api.cakephp.org/5.x/class-Cake.Core.Configure.Engine.JsonConfig.html>`__
+* `IniConfig <https://api.cakephp.org/5.x/class-Cake.Core.Configure.Engine.IniConfig.html>`__
+* `PhpConfig <https://api.cakephp.org/5.x/class-Cake.Core.Configure.Engine.PhpConfig.html>`__
 
 By default your application will use ``PhpConfig``.
 
-Disabling Generic Tables
-========================
-
-While utilizing generic table classes - also called auto-tables - when quickly
-creating new applications and baking models is useful, generic table class can
-make debugging more difficult in some scenarios.
-
-You can check if any query was emitted from a generic table class via DebugKit
-via the SQL panel in DebugKit. If you're still having trouble diagnosing an
-issue that could be caused by auto-tables, you can throw an exception when
-CakePHP implicitly uses a generic ``Cake\ORM\Table`` instead of your concrete
-class like so::
-
-    // In your bootstrap.php
-    use Cake\Event\EventManager;
-    use Cake\Http\Exception\InternalErrorException;
-
-    $isCakeBakeShellRunning = (PHP_SAPI === 'cli' && isset($argv[1]) && $argv[1] === 'bake');
-    if (!$isCakeBakeShellRunning) {
-        EventManager::instance()->on('Model.initialize', function($event) {
-            $subject = $event->getSubject();
-            if (get_class($subject) === 'Cake\ORM\Table') {
-                $msg = sprintf(
-                    'Missing table class or incorrect alias when registering table class for database table %s.',
-                    $subject->getTable());
-                throw new InternalErrorException($msg);
-            }
-        });
-    }
-
 .. meta::
     :title lang=en: Configuration
-    :keywords lang=en: finished configuration,legacy database,database configuration,value pairs,default connection,optional configuration,example database,php class,configuration database,default database,configuration steps,index database,configuration details,class database,host localhost,inflections,key value,database connection,piece of cake,basic web,auto tables,auto-tables,generic table,class
+    :keywords lang=en: finished configuration,legacy database,database configuration,value pairs,default connection,optional configuration,example database,php class,configuration database,default database,configuration steps,index database,configuration details,class database,host localhost,inflections,key value,database connection,piece of cake,basic web

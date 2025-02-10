@@ -96,7 +96,7 @@ FormHelper は、 *追加* または *編集* のフォームを作成するか�
 .. code-block:: html
 
     <form method="post" action="/articles/edit/5">
-    <input type="hidden" name="_method" value="PUT" />
+    <input type="hidden" name="_method" value="PUT">
 
 .. note::
 
@@ -351,7 +351,7 @@ where request data is retained, you need to put ``context`` first::
 デフォルトでは、 ``control()`` メソッドは、次のウィジェットテンプレートを使用します。 ::
 
     'inputContainer' => '<div class="input {{type}}{{required}}">{{content}}</div>'
-    'input' => '<input type="{{type}}" name="{{name}}"{{attrs}}/>'
+    'input' => '<input type="{{type}}" name="{{name}}"{{attrs}}>'
 
 検証エラーが発生した場合は、以下も使われます。 ::
 
@@ -526,11 +526,11 @@ HTML 属性を受け付けます。以下は ``FormHelper::control()`` で特有
 
       <div class="input file">
           <label for="field">Field</label>
-          <input type="file" name="field" value="" id="field" />
+          <input type="file" name="field" value="" id="field">
       </div>
       <div class="input email">
           <label for="email">Email</label>
-          <input type="email" name="email" value="" id="email" />
+          <input type="email" name="email" value="" id="email">
       </div>
 
 * ``$options['label']`` - 文字列の見出しや :ref:`ラベルのオプション<create-label>` の配列。
@@ -549,7 +549,7 @@ HTML 属性を受け付けます。以下は ``FormHelper::control()`` で特有
 
       <div class="input">
           <label for="name">The User Alias</label>
-          <input name="name" type="text" value="" id="name" />
+          <input name="name" type="text" value="" id="name">
       </div>
 
   あるいは、 ``label`` 要素の出力を無効にするには、このキーに ``false`` を設定します。
@@ -563,7 +563,7 @@ HTML 属性を受け付けます。以下は ``FormHelper::control()`` で特有
   .. code-block:: html
 
       <div class="input">
-          <input name="name" type="text" value="" id="name" />
+          <input name="name" type="text" value="" id="name">
       </div>
 
   これに配列を設定すると、 ``label`` 要素の追加オプションが提供されます。
@@ -584,7 +584,7 @@ HTML 属性を受け付けます。以下は ``FormHelper::control()`` で特有
 
       <div class="input">
           <label for="name" class="thingy">The User Alias</label>
-          <input name="name" type="text" value="" id="name" />
+          <input name="name" type="text" value="" id="name">
       </div>
 
 * ``$options['options']`` - ここには、アイテムの配列を引数として必要とする ``radio`` や
@@ -765,7 +765,7 @@ FormHelper で利用可能なメソッドには、さらに特定のフォーム
 
 .. code-block:: html
 
-    <input name="id" type="hidden" />
+    <input name="id" type="hidden">
 
 テキストエリアの作成
 --------------------
@@ -914,8 +914,8 @@ textarea コントロールフィールドを作成します。使用される�
 
   .. code-block:: html
 
-      <input type="hidden" name="published" value="0" />
-      <input type="checkbox" name="published" value="1" />
+      <input type="hidden" name="published" value="0">
+      <input type="checkbox" name="published" value="1">
 
   これは ``'hiddenField'`` を ``false`` とすることで無効にできます。 ::
 
@@ -936,34 +936,34 @@ textarea コントロールフィールドを作成します。使用される�
   .. code-block:: html
 
       <h2>Primary Colors</h2>
-      <input type="hidden" name="color" value="0" />
+      <input type="hidden" name="color" value="0">
       <label for="color-red">
-          <input type="checkbox" name="color[]" value="5" id="color-red" />
+          <input type="checkbox" name="color[]" value="5" id="color-red">
           Red
       </label>
 
       <label for="color-blue">
-          <input type="checkbox" name="color[]" value="5" id="color-blue" />
+          <input type="checkbox" name="color[]" value="5" id="color-blue">
           Blue
       </label>
 
       <label for="color-yellow">
-          <input type="checkbox" name="color[]" value="5" id="color-yellow" />
+          <input type="checkbox" name="color[]" value="5" id="color-yellow">
           Yellow
       </label>
 
       <h2>Tertiary Colors</h2>
-      <input type="hidden" name="color" value="0" />
+      <input type="hidden" name="color" value="0">
       <label for="color-green">
-          <input type="checkbox" name="color[]" value="5" id="color-green" />
+          <input type="checkbox" name="color[]" value="5" id="color-green">
           Green
       </label>
       <label for="color-purple">
-          <input type="checkbox" name="color[]" value="5" id="color-purple" />
+          <input type="checkbox" name="color[]" value="5" id="color-purple">
           Purple
       </label>
       <label for="color-orange">
-          <input type="checkbox" name="color[]" value="5" id="color-orange" />
+          <input type="checkbox" name="color[]" value="5" id="color-orange">
           Orange
       </label>
 
@@ -1622,7 +1622,7 @@ CakePHP が Windows サーバー上にインストールされている場合、
 
 .. code-block:: html
 
-    <input type="datetime-local" name="registered" value="2019-02-08T18:20:10" />
+    <input type="datetime-local" name="registered" value="2019-02-08T18:20:10">
 
 日付コントロールの作成
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -1663,7 +1663,7 @@ CakePHP が Windows サーバー上にインストールされている場合、
 
 .. code-block:: html
 
-    <input type="date" name="registered" />
+    <input type="date" name="registered">
 
 時間コントロールの作成
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -1722,7 +1722,7 @@ CakePHP が Windows サーバー上にインストールされている場合、
 
 .. code-block:: html
 
-    <input type="time" name="released" />
+    <input type="time" name="released">
 
 月コントロールの作成
 ~~~~~~~~~~~~~~~~~~~~
@@ -1743,7 +1743,7 @@ Will output:
 
 .. code-block:: html
 
-    <input type="month" name="mob" />
+    <input type="month" name="mob">
 
 時間コントロールの作成
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -1938,7 +1938,7 @@ notBlank バリデーションメッセージに対するエラーメッセー�
 このオプションを有効にすると、フィールドに ``onvalid`` と ``oninvalid`` イベント属性が追加されます。
 例えば、 ::
 
-    <input type="text" name="field" required onvalid="this.setCustomValidity('')" oninvalid="this.setCustomValidity('Custom notBlank message')" />
+    <input type="text" name="field" required onvalid="this.setCustomValidity('')" oninvalid="this.setCustomValidity('Custom notBlank message')">
 
 カスタム Javascript を使用してこれらのイベントを手動で設定したい場合は、
 ``autoSetCustomValidity`` オプションを ``false`` に設定して、
@@ -1976,7 +1976,7 @@ Submit 要素の作成
 
 デフォルトで次のウィジェットテンプレートを使用します。 ::
 
-    'inputSubmit' => '<input type="{{type}}"{{attrs}}/>'
+    'inputSubmit' => '<input type="{{type}}"{{attrs}}>'
     'submitContainer' => '<div class="submit">{{content}}</div>'
 
 **Submit のオプション**
@@ -2071,12 +2071,12 @@ submit 入力は、基本的なテキストやイメージが必要な場合に�
 
 .. php:method:: end($secureAttributes = [])
 
-* ``$secureAttributes`` - オプション。SecurityComponent 用に生成された非表示の
+* ``$secureAttributes`` - オプション。FormProtectionComponent 用に生成された非表示の
   input 要素に HTML 属性として渡されるセキュアな属性を提供できます。
 
 ``end()`` は、フォームを閉じて完成します。
 多くの場合、 ``end()`` は終了タグだけを出力しますが、 ``end()`` を使うと、
-FormHelper が :php:class:`Cake\\Controller\\Component\\SecurityComponent` に必要な
+FormHelper が :php:class:`Cake\\Controller\\Component\\FormProtectionComponent` に必要な
 hidden フォーム要素を挿入できるようになります。
 
 .. code-block:: php
@@ -2105,7 +2105,7 @@ hidden フォーム要素を挿入できるようになります。
 
 .. note::
 
-    アプリケーションで :php:class:`Cake\\Controller\\Component\\SecurityComponent`
+    アプリケーションで :php:class:`Cake\\Controller\\Component\\FormProtectionComponent`
     を使用している場合は、必ずフォームを ``end()`` で終わらせてください。
 
 単独のボタンと POST リンクの作成
@@ -2123,7 +2123,7 @@ POST ボタンの作成
   有効な HTML 属性を含むオプション配列。
 
 デフォルトでは、POST で送信する ``<form>`` 要素で囲まれた ``<button>`` タグを作成します。
-また、デフォルトでは、SecurityComponent のために非表示入力フィールドも生成します。
+また、デフォルトでは、FormProtectionComponent のために非表示入力フィールドも生成します。
 
 **POST ボタンのオプション**
 
@@ -2540,6 +2540,7 @@ autocomplete ウィジェットを作成したい場合、以下を実行でき�
             $data += [
                 'name' => '',
             ];
+
             return $this->_templates->format('autocomplete', [
                 'name' => $data['name'],
                 'attrs' => $this->_templates->formatAttributes($data, ['name'])
@@ -2612,15 +2613,15 @@ autocomplete ウィジェットが作成されると、 ``text`` と ``label``
 
     echo $this->Form->autocomplete('search', $options);
 
-SecurityComponent との連携
-==========================
+FormProtectionComponent との連携
+================================
 
-:php:meth:`Cake\\Controller\\Component\\SecurityComponent` には、
+:php:meth:`Cake\\Controller\\Component\\FormProtectionComponent` には、
 フォームをより安全で安全にするためのいくつかの機能があります。
-コントローラーに ``SecurityComponent`` を含めるだけで、
+コントローラーに ``FormProtectionComponent`` を含めるだけで、
 フォームの改ざん防止機能が自動的に有効になります。
 
-SecurityComponent を利用する際は、前述のようにフォームを閉じる際は、
+FormProtectionComponent を利用する際は、前述のようにフォームを閉じる際は、
 必ず :php:meth:`~Cake\\View\\Helper\\FormHelper::end()` を使う必要があります。
 これにより特別な ``_Token`` 入力が生成されます。
 
@@ -2628,7 +2629,7 @@ SecurityComponent を利用する際は、前述のようにフォームを閉�
 
 * ``$name`` - オプション。ドット区切りのフィールド名。
 
-``SecurityComponent`` によるフィールドのハッシュ化が行われないようにフィールドのロックを
+``FormProtectionComponent`` によるフィールドのハッシュ化が行われないようにフィールドのロックを
 解除します。またこれにより、そのフィールドを JavaScript で操作できるようになります。
 ``$name`` には入力のためのエンティティーのプロパティー名を指定します。 ::
 

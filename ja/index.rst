@@ -1,7 +1,7 @@
 ようこそ
 ########
 
-CakePHP 4 は、 PHP |phpversion| (最小は PHP |minphpversion|) 上で動作するウェブ開発フレームワークです。
+CakePHP 5 は、 PHP |phpversion| (最小は PHP |minphpversion|) 上で動作するウェブ開発フレームワークです。
 CakePHP の基礎に入門するには :doc:`CakePHP 概要 </intro>` を読んでください。
 
 CakePHP クックブックは、オープンに開発されている、コミュニティーで編集可能なドキュメントのプロジェクトです。
@@ -20,7 +20,7 @@ CakePHP クックブックは、オープンに開発されている、コミュ
     どこでも CakePHP のレシピをお楽しみいただけます。PDF と EPUB をご用意しましたので、
     多くのデバイス上でオフラインでドキュメントを読むことができます。
 
-    - `PDF (英語) <../_downloads/en/CakePHPCookbook.pdf>`_
+    - `PDF (英語) <../_downloads/en/CakePHPBook.pdf>`_
     - `EPUB <../_downloads/ja/CakePHP.epub>`_
     - `オリジナルソース <https://github.com/cakephp/docs>`_
 
@@ -51,5 +51,5 @@ CakePHP クックブックは、オープンに開発されている、コミュ
   バリデーションやあなたのアプリケーションのドメインロジックを処理します。
 
 .. meta::
-    :title lang=ja: .. CakePHP Cookbook documentation master file, created by
-    :keywords lang=ja: doc models,documentation master,presentation layer,documentation project,quickstart,original source,sphinx,liking,cookbook,validity,conventions,validation,cakephp,accuracy,storage and retrieval,heart,blog,project hope
+    :title lang=ja: .. CakePHP book documentation master file, created by
+    :keywords lang=ja: doc models,documentation master,presentation layer,documentation project,quickstart,original source,sphinx,liking,book,validity,conventions,validation,cakephp,accuracy,storage and retrieval,heart,blog,project hope

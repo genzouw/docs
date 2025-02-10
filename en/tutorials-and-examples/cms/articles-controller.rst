@@ -33,8 +33,7 @@ look like this::
     {
         public function index()
         {
-            $this->loadComponent('Paginator');
-            $articles = $this->Paginator->paginate($this->Articles->find());
+            $articles = $this->paginate($this->Articles);
             $this->set(compact('articles'));
         }
     }
@@ -138,7 +137,7 @@ While this is a simple action, we've used some powerful CakePHP features. We
 start our action off by using ``findBySlug()`` which is
 a :ref:`Dynamic Finder <dynamic-finders>`. This method allows us to create a basic query that
 finds articles by a given slug. We then use ``firstOrFail()`` to either fetch
-the first record, or throw a ``NotFoundException``.
+the first record, or throw a ``\Cake\Datasource\Exception\RecordNotFoundException``.
 
 Our action takes a ``$slug`` parameter, but where does that parameter come from?
 If a user requests ``/articles/view/first-post``, then the value 'first-post' is
@@ -180,17 +179,9 @@ to be created. Start by creating an ``add()`` action in the
 
     class ArticlesController extends AppController
     {
-        public function initialize(): void
-        {
-            parent::initialize();
-
-            $this->loadComponent('Paginator');
-            $this->loadComponent('Flash'); // Include the FlashComponent
-        }
-
         public function index()
         {
-            $articles = $this->Paginator->paginate($this->Articles->find());
+            $articles = $this->paginate($this->Articles);
             $this->set(compact('articles'));
         }
 
@@ -212,6 +203,7 @@ to be created. Start by creating an ``add()`` action in the
 
                 if ($this->Articles->save($article)) {
                     $this->Flash->success(__('Your article has been saved.'));
+
                     return $this->redirect(['action' => 'index']);
                 }
                 $this->Flash->error(__('Unable to add your article.'));
@@ -224,7 +216,7 @@ to be created. Start by creating an ``add()`` action in the
 
     You need to include the :doc:`/controllers/components/flash` component in
     any controller where you will use it. Often it makes sense to include it in
-    your ``AppController``.
+    your ``AppController``, which is there already for this tutorial.
 
 Here's what the ``add()`` action does:
 
@@ -356,6 +348,7 @@ now. Add the following action to your ``ArticlesController``::
             $this->Articles->patchEntity($article, $this->request->getData());
             if ($this->Articles->save($article)) {
                 $this->Flash->success(__('Your article has been updated.'));
+
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('Unable to update your article.'));
@@ -366,7 +359,7 @@ now. Add the following action to your ``ArticlesController``::
 
 This action first ensures that the user has tried to access an existing record.
 If they haven't passed in an ``$slug`` parameter, or the article does not exist,
-a ``NotFoundException`` will be thrown, and the CakePHP ErrorHandler will render
+a ``RecordNotFoundException`` will be thrown, and the CakePHP ErrorHandler will render
 the appropriate error page.
 
 Next the action checks whether the request is either a POST or a PUT request. If
@@ -488,6 +481,7 @@ Next, let's make a way for users to delete articles. Start with a
         $article = $this->Articles->findBySlug($slug)->firstOrFail();
         if ($this->Articles->delete($article)) {
             $this->Flash->success(__('The {0} article has been deleted.', $article->title));
+
             return $this->redirect(['action' => 'index']);
         }
     }
@@ -556,5 +550,15 @@ that uses JavaScript to do a POST request deleting our article.
     JavaScript confirmation dialog before they attempt to delete an
     article.
 
-With a basic articles management setup, we'll create the  :doc:`basic actions
+.. tip::
+
+    The ``ArticlesController`` can also be built with ``bake``:
+
+    .. code-block:: console
+
+        /bin/cake bake controller articles
+
+    However, this does not build the **templates/Articles/*.php** files.
+
+With a basic articles management setup, we'll create the :doc:`basic actions
 for our Tags and Users tables </tutorials-and-examples/cms/tags-and-users>`.

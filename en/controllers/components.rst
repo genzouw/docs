@@ -25,7 +25,7 @@ Configuring Components
 ======================
 
 Many of the core components require configuration. One example would be
-the :doc:`/controllers/components/form-protection`.  Configuration for these components,
+the :doc:`/controllers/components/form-protection`. Configuration for these components,
 and for components in general, is usually done via ``loadComponent()`` in your
 Controller's ``initialize()`` method or via the ``$components`` array::
 
@@ -37,9 +37,8 @@ Controller's ``initialize()`` method or via the ``$components`` array::
             $this->loadComponent('FormProtection', [
                 'unlockedActions' => ['index'],
             ]);
-            $this->loadComponent('Csrf');
+            $this->loadComponent('Flash');
         }
-
     }
 
 You can configure components at runtime using the ``setConfig()`` method. Often,
@@ -58,7 +57,7 @@ to read and write configuration data::
     $this->FormProtection->getConfig('unlockedActions');
 
     // Set config
-    $this->Csrf->setConfig('cookieName', 'token');
+    $this->Flash->setConfig('key', 'myFlash');
 
 As with helpers, components will automatically merge their ``$_defaultConfig``
 property with constructor configuration to create the ``$_config`` property
@@ -78,7 +77,7 @@ implementation::
         public function initialize(): void
         {
             $this->loadComponent('Flash', [
-                'className' => 'MyFlash'
+                'className' => 'MyFlash',
             ]);
         }
     }
@@ -137,6 +136,7 @@ in your controller, you could access it like so::
         {
             if ($this->Post->delete($this->request->getData('Post.id')) {
                 $this->Flash->success('Post deleted.');
+
                 return $this->redirect(['action' => 'index']);
             }
         }
@@ -147,11 +147,8 @@ in your controller, you could access it like so::
     properties they share the same 'namespace'. Be sure to not give a
     component and a model the same name.
 
-.. warning::
-
-    Component methods **don't** have access to :doc:`/development/dependency-injection`
-    like Controller actions have. Use a service class inside your controller actions
-    instead of a component if you need this functionality.
+.. versionchanged:: 5.1.0
+    Components are able to use :doc:`/development/dependency-injection` to receive services.
 
 .. _creating-a-component:
 
@@ -183,6 +180,29 @@ component would look something like this::
     All components must extend :php:class:`Cake\\Controller\\Component`. Failing
     to do this will trigger an exception.
 
+Components can use :doc:`/development/dependency-injection` to receive services
+as constructor parameters::
+
+    namespace App\Controller\Component;
+
+    use Cake\Controller\Component;
+    use App\Service\UserService;
+
+    class SsoComponent extends Component
+    {
+        public function __construct(
+            ComponentRegistry $registry,
+            array $config = [],
+            UserService $users
+        ) {
+            parent::__construct($registry, $config);
+            $this->users = $users;
+        }
+    }
+
+.. versionadded: 5.1.0
+   DI container support for Components was added.
+
 Including your Component in your Controllers
 --------------------------------------------
 
@@ -193,12 +213,12 @@ component, through which we can access an instance of it::
 
     // In a controller
     // Make the new component available at $this->Math,
-    // as well as the standard $this->Csrf
+    // as well as the standard $this->Flash
     public function initialize(): void
     {
         parent::initialize();
         $this->loadComponent('Math');
-        $this->loadComponent('Csrf');
+        $this->loadComponent('Flash');
     }
 
 When including Components in a Controller you can also declare a
@@ -212,9 +232,9 @@ the Component::
         parent::initialize();
         $this->loadComponent('Math', [
             'precision' => 2,
-            'randomGenerator' => 'srand'
+            'randomGenerator' => 'srand',
         ]);
-        $this->loadComponent('Csrf');
+        $this->loadComponent('Flash');
     }
 
 The above would pass the array containing precision and randomGenerator to
@@ -234,7 +254,7 @@ You can load other components by adding them to the `$components` property::
     class CustomComponent extends Component
     {
         // The other component your component uses
-        protected $components = ['Existing'];
+        protected array $components = ['Existing'];
 
         // Execute any other additional setup for your component.
         public function initialize(array $config): void
@@ -318,6 +338,7 @@ To redirect from within a component callback method you can use the following::
     public function beforeFilter(EventInterface $event)
     {
         $event->stopPropagation();
+
         return $this->getController()->redirect('/');
     }
 

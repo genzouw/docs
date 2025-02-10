@@ -295,7 +295,7 @@ will be treated as part of the parameter::
 
 The above example illustrates how to create a quick way to view
 models from any controller by crafting a URL that looks like
-``/controllername/{id}``. The URL provided to ``connect()`` specifies two
+``/controller-name/{id}``. The URL provided to ``connect()`` specifies two
 route elements: ``{controller}`` and ``{id}``. The ``{controller}`` element
 is a CakePHP default route element, so the router knows how to match and
 identify controller names in URLs. The ``{id}`` element is a custom
@@ -637,6 +637,10 @@ the ``$options`` argument::
         $routes->connect('/{controller}');
     });
 
+Note the additional route parameters will be added to all the connected routes defined
+inside the prefix block. You will need to use all the parameters in the url array to
+build the route later, if you don't use them you'll get a ``MissingRouteException``.
+
 Multi word prefixes are by default converted using dasherize inflection, ie ``MyPrefix``
 would be mapped to ``my-prefix`` in the URL. Make sure to set a path for such prefixes
 if you want to use a different format like for example underscoring::
@@ -708,7 +712,7 @@ When using nesting, you need to chain them together::
         ['prefix' => 'Admin/MyPrefix', 'controller' => 'TodoItems', 'action' => 'create']
     );
 
-This would link to a controller with the namespace ``App\\Controller\\Admin\\MyPrefix`` and the file path
+This would link to a controller with the namespace ``App\Controller\Admin\MyPrefix`` and the file path
 ``src/Controller/Admin/MyPrefix/TodoItemsController.php``.
 
 .. note::
@@ -839,7 +843,7 @@ the ``*.`` wildcard to match any subdomain::
 
         // This route only matches on http://*.example.com
         $routes->connect(
-            '/images/old-log.png',
+            '/images/old-logo.png',
             ['controller' => 'Images', 'action' => 'oldLogo']
         )->setHost('*.example.com');
     });
@@ -851,7 +855,7 @@ parameter when generating URLs::
 
     // If you have this route
     $routes->connect(
-        '/images/old-log.png',
+        '/images/old-logo.png',
         ['controller' => 'Images', 'action' => 'oldLogo']
     )->setHost('images.example.com');
 
@@ -990,10 +994,9 @@ can::
 RESTful Routing
 ===============
 
-Router helps generate RESTful routes for your controllers. RESTful
-routes are helpful when you are creating API endpoints for your application.  If
-we wanted to allow REST access to a recipe controller, we'd do something like
-this::
+Router helps generate RESTful routes for your controllers. RESTful routes are
+helpful when you are creating API endpoints for your application. If we wanted
+to allow REST access to a recipe controller, we'd do something like this::
 
     // In config/routes.php...
 
@@ -1099,17 +1102,17 @@ Would create read only resource routes. The route names are ``create``,
 The default **route name and controller action used** are as follows:
 
 =========== =======================
-Route name  Controller action used    
+Route name  Controller action used
 =========== =======================
-create      add      
+create      add
 ----------- -----------------------
-update      edit  
+update      edit
 ----------- -----------------------
-view        view      
+view        view
 ----------- -----------------------
-index       index  
+index       index
 ----------- -----------------------
-delete      delete  
+delete      delete
 =========== =======================
 
 
@@ -1152,9 +1155,9 @@ name::
             'updateAll' => [
                 'action' => 'updateAll',
                 'method' => 'PUT',
-                'path' => '/update-many'
+                'path' => '/update-many',
             ],
-        ]
+        ],
     ]);
     // This would connect /articles/update-many
 
@@ -1576,7 +1579,7 @@ Custom Route Classes
 Custom route classes allow you to extend and change how individual routes parse
 requests and handle reverse routing. Route classes have a few conventions:
 
-* Route classes are expected to be found in the ``Routing\\Route`` namespace of
+* Route classes are expected to be found in the ``Routing\Route`` namespace of
   your application or plugin.
 * Route classes should extend :php:class:`Cake\\Routing\\Route\\Route`.
 * Route classes should implement one or both of ``match()`` and/or ``parse()``.
@@ -1656,6 +1659,14 @@ Is equivalent to the following explicit calls::
     with ``{plugin}`` and/or ``{controller}`` route elements will result in
     inconsistent URL case.
 
+.. warning::
+    Fallback route templates are very generic and allow URLs to be generated
+    and parsed for controllers & actions that do not exist. Fallback URLs can
+    also introduce ambiguity and duplication in your URLs.
+
+    As your application grows, it is recommended to move away from fallback URLs
+    and explicitly define the routes in your application.
+
 Creating Persistent URL Parameters
 ==================================
 
@@ -1676,6 +1687,7 @@ URL filters allow you to implement features like persistent parameters::
         if ($request->getParam('lang') && !isset($params['lang'])) {
             $params['lang'] = $request->getParam('lang');
         }
+
         return $params;
     });
 
@@ -1694,6 +1706,7 @@ example)::
             $params['language'] = $params[0];
             unset($params[0]);
         }
+
         return $params;
     });
 

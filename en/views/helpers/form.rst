@@ -41,16 +41,16 @@ a following section. The built-in providers map to the following values of
 
 * An ``Entity`` instance or an iterator will map to
   `EntityContext
-  <https://api.cakephp.org/4.x/class-Cake.View.Form.EntityContext.html>`_;
+  <https://api.cakephp.org/5.x/class-Cake.View.Form.EntityContext.html>`_;
   this context class allows FormHelper to work with results from the
   built-in ORM.
 
 * An array containing the ``'schema'`` key, will map to
-  `ArrayContext <https://api.cakephp.org/4.x/class-Cake.View.Form.ArrayContext.html>`_
+  `ArrayContext <https://api.cakephp.org/5.x/class-Cake.View.Form.ArrayContext.html>`_
   which allows you to create simple data structures to build forms against.
 
 * ``null`` will map to
-  `NullContext <https://api.cakephp.org/4.x/class-Cake.View.Form.NullContext.html>`_;
+  `NullContext <https://api.cakephp.org/5.x/class-Cake.View.Form.NullContext.html>`_;
   this context class
   simply satisfies the interface FormHelper requires. This context is useful if
   you want to build a short form that doesn't require ORM persistence.
@@ -101,7 +101,7 @@ Output:
 .. code-block:: html
 
     <form method="post" action="/articles/edit/5">
-    <input type="hidden" name="_method" value="PUT" />
+    <input type="hidden" name="_method" value="PUT">
 
 .. note::
 
@@ -185,7 +185,7 @@ change where ``FormHelper`` reads input data from::
     // Use query string instead of request data:
     echo $this->Form->create($article, [
         'type' => 'get',
-        'valueSources' => ['query', 'context']
+        'valueSources' => ['query', 'context'],
     ]);
 
     // Same effect:
@@ -199,7 +199,7 @@ where request data is retained, you need to put ``context`` first::
 
     // Prioritize context over request data:
     echo $this->Form->create($article,
-        'valueSources' => ['context', 'data']
+        'valueSources' => ['context', 'data'],
     ]);
 
 The value sources will be reset to the default ``['data', 'context']`` when ``end()``
@@ -264,8 +264,8 @@ CakePHP application::
     echo $this->Form->create(null, [
         'url' => [
             'controller' => 'Articles',
-            'action' => 'publish'
-        ]
+            'action' => 'publish',
+        ],
     ]);
 
 Output:
@@ -278,7 +278,7 @@ Or you can point to an external domain::
 
     echo $this->Form->create(null, [
         'url' => 'https://www.google.com/search',
-        'type' => 'get'
+        'type' => 'get',
     ]);
 
 Output:
@@ -298,7 +298,7 @@ action is going to apply. For example, your Users table has specific validation
 rules that only apply when an account is being registered::
 
     echo $this->Form->create($user, [
-        'context' => ['validator' => 'register']
+        'context' => ['validator' => 'register'],
     ]);
 
 The above will use validation rules defined in the ``register`` validator, which
@@ -310,9 +310,9 @@ can define validation rules for each association by using an array::
         'context' => [
             'validator' => [
                 'Users' => 'register',
-                'Comments' => 'default'
-            ]
-        ]
+                'Comments' => 'default',
+            ],
+        ],
     ]);
 
 The above would use ``register`` for the user, and ``default`` for the user's
@@ -332,7 +332,7 @@ While the built-in context classes are intended to cover the basic cases you'll
 encounter you may need to build a new context class if you are using a different
 ORM. In these situations you need to implement the
 `Cake\\View\\Form\\ContextInterface
-<https://api.cakephp.org/4.x/interface-Cake.View.Form.ContextInterface.html>`_ . Once
+<https://api.cakephp.org/5.x/interface-Cake.View.Form.ContextInterface.html>`_ . Once
 you have implemented this interface you can wire your new context into the
 FormHelper. It is often best to do this in a ``View.beforeRender`` event
 listener, or in an application view class::
@@ -377,7 +377,7 @@ methods of FormHelper.
 By default the ``control()`` method will employ the following widget templates::
 
     'inputContainer' => '<div class="input {{type}}{{required}}">{{content}}</div>'
-    'input' => '<input type="{{type}}" name="{{name}}"{{attrs}}/>'
+    'input' => '<input type="{{type}}" name="{{name}}"{{attrs}}>'
     'requiredClass' => 'required'
 
 In case of validation errors it will also use::
@@ -567,11 +567,11 @@ as well as HTML attributes. This subsection will cover the options specific to
 
       <div class="input file">
           <label for="field">Field</label>
-          <input type="file" name="field" value="" id="field" />
+          <input type="file" name="field" value="" id="field">
       </div>
       <div class="input email">
           <label for="email">Email</label>
-          <input type="email" name="email" value="" id="email" />
+          <input type="email" name="email" value="" id="email">
       </div>
 
 * ``$options['label']`` - Either a string caption or an array of
@@ -591,7 +591,7 @@ as well as HTML attributes. This subsection will cover the options specific to
 
       <div class="input">
           <label for="name">The User Alias</label>
-          <input name="name" type="text" value="" id="name" />
+          <input name="name" type="text" value="" id="name">
       </div>
 
   Alternatively, set this key to ``false`` to disable the generation of the
@@ -606,7 +606,7 @@ as well as HTML attributes. This subsection will cover the options specific to
   .. code-block:: html
 
       <div class="input">
-          <input name="name" type="text" value="" id="name" />
+          <input name="name" type="text" value="" id="name">
       </div>
 
   If the label is disabled, and a ``placeholder`` attribute is provided, the
@@ -631,7 +631,7 @@ as well as HTML attributes. This subsection will cover the options specific to
 
       <div class="input">
           <label for="name" class="thingy">The User Alias</label>
-          <input name="name" type="text" value="" id="name" />
+          <input name="name" type="text" value="" id="name">
       </div>
 
 * ``$options['options']`` - You can provide in here an array containing
@@ -661,10 +661,10 @@ as well as HTML attributes. This subsection will cover the options specific to
   As seen above you can set the error message for each validation
   rule you have in your models. In addition you can provide i18n
   messages for your forms.
-  
+
   To disable the HTML entity encoding for error messages only, the ``'escape'``
   sub key can be used::
-  
+
       $this->Form->control('name', [
           'error' => ['escape' => false],
       ]);
@@ -830,7 +830,7 @@ Will output:
 
 .. code-block:: html
 
-    <input name="id" type="hidden" />
+    <input name="id" type="hidden">
 
 Creating Textareas
 ------------------
@@ -924,7 +924,7 @@ methods are described in each method's own section.)
     such as ``date()``, ``time()``, ``dateTime()``::
 
         echo $this->Form->time('close_time', [
-            'value' => '13:30:00'
+            'value' => '13:30:00',
         ]);
 
   .. note::
@@ -987,8 +987,8 @@ methods are described in each method's own section.)
 
   .. code-block:: html
 
-      <input type="hidden" name="published" value="0" />
-      <input type="checkbox" name="published" value="1" />
+      <input type="hidden" name="published" value="0">
+      <input type="checkbox" name="published" value="1">
 
   This can be disabled by setting ``'hiddenField'`` to ``false``::
 
@@ -1011,34 +1011,34 @@ methods are described in each method's own section.)
   .. code-block:: html
 
       <h2>Primary Colors</h2>
-      <input type="hidden" name="color" value="0" />
+      <input type="hidden" name="color" value="0">
       <label for="color-red">
-          <input type="checkbox" name="color[]" value="5" id="color-red" />
+          <input type="checkbox" name="color[]" value="5" id="color-red">
           Red
       </label>
 
       <label for="color-blue">
-          <input type="checkbox" name="color[]" value="5" id="color-blue" />
+          <input type="checkbox" name="color[]" value="5" id="color-blue">
           Blue
       </label>
 
       <label for="color-yellow">
-          <input type="checkbox" name="color[]" value="5" id="color-yellow" />
+          <input type="checkbox" name="color[]" value="5" id="color-yellow">
           Yellow
       </label>
 
       <h2>Tertiary Colors</h2>
-      <input type="hidden" name="color" value="0" />
+      <input type="hidden" name="color" value="0">
       <label for="color-green">
-          <input type="checkbox" name="color[]" value="5" id="color-green" />
+          <input type="checkbox" name="color[]" value="5" id="color-green">
           Green
       </label>
       <label for="color-purple">
-          <input type="checkbox" name="color[]" value="5" id="color-purple" />
+          <input type="checkbox" name="color[]" value="5" id="color-purple">
           Purple
       </label>
       <label for="color-orange">
-          <input type="checkbox" name="color[]" value="5" id="color-orange" />
+          <input type="checkbox" name="color[]" value="5" id="color-orange">
           Orange
       </label>
 
@@ -1266,7 +1266,7 @@ Creating Select Pickers
 
 .. php:method:: select(string $fieldName, array $options, array $attributes)
 
-* ``$fieldName`` - A field name in the form ``'Modelname.fieldname'``. This
+* ``$fieldName`` - A field name in the form ``'fieldname'`` or ``'related_entity.fieldname'``. This
   will provide the ``name`` attribute of the ``select`` element.
 * ``$options`` - An optional array containing the list of items for the select
   picker. When this array is missing, the method will generate only the
@@ -1356,11 +1356,11 @@ For example::
     $options = [
         'Group 1' => [
             'Value 1' => 'Label 1',
-            'Value 2' => 'Label 2'
+            'Value 2' => 'Label 2',
         ],
         'Group 2' => [
-            'Value 3' => 'Label 3'
-        ]
+            'Value 3' => 'Label 3',
+        ],
     ];
     echo $this->Form->select('field', $options);
 
@@ -1612,7 +1612,7 @@ Output:
 
 .. code-block:: html
 
-    <input type="datetime-local" name="registered" />
+    <input type="datetime-local" name="registered">
 
 The value for the input can be any valid datetime string or ``DateTime`` instance.
 
@@ -1624,7 +1624,7 @@ Output:
 
 .. code-block:: html
 
-    <input type="datetime-local" name="registered" value="2019-02-08T18:20:10" />
+    <input type="datetime-local" name="registered" value="2019-02-08T18:20:10">
 
 Creating Date Controls
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -1646,7 +1646,7 @@ Output:
 
 .. code-block:: html
 
-    <input type="date" name="registered" />
+    <input type="date" name="registered">
 
 Creating Time Controls
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -1668,7 +1668,7 @@ Output:
 
 .. code-block:: html
 
-    <input type="time" name="released" />
+    <input type="time" name="released">
 
 Creating Month Controls
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -1690,7 +1690,7 @@ Will output:
 
 .. code-block:: html
 
-    <input type="month" name="mob" />
+    <input type="month" name="mob">
 
 Creating Year Controls
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -1877,7 +1877,7 @@ the field's required and notBlank validation rules will be used in lieu of the d
 browser HTML5 required messages. Enabling the option will add the ``onvalid`` and ``oninvalid``
 event attributes to your fields, for example::
 
-    <input type="text" name="field" required onvalid="this.setCustomValidity('')" oninvalid="this.setCustomValidity('Custom notBlank message')" />
+    <input type="text" name="field" required onvalid="this.setCustomValidity('')" oninvalid="this.setCustomValidity('Custom notBlank message')">
 
 If you want to manually set those events with custom JavaScript, you can set the ``autoSetCustomValidity``
 option to ``false`` and use the special ``customValidityMessage`` template variable instead. This
@@ -1917,7 +1917,7 @@ relative to *webroot/img*.
 
 By default it will use the following widget templates::
 
-    'inputSubmit' => '<input type="{{type}}"{{attrs}}/>'
+    'inputSubmit' => '<input type="{{type}}"{{attrs}}>'
     'submitContainer' => '<div class="submit">{{content}}</div>'
 
 **Options for Submit**
@@ -2018,12 +2018,12 @@ Closing the Form
 
 * ``$secureAttributes`` - Optional. Allows you to provide secure attributes
   which will be passed as HTML attributes into the hidden input elements
-  generated for the SecurityComponent.
+  generated for the FormProtectionComponent.
 
 The ``end()`` method closes and completes a form. Often, ``end()`` will only
 output a closing form tag, but using ``end()`` is a good practice as it
 enables FormHelper to insert the hidden form elements that
-:php:class:`Cake\\Controller\\Component\\SecurityComponent` requires:
+:php:class:`Cake\\Controller\\Component\\FormProtectionComponent` requires:
 
 .. code-block:: php
 
@@ -2054,7 +2054,7 @@ Will output:
 .. note::
 
     If you are using
-    :php:class:`Cake\\Controller\\Component\\SecurityComponent` in your
+    :php:class:`Cake\\Controller\\Component\\FormProtectionComponent` in your
     application you should always end your forms with ``end()``.
 
 Creating Standalone Buttons and POST Links
@@ -2074,7 +2074,7 @@ Creating POST Buttons
 
 Creates a ``<button>`` tag with a surrounding ``<form>`` element that submits
 via POST, by default. Also, by default, it generates hidden input fields for the
-SecurityComponent.
+FormProtectionComponent.
 
 **Options for POST Button**
 
@@ -2215,7 +2215,7 @@ List of Templates
 
 The list of default templates, their default format and the variables they
 expect can be found in the
-`FormHelper API documentation <https://api.cakephp.org/4.x/class-Cake.View.Helper.FormHelper.html#%24_defaultConfig>`_.
+`FormHelper API documentation <https://api.cakephp.org/5.x/class-Cake.View.Helper.FormHelper.html#%24_defaultConfig>`_.
 
 Using Distinct Custom Control Containers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2269,7 +2269,7 @@ For example::
 
     // Generate an input and populate the help variable
     echo $this->Form->control('password', [
-        'templateVars' => ['help' => 'At least 8 characters long.']
+        'templateVars' => ['help' => 'At least 8 characters long.'],
     ]);
 
 Output:
@@ -2334,7 +2334,7 @@ You can customize the generated controls by defining additional options in the
 ``$fields`` parameter::
 
     echo $this->Form->controls([
-        'name' => ['label' => 'custom label']
+        'name' => ['label' => 'custom label'],
     ]);
 
 When customizing, ``$fields``, you can use the ``$options`` parameter to
@@ -2344,9 +2344,11 @@ For example::
 
     echo $this->Form->controls(
         [
-            'name' => ['label' => 'custom label']
+            'name' => ['label' => 'custom label'],
         ],
-        ['legend' => 'Update your post']
+        [
+            'legend' => 'Update your post',
+        ]
     );
 
 If you disable the ``fieldset``, the ``legend`` will not print.
@@ -2354,7 +2356,7 @@ If you disable the ``fieldset``, the ``legend`` will not print.
 Creating Controls for a Whole Entity
 ------------------------------------
 
-.. php:method:: allControls(array $fields, $options = [])
+.. php:method:: allControls(array $fields, array $options = [])
 
 * ``$fields`` - Optional. An array of customizations for the fields that will
   be generated. Allows setting custom types, labels and other options.
@@ -2429,8 +2431,8 @@ the following code in your controller::
             'Authors',
             'Authors.Profiles',
             'Tags',
-            'Comments'
-        ]
+            'Comments',
+        ],
     ]);
 
 The above example shows an expanded example for belongs to many associations,
@@ -2442,7 +2444,7 @@ a multiple select input for belongs to many associations::
     echo $this->Form->control('tags._ids', [
         'type' => 'select',
         'multiple' => true,
-        'options' => $tagList,
+        'options' => $tags, // $tags is the output of $this->Articles->Tags->find('list')->all() in the controller
     ]);
 
 
@@ -2476,7 +2478,6 @@ could do the following::
 
     class AutocompleteWidget implements WidgetInterface
     {
-
         /**
          * StringTemplate instance.
          *
@@ -2507,6 +2508,7 @@ could do the following::
             $data += [
                 'name' => '',
             ];
+
             return $this->_templates->format('autocomplete', [
                 'name' => $data['name'],
                 'attrs' => $this->_templates->formatAttributes($data, ['name'])
@@ -2539,8 +2541,8 @@ a setting::
     // In View class
     $this->loadHelper('Form', [
         'widgets' => [
-            'autocomplete' => ['Autocomplete']
-        ]
+            'autocomplete' => ['Autocomplete'],
+        ],
     ]);
 
 If your widget requires other widgets, you can have FormHelper populate those
@@ -2551,9 +2553,9 @@ dependencies by declaring them::
             'autocomplete' => [
                 'App\View\Widget\AutocompleteWidget',
                 'text',
-                'label'
-            ]
-        ]
+                'label',
+            ],
+        ],
     ]);
 
 In the above example, the ``autocomplete`` widget would depend on the ``text`` and
@@ -2586,15 +2588,15 @@ widget using the magic method::
 
     echo $this->Form->autocomplete('search', $options);
 
-Working with SecurityComponent
-==============================
+Working with FormProtectionComponent
+====================================
 
-:php:meth:`Cake\\Controller\\Component\\SecurityComponent` offers several
+:php:meth:`Cake\\Controller\\Component\\FormProtectionComponent` offers several
 features that make your forms safer and more secure. By simply including the
-``SecurityComponent`` in your controller, you'll automatically benefit from
+``FormProtectionComponent`` in your controller, you'll automatically benefit from
 form tampering-prevention features.
 
-As mentioned previously when using SecurityComponent, you should always close
+As mentioned previously when using FormProtectionComponent, you should always close
 your forms using :php:meth:`~Cake\\View\\Helper\\FormHelper::end()`. This will
 ensure that the special ``_Token`` inputs are generated.
 
@@ -2602,7 +2604,7 @@ ensure that the special ``_Token`` inputs are generated.
 
 * ``$name`` - Optional. The dot-separated name for the field.
 
-Unlocks a field making it exempt from the ``SecurityComponent`` field
+Unlocks a field making it exempt from the ``FormProtectionComponent`` field
 hashing. This also allows the fields to be manipulated by JavaScript.
 The ``$name`` parameter should be the entity property name for the field::
 
@@ -2618,7 +2620,7 @@ The ``$name`` parameter should be the entity property name for the field::
 Generates a hidden ``input`` field with a security hash based on the fields used
 in the form or an empty string when secured forms are not in use.
 If ``$secureAttributes`` is set, these HTML attributes will be
-merged into the hidden input tags generated for the SecurityComponent. This is
+merged into the hidden input tags generated for the FormProtectionComponent. This is
 especially useful to set HTML5 attributes like ``'form'``.
 
 .. meta::

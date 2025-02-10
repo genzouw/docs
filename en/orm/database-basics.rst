@@ -128,7 +128,7 @@ like::
             'encoding' => 'utf8mb4',
             'timezone' => 'UTC',
             'cacheMetadata' => true,
-        ]
+        ],
     ],
 
 The above will create a 'default' connection, with the provided parameters. You
@@ -400,6 +400,14 @@ json
     Maps to a ``JSON`` type if it's available, otherwise it maps to ``TEXT``.
 enum
     See :ref:`enum-type`.
+geometry
+    Maps to a generic geometry storage type.
+point
+    Maps to a single point in geospatial storage.
+linestring
+    Maps to a single line in geospatial storage.
+polygon
+    Maps to a single polygon in geospatial storage.
 
 These types are used in both the schema reflection features that CakePHP
 provides, and schema generation features CakePHP uses when using test fixtures.
@@ -410,6 +418,10 @@ doing queries. For example a column that is marked as 'datetime' will
 automatically convert input parameters from ``DateTime`` instances into a
 timestamp or formatted datestrings. Likewise, 'binary' columns will accept file
 handles, and generate file handles when reading data.
+
+.. versionchanged:: 5.1.0
+   The ``geometry``, ``point``, ``linestring``, and ``polygon`` types were
+   added.
 
 .. _datetime-type:
 
@@ -464,12 +476,14 @@ Enum Type
 Maps a `BackedEnum <https://www.php.net/manual/en/language.enumerations.backed.php>`_ to a string or integer column.
 To use this type you need to specify which column is associated to which BackedEnum inside the table class::
 
-    use \Cake\Database\Type\EnumType;
-    use \App\Model\Enum\ArticleStatus;
+    use App\Model\Enum\ArticleStatus;
+    use Cake\Database\Type\EnumType;
 
     // in src/Model/Table/ArticlesTable.php
     public function initialize(array $config): void
     {
+        parent::initialize($config);
+
         $this->getSchema()->setColumnType('status', EnumType::from(ArticleStatus::class));
     }
 
@@ -479,9 +493,28 @@ Where ``ArticleStatus`` contains something like::
 
     enum ArticleStatus: string
     {
-        case PUBLISHED = 'Y';
-        case UNPUBLISHED = 'N';
+        case Published = 'Y';
+        case Unpublished = 'N';
     }
+
+CakePHP recommends a few conventions for enums:
+
+- Enum classnames should follow ``{Entity}{ColumnName}`` style to enable
+  detection while running bake and to aid with project consistency.
+- Enum cases should use CamelCase style.
+- Enums should implement the ``Cake\Database\Type\EnumLabelInterface`` to
+  improve compatibility with bake, and ``FormHelper``.
+
+Geospatial Types
+----------------
+
+The ``geometry``, ``point``, ``linestring``, and ``polygon`` types are also known
+as the "geospatial types". CakePHP offers limited support for geospatial
+columns. Currently they can be defined in migrations, read in schema reflection,
+and have values set as text.
+
+.. versionadded:: 5.1.0
+   Geospatial schema types were added.
 
 .. _adding-custom-database-types:
 
@@ -508,38 +541,41 @@ class::
 
     namespace App\Database\Type;
 
-    use Cake\Database\DriverInterface;
+    use Cake\Database\Driver;
     use Cake\Database\Type\BaseType;
     use PDO;
 
     class JsonType extends BaseType
     {
-        public function toPHP($value, DriverInterface $driver)
+        public function toPHP(mixed $value, Driver $driver): mixed
         {
             if ($value === null) {
                 return null;
             }
+
             return json_decode($value, true);
         }
 
-        public function marshal($value)
+        public function marshal(mixed $value): mixed
         {
             if (is_array($value) || $value === null) {
                 return $value;
             }
+
             return json_decode($value, true);
         }
 
-        public function toDatabase($value, DriverInterface $driver)
+        public function toDatabase(mixed $value, Driver $driver): mixed
         {
             return json_encode($value);
         }
 
-        public function toStatement($value, DriverInterface $driver)
+        public function toStatement(mixed $value, Driver $driver): int
         {
             if ($value === null) {
                 return PDO::PARAM_NULL;
             }
+
             return PDO::PARAM_STR;
         }
     }
@@ -555,7 +591,7 @@ the type mapping. During our application bootstrap we should do the following::
 
     use Cake\Database\TypeFactory;
 
-    TypeFactory::map('json', 'App\Database\Type\JsonType');
+    TypeFactory::map('json', \App\Database\Type\JsonType::class);
 
 We then have two ways to use our datatype in our models.
 
@@ -565,13 +601,15 @@ We then have two ways to use our datatype in our models.
 
 Overwriting the reflected schema with our custom type will enable CakePHP's
 database layer to automatically convert JSON data when creating queries. In your
-Table's :ref:`getSchema() method <saving-complex-types>` add the
+Table's :ref:`initialize() method <saving-complex-types>` add the
 following::
 
     class WidgetsTable extends Table
     {
-        public function getSchema(): TableSchemaInterface
+        public function initialize(array $config): void
         {
+            parent::initialize($config);
+
             $this->getSchema()->setColumnType('widget_prefs', 'json');
         }
     }
@@ -586,7 +624,7 @@ used::
 
     namespace App\Database\Type;
 
-    use Cake\Database\DriverInterface;
+    use Cake\Database\Driver;
     use Cake\Database\Type\BaseType;
     use Cake\Database\Type\ColumnSchemaAwareInterface;
     use Cake\Database\Schema\TableSchemaInterface;
@@ -606,14 +644,15 @@ used::
         public function getColumnSql(
             TableSchemaInterface $schema,
             string $column,
-            DriverInterface $driver
+            Driver $driver
         ): ?string {
             $data = $schema->getColumn($column);
             $sql = $driver->quoteIdentifier($column);
             $sql .= ' JSON';
-            if (isset($data['null') && $data['null'] === false) {
+            if (isset($data['null']) && $data['null'] === false) {
                 $sql .= ' NOT NULL';
             }
+
             return $sql;
         }
 
@@ -625,7 +664,7 @@ used::
          */
         public function convertColumnDefinition(
             array $definition,
-            DriverInterface $driver
+            Driver $driver
         ): ?array {
             return [
                 'type' => $this->_name,
@@ -697,7 +736,7 @@ value object and into SQL expressions::
     namespace App\Database\Type;
 
     use App\Database\Point;
-    use Cake\Database\DriverInterface;
+    use Cake\Database\Driver;
     use Cake\Database\Expression\FunctionExpression;
     use Cake\Database\ExpressionInterface;
     use Cake\Database\Type\BaseType;
@@ -705,12 +744,12 @@ value object and into SQL expressions::
 
     class PointType extends BaseType implements ExpressionTypeInterface
     {
-        public function toPHP($value, DriverInterface $d)
+        public function toPHP($value, Driver $d): mixed
         {
             return $value === null ? null : Point::parse($value);
         }
 
-        public function marshal($value)
+        public function marshal($value): mixed
         {
             if (is_string($value)) {
                 $value = explode(',', $value);
@@ -718,6 +757,7 @@ value object and into SQL expressions::
             if (is_array($value)) {
                 return new Point($value[0], $value[1]);
             }
+
             return null;
         }
 
@@ -738,7 +778,7 @@ value object and into SQL expressions::
             // Handle other cases.
         }
 
-        public function toDatabase($value, DriverInterface $driver)
+        public function toDatabase($value, Driver $driver): mixed
         {
             return $value;
         }
@@ -756,23 +796,6 @@ The above class does a few interesting things:
 
 Once we've built our custom type, we'll need to :ref:`connect our type
 to our table class <saving-complex-types>`.
-
-.. _immutable-datetime-mapping:
-
-Enabling Immutable DateTime Objects
------------------------------------
-
-Because Date/Time objects are easily mutated in place, CakePHP allows you to
-enable immutable value objects. This is best done in your application's
-**config/bootstrap.php** file::
-
-    TypeFactory::build('datetime')->useImmutable();
-    TypeFactory::build('date')->useImmutable();
-    TypeFactory::build('time')->useImmutable();
-    TypeFactory::build('timestamp')->useImmutable();
-
-.. note::
-    New applications will have immutable objects enabled by default.
 
 Connection Classes
 ==================

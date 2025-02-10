@@ -1,11 +1,11 @@
 Bienvenido
 ##########
 
-CakePHP 3 es un ``framework`` de desarrollo web que funciona con PHP |phpversion| (min. PHP |minphpversion|).
+CakePHP 5 es un ``framework`` de desarrollo web que funciona con PHP |phpversion| (min. PHP |minphpversion|).
 Puedes leer :doc:`CakePHP de un Vistazo </intro>` para introducirte en los fundamentos de CakePHP 3.
 
 El manual de CakePHP (``Cookbook``) es un proyecto de documentación abierto,
-editable y mantenido por la comunidad. Fíjate en el icono del lápiz anclado en
+editable y mantenido por la comunidad. Fíjate en el icono del lápiz anclado
 en el lado derecho de la página; te llevará al editor online de GitHub de la
 página en la que estés permitiéndote contribuir con cualquier añadido, borrado
 o corrección de la documentación.
@@ -19,7 +19,7 @@ o corrección de la documentación.
     Disfruta del manual de CakePHP en cualquier sitio. Disponible tanto en PDF
     como en EPUB, puedes leerlo en más dispositivos y de manera offline.
 
-    - `PDF <../_downloads/es/CakePHPCookbook.pdf>`_
+    - `PDF <../_downloads/es/CakePHPBook.pdf>`_
     - `EPUB <../_downloads/es/CakePHP.epub>`_
     - `Original Source <https://github.com/cakephp/docs>`_
 
@@ -48,5 +48,5 @@ elementos claves en una aplicación de CakePHP:
 * Los :doc:`modelos </orm>`, que son el ingrediente clave en cualquier aplicación. Manejan la validación y la lógica de dominio dentro de tu aplicación.
 
 .. meta::
-    :title lang=es: .. CakePHP Cookbook archivo de documentación, creado por
-    :keywords lang=es: documento modelos,master documentación,capa presentación,proyecto documentación,guia de inicio rápido,fuente original,sphinx,liking,cookbook,validez,convenciones,validación,cakephp,exactitud,almacenaje y recuperación,corazón,blog
+    :title lang=es: .. CakePHP book archivo de documentación, creado por
+    :keywords lang=es: documento modelos,master documentación,capa presentación,proyecto documentación,guia de inicio rápido,fuente original,sphinx,liking,book,validez,convenciones,validación,cakephp,exactitud,almacenaje y recuperación,corazón,blog

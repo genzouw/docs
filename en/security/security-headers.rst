@@ -10,8 +10,8 @@ headers to responses:
 * ``X-Content-Type-Options``
 * ``X-Download-Options``
 * ``X-Frame-Options``
-* ``X-Permitted-Cross-Domain-Policies``
 * ``Referrer-Policy``
+* ``Permissions-Policy``
 
 This middleware is configured using a fluent interface before it is applied to
 your application's middleware stack::
@@ -20,14 +20,16 @@ your application's middleware stack::
 
     $securityHeaders = new SecurityHeadersMiddleware();
     $securityHeaders
-        ->setCrossDomainPolicy()
         ->setReferrerPolicy()
         ->setXFrameOptions()
-        ->setXssProtection()
         ->noOpen()
         ->noSniff();
 
     $middlewareQueue->add($securityHeaders);
+
+Here's a list of `common HTTP headers <https://en.wikipedia.org/wiki/List_of_HTTP_header_fields>`__,
+and the Mozilla `recommended settings <https://infosec.mozilla.org/guidelines/web_security.html>`__
+for securing web applications.
 
 .. meta::
    :title lang=en: Security Header Middleware

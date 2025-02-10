@@ -14,10 +14,14 @@ CakePHP will use the :term:`DI container` in the following situations:
 
 * Constructing controllers.
 * Calling actions on your controllers.
+* Constructing Components.
 * Constructing Console Commands.
 * Constructing Middleware by classname.
 
-A short example would be::
+Controller Example
+==================
+
+::
 
     // In src/Controller/UsersController.php
     class UsersController extends AppController
@@ -45,13 +49,19 @@ database. Because this service is injected into our controller, we can easily
 swap the implementation out with a mock object or a dummy sub-class when
 testing.
 
-Here is an example of an injected service inside a command::
+Command Example
+===============
+
+::
 
     // In src/Command/CheckUsersCommand.php
+    use Cake\Console\CommandFactoryInterface;
+
     class CheckUsersCommand extends Command
     {
-        public function __construct(public UsersService $users)
+        public function __construct(protected UsersService $users, ?CommandFactoryInterface $factory = null)
         {
+            parent::__construct($factory);
         }
 
         public function execute(Arguments $args, ConsoleIo $io)
@@ -66,7 +76,8 @@ Here is an example of an injected service inside a command::
     {
         $container
             ->add(CheckUsersCommand::class)
-            ->addArgument(UsersService::class);
+            ->addArgument(UsersService::class)
+            ->addArgument(CommandFactoryInterface::class);
         $container->add(UsersService::class);
     }
 
@@ -75,6 +86,37 @@ The injection process is a bit different here. Instead of adding the
 a whole to the Container and add the ``UsersService`` as an argument.
 With that you can then access that service inside the constructor
 of the command.
+
+Component Example
+=================
+
+::
+
+    // In src/Controller/Component/SearchComponent.php
+    class SearchComponent extends Component
+    {
+        public function __construct(
+            ComponentRegistry $registry,
+            private UserService $users,
+            array $config = []
+        ) {
+            parent::__construct($registry, $config);
+        }
+
+        public function something()
+        {
+            $valid = $this->users->check('all');
+        }
+    }
+
+    // In src/Application.php
+    public function services(ContainerInterface $container): void
+    {
+        $container->add(SearchComponent::class)
+            ->addArgument(ComponentRegistry::class)
+            ->addArgument(UsersService::class);
+        $container->add(UsersService::class);
+    }
 
 Adding Services
 ===============
@@ -292,14 +334,10 @@ Auto Wiring is turned off by default. To enable it::
     // In src/Application.php
     public function services(ContainerInterface $container): void
     {
-        $container->add(\Cake\Controller\ComponentRegistry::class);
         $container->delegate(
             new \League\Container\ReflectionContainer()
         );
     }
-
-The ``$container->add(\Cake\Controller\ComponentRegistry::class);`` is needed to
-fix a cyclic dependency between ``ComponentRegistry`` and ``Controller``.
 
 While your dependencies will now be resolved automatically, this approach will
 not cache resolutions which can be detrimental to performance. To enable

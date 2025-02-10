@@ -484,7 +484,7 @@ hasMany の belongsToMany アソシエーションについても同じことが
 もし、 Product belongsToMany Tag であれば、こうなります。 ::
 
     // Product エンティティーの中で
-    protected $_accessible = [
+    protected array $_accessible = [
         // .. 他のプロパティー
        'tags' => true,
     ];
@@ -913,7 +913,7 @@ replace
 
 ``dirty()`` の呼び出しがないと、更新された comments は保存されません。
 
-既存のレコードでアソシエーションの新しいエンティティを作成する場合、
+既存のレコードでアソシエーションの新しいエンティティーを作成する場合、
 最初に対応するプロパティを初期化する必要があります。 ::
 
     $mentor->students = [];

@@ -15,8 +15,10 @@ Session Configuration
 Session configuration is generally defined in **/config/app.php**. The available
 options are:
 
-* ``Session.timeout`` - The number of *minutes* before CakePHP's session
-  handler expires the session.
+* ``Session.timeout`` - The number of *minutes* a session can remain 'idle'. If
+  no request is received for ``timeout`` minutes, CakePHP's session
+  handler will expire the session. You can set this option to ``0`` to disable
+  server side idle timeouts.
 
 * ``Session.defaults`` - Allows you to use the built-in default session
   configurations as a base for your session configuration. See below for the
@@ -49,15 +51,15 @@ this::
         ]
     ]);
 
-As of v4.0 CakePHP also sets the `SameSite <https://owasp.org/www-community/SameSite>`__ attribute to ``Lax``
+CakePHP also sets the `SameSite <https://owasp.org/www-community/SameSite>`__ attribute to ``Lax``
 by default for session cookies, which helps protect against CSRF attacks.
 You can change the default value by setting ``session.cookie_samesite`` php.ini config::
 
     Configure::write('Session', [
         'defaults' => 'php',
         'ini' => [
-            'session.cookie_samesite' => 'Strict'
-        ]
+            'session.cookie_samesite' => 'Strict',
+        ],
     ]);
 
 The session cookie path defaults to app's base path. To change this you can use
@@ -68,8 +70,8 @@ persist across all subdomains you can do::
         'defaults' => 'php',
         'ini' => [
             'session.cookie_path' => '/',
-            'session.cookie_domain' => '.yourdomain.com'
-        ]
+            'session.cookie_domain' => '.yourdomain.com',
+        ],
     ]);
 
 By default PHP sets the session cookie to expire as soon as the browser is
@@ -80,8 +82,7 @@ configured using::
     Configure::write('Session', [
         'defaults' => 'php',
         'ini' => [
-            // Invalidate the cookie after 30 minutes without visiting
-            // any page on the site.
+            // Invalidate the cookie after 30 minutes
             'session.cookie_lifetime' => 1800
         ]
     ]);
@@ -93,7 +94,7 @@ client reports, you should use ``Session.timeout``.
 
 Please note that ``Session.timeout`` corresponds to the total time of
 inactivity for a user (i.e. the time without visiting any page where the session
-is used), and does not limit the total amount of minutes a user can stay
+is used), and does not limit the total amount of minutes a user can stay active
 on the site.
 
 Built-in Session Handlers & Configuration
@@ -144,8 +145,8 @@ You can then read those values out from inside your handler::
     'Session' => [
         'handler' => [
             'engine' => 'DatabaseSession',
-            'model' => 'CustomSessions'
-        ]
+            'model' => 'CustomSessions',
+        ],
     ]
 
 The above shows how you could setup the Database session handler with an
@@ -184,8 +185,8 @@ You can also use your own ``Table`` class to handle the saving of the sessions::
         'defaults' => 'database',
         'handler' => [
             'engine' => 'DatabaseSession',
-            'model' => 'CustomSessions'
-        ]
+            'model' => 'CustomSessions',
+        ],
     ]
 
 The above will tell Session to use the built-in 'database' defaults, and
@@ -207,8 +208,8 @@ To use Cache based sessions you can configure you Session config like::
     Configure::write('Session', [
         'defaults' => 'cache',
         'handler' => [
-            'config' => 'session'
-        ]
+            'config' => 'session',
+        ],
     ]);
 
 This will configure Session to use the ``CacheSession`` class as the
@@ -296,6 +297,7 @@ something like::
             if ($result) {
                 return $result;
             }
+
             return parent::read($id);
         }
 
@@ -303,6 +305,7 @@ something like::
         public function write($id, $data): bool
         {
             Cache::write($id, $data, $this->cacheKey);
+
             return parent::write($id, $data);
         }
 
@@ -310,6 +313,7 @@ something like::
         public function destroy($id): bool
         {
             Cache::delete($id, $this->cacheKey);
+
             return parent::destroy($id);
         }
 
@@ -331,8 +335,8 @@ In **config/app.php** make the session block look like::
         'handler' => [
             'engine' => 'ComboSession',
             'model' => 'Session',
-            'cache' => 'apc'
-        ]
+            'cache' => 'apc',
+        ],
     ],
     // Make sure to add a apc cache config
     'Cache' => [
@@ -441,7 +445,7 @@ Rotating Session Identifiers
 
 .. php:method:: renew()
 
-While ``AuthComponent`` automatically renews the session id when users login and
+While the ``Authentication Plugin`` automatically renews the session id when users login and
 logout, you may need to rotate the session id's manually. To do this use the
 ``renew()`` method::
 

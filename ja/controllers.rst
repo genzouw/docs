@@ -264,12 +264,12 @@ AJAX 呼び出しではとても有用です。 ::
 
 .. php:method:: viewClasses()
 
-コントローラは、サポートするビュークラスの一覧を定義することができます。
-コントローラのアクションが完了すると、 CakePHP はビューリストを使用して
+コントローラーは、サポートするビュークラスの一覧を定義することができます。
+コントローラーのアクションが完了すると、 CakePHP はビューリストを使用して
 content-typeのネゴシエーション（コンテントタイプの取り決め）を実行します。
-これにより、アプリケーションは同じコントローラアクションを再利用してHTML ビューをレンダリングしたり
+これにより、アプリケーションは同じコントローラーアクションを再利用してHTML ビューをレンダリングしたり
 JSONやXML のレスポンスをレンダリングしたりすることができるようになります。
-コントローラにサポートするビュークラスのリストを定義するには、 ``viewClasses()`` メソッドを使用します。::
+コントローラーにサポートするビュークラスのリストを定義するには、 ``viewClasses()`` メソッドを使用します。::
 
     namespace App\Controller;
 
@@ -343,6 +343,7 @@ match-allビューは、content-typeのネゴシエーションが試みられ�
                 ['controller' => 'Orders', 'action' => 'thanks']
             );
         }
+
         return $this->redirect(
             ['controller' => 'Orders', 'action' => 'confirm']
         );
@@ -355,6 +356,7 @@ match-allビューは、content-typeのネゴシエーションが試みられ�
 $url 引数に相対 URL または絶対 URL を指定することもできます。 ::
 
     return $this->redirect('/orders/thanks');
+
     return $this->redirect('http://www.example.com');
 
 アクションにデータを渡すこともできます。 ::
@@ -440,7 +442,7 @@ CakePHP のコントローラーに紐づけることができます。 ::
 
 このメソッドはモデルから取得した結果をページ分けするために使われます。
 ページサイズやモデルの検索条件などを指定できます。
-`paginate()` のより詳しい使い方は :doc:`ページネーション <controllers/components/pagination>`
+`paginate()` のより詳しい使い方は :doc:`ページネーション <controllers/pagination>`
 の章を参照してください。
 
 ``$paginate`` 属性は ``paginate()`` がどうふるまうかを簡単にカスタマイズする方法を提供します。 ::

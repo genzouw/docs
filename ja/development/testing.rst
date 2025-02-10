@@ -1,6 +1,8 @@
 テスト
 #######
 
+.. todo:: (Japanese) このファイルは https://github.com/cakephp/docs/pull/7813 においてCIのエラーを回避するために修正されましたが、きちんと翻訳が更新された訳ではありません。翻訳を頑張りましょう。
+
 CakePHP には `PHPUnit <https://phpunit.de>`_ をベースとした高度なインテグレーションが組み込まれており、PHPUnit 本体が持つ機能に加えて、CakePHPでテストをスマートに管理するための便利な拡張機能を備えています。このセクションでは、PHPUnit のインストールからユニットテストの
 始め方、そしてCakePHP が提供する拡張機能について説明します。
 
@@ -131,6 +133,7 @@ CakePHP が全般的にそうであるように、テストケースにもいく
         public function bar($value)
         {
             $width = round($value / 100, 2) * 100;
+
             return sprintf(
                 '<div class="progress-container">
                     <div class="progress-bar" style="width: %s%%"></div>
@@ -399,7 +402,7 @@ PHPUnitの設定
         </listener>
     </listeners>
 
-※リスナーは非推奨であり、 :doc:`フィクスチャ構成を更新</appendices/fixture-upgrade>` する必要があります。
+※リスナーは非推奨であり、フィクスチャ構成を更新する必要があります。
 
 .. _creating-test-database-schema:
 
@@ -544,7 +547,7 @@ SQLダンプファイルをロードしたい場合は、下記のメソッド�
 
 .. versionchanged:: 4.3.0
 
-    4.3.0より前のフィクスチャは、テーブルのスキーマも定義していました。フィクスチャでスキーマを定義する必要がある場合は、 :ref:`fixture-schema` を確認できます。
+    4.3.0より前のフィクスチャは、テーブルのスキーマも定義していました。フィクスチャでスキーマを定義する必要がある場合は、fixture-schema を確認できます。
 
 動的データ
 --------------
@@ -743,6 +746,7 @@ CakePHPコアまたはプラグインからフィクスチャをロードする�
             $query->where([
                 $this->alias() . '.published' => 1
             ]);
+
             return $query;
         }
     }
@@ -882,8 +886,6 @@ CakePHP では特別に ``IntegrationTestTrait`` トレイトを提供してい�
 
     class ArticlesController extends AppController
     {
-        public $helpers = ['Form', 'Html'];
-
         public function index($short = null)
         {
             if ($this->request->is('post')) {
@@ -1080,10 +1082,10 @@ OAuth2 のようなその他の認証方法をテストしている場合、Auth
 ``configRequest()`` 内の headers キーは、アクションに必要な追加の HTTP ヘッダーを
 設定するために使用されます。
 
-CsrfComponent や SecurityComponent で保護されたアクションのテスト
------------------------------------------------------------------
+CsrfProtectionMiddleware や FormProtectionComponent で保護されたアクションのテスト
+----------------------------------------------------------------------------------
 
-SecurityComponent または CsrfComponent のいずれかで保護されたアクションをテストする場合、
+``CsrfProtectionMiddleware`` または ``FormProtectionComponent`` のいずれかで保護されたアクションをテストする場合、
 テストがトークンのミスマッチで失敗しないように自動トークン生成を有効にすることができます。 ::
 
     public function testAdd(): void
@@ -1093,7 +1095,7 @@ SecurityComponent または CsrfComponent のいずれかで保護されたア�
         $this->post('/posts/add', ['title' => 'Exciting news!']);
     }
 
-また、トークンを使用するテストで debug を有効にすることは重要です。SecurityComponent が
+また、トークンを使用するテストで debug を有効にすることは重要です。``FormProtectionComponent`` が
 「デバッグ用トークンがデバッグ以外の環境で使われている」と考えてしまうのを防ぐためです。
 ``requireSecure()`` のような他のメソッドでテストした時は、適切な環境変数をセットするために
 ``configRequest()`` を利用できます。::
@@ -1767,8 +1769,10 @@ Orders を例に詳しく説明します。以下のテーブルを持ってい�
                     'order' => $order
                 ]);
                 $this->getEventManager()->dispatch($event);
+
                 return true;
             }
+
             return false;
         }
     }

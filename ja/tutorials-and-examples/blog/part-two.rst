@@ -186,7 +186,7 @@ CakePHP のリバースルーティング機能を活用することができま
 この時点で、ブラウザーから http://www.example.com/articles/index を開いてみてください。
 タイトルと投稿内容のテーブル一覧がまとめられているビューが表示されるはずです。
 
-ビューの中のリンク (投稿記事のタイトルから ``/articles/view/どれかのID番号``いう表示を出します。
+ビューの中のリンク (投稿記事のタイトル) は ``/articles/view/どれかのID番号`` というリンクを表示します。
 もしそういう表示が出ない場合には、何かおかしくなってしまったか、もうすでにあなたが
 その定義作業をしてしまったから（仕事がハヤイ！）か、のどちらかです。
 そうでないなら、これから ``ArticlesController`` の中に作ってみましょう。 ::
@@ -280,6 +280,7 @@ Articles テーブルに対して ``get()`` を用いるとき、存在するレ
                 $article = $this->Articles->patchEntity($article, $this->request->getData());
                 if ($this->Articles->save($article)) {
                     $this->Flash->success(__('記事が保存されました。'));
+
                     return $this->redirect(['action' => 'index']);
                 }
                 $this->Flash->error(__('記事の保存が出来ませんでした。'));
@@ -436,6 +437,7 @@ CakePHP のバリデーションエンジンは強力で、
             $this->Articles->patchEntity($article, $this->request->getData());
             if ($this->Articles->save($article)) {
                 $this->Flash->success(__('記事が更新されました。'));
+
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('記事の更新が出来ませんでした。'));
@@ -523,6 +525,7 @@ CakePHP は挿入あるいは更新のどちらを生成するかを決定しま
         $article = $this->Articles->get($id);
         if ($this->Articles->delete($article)) {
             $this->Flash->success(__('ID：{0}の記事が削除されました。', h($id)));
+
             return $this->redirect(['action' => 'index']);
         }
     }

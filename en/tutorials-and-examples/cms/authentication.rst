@@ -14,7 +14,7 @@ Use composer to install the Authentication Plugin:
 
 .. code-block:: console
 
-    composer require "cakephp/authentication:^2.4"
+    composer require "cakephp/authentication:^3.0"
 
 
 Adding Password Hashing
@@ -61,6 +61,7 @@ add the following::
             if (strlen($password) > 0) {
                 return (new DefaultPasswordHasher())->hash($password);
             }
+            return null;
         }
     }
 
@@ -149,7 +150,7 @@ Then add the following::
             'fields' => [
                 'username' => 'email',
                 'password' => 'password',
-            ]
+            ],
         ]);
 
         // Load the authenticators, you want session first
@@ -289,6 +290,7 @@ Add the logout action to the ``UsersController`` class::
         // regardless of POST or GET, redirect if user is logged in
         if ($result && $result->isValid()) {
             $this->Authentication->logout();
+
             return $this->redirect(['controller' => 'Users', 'action' => 'login']);
         }
     }

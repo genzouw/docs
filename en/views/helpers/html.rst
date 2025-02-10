@@ -137,23 +137,23 @@ key in the $attributes parameter to ``true``, ie - ``['block' => true]``.
 If you set the "type" attribute using the $attributes parameter,
 CakePHP contains a few shortcuts:
 
-======== ======================
- type     translated value
-======== ======================
-html     text/html
-rss      application/rss+xml
-atom     application/atom+xml
-icon     image/x-icon
-======== ======================
+=========  ======================
+ type       translated value
+=========  ======================
+html       text/html
+rss        application/rss+xml
+atom       application/atom+xml
+icon       image/x-icon
+csrfToken  The current CSRF token
+=========  ======================
 
 .. code-block:: php
 
-    <?= $this->Html->meta(
+    echo $this->Html->meta(
         'favicon.ico',
         '/favicon.ico',
         ['type' => 'icon']
     );
-    ?>
     // Output (line breaks added)
     // Note: The helper code makes two meta tags to  ensure the
     // icon is downloaded by both newer and older browsers
@@ -169,12 +169,11 @@ icon     image/x-icon
         rel="shortcut icon"
     />
 
-    <?= $this->Html->meta(
+    echo $this->Html->meta(
         'Comments',
         '/comments/index.rss',
         ['type' => 'rss']
     );
-    ?>
     // Output (line breaks added)
     <link
         href="http://example.com/comments/index.rss"
@@ -186,21 +185,23 @@ icon     image/x-icon
 This method can also be used to add the meta keywords and
 descriptions. Example::
 
-    <?= $this->Html->meta(
+    echo $this->Html->meta(
         'keywords',
         'enter any meta keyword here'
     );
-    ?>
     // Output
     <meta name="keywords" content="enter any meta keyword here" />
 
-    <?= $this->Html->meta(
+    echo $this->Html->meta(
         'description',
         'enter any meta description here'
     );
-    ?>
     // Output
     <meta name="description" content="enter any meta description here" />
+
+    echo $this->Html->meta('csrfToken');
+    // The CsrfProtection middleware must be loaded for your application
+    <meta name="csrf-token" content="CSRF token here" />
 
 In addition to making predefined meta tags, you can create link elements::
 
@@ -214,6 +215,9 @@ In addition to making predefined meta tags, you can create link elements::
 
 Any attributes provided to meta() when called this way will be added to the
 generated link tag.
+
+.. versionchanged:: 5.1.0
+   The ``csrfToken`` type was added.
 
 Linking to Images
 -----------------

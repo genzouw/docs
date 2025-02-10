@@ -155,6 +155,7 @@ barre de progression HTML. Notre helper ressemblera à cela::
         public function bar($value)
         {
             $width = round($value / 100, 2) * 100;
+
             return sprintf(
                 '<div class="progress-container">
                     <div class="progress-bar" style="width: %s%%"></div>
@@ -853,6 +854,7 @@ Supposons que nous avons déjà notre table Articles définie dans
             $query->where([
                 $this->alias() . '.published' => 1
             ]);
+
             return $query;
         }
     }
@@ -1004,8 +1006,6 @@ correspondant. Le code du controller ressemble à ceci::
 
     class ArticlesController extends AppController
     {
-        public $helpers = ['Form', 'Html'];
-
         public function index($short = null)
         {
             if ($this->request->is('post')) {
@@ -1209,10 +1209,10 @@ l'en-tête d'autorisation directement::
 Vous pouvez utiliser la clé ``headers`` dans ``configRequest()`` pour configurer
 n'importe quelle autre en-tête HTTP dont vous auriez besoin pour cette action.
 
-Tester les Actions Protégées par CsrfComponent ou SecurityComponent
--------------------------------------------------------------------
+Tester les Actions Protégées par CsrfProtectionMiddleware ou FormProtectionComponent
+------------------------------------------------------------------------------------
 
-Quand vous testez des actions protégées par CsrfComponent ou SecurityComponent,
+Quand vous testez des actions protégées par ``CsrfProtectionMiddleware`` ou ``FormProtectionComponent``,
 vous pouvez activer la génération automatique de token pour vous assurer que vos
 tests ne vont pas échoué à cause d'un problème de  token::
 
@@ -1224,7 +1224,7 @@ tests ne vont pas échoué à cause d'un problème de  token::
     }
 
 Il est aussi important d'activer le débogage dans les tests qui utilisent des
-tokens pour éviter que le SecurityComponent ne pense que le token de débogage
+tokens pour éviter que le ``FormProtectionComponent`` ne pense que le token de débogage
 est utilisé dans un environnement non-debug. Quand vous faites des tests avec
 d'autres méthodes comme ``requireSecure()``, vous pouvez utiliser
 ``configRequest()`` pour définir les bonnes variables d'environnement::
@@ -1315,7 +1315,7 @@ service web. Commençons avec un exemple simple  de controller qui renvoie du
 JSON::
 
     use Cake\View\JsonView;
-    
+
     class MarkersController extends AppController
     {
         public function viewClasses(): array
@@ -1596,7 +1596,7 @@ d'assertions afin de tester les réponses plus simplement. Quelques exemples::
     $this->assertResponseEmpty();
 
     // Vérifie le contenu de la réponse
-    $this->assertResponseEquals('Ouais !'); 
+    $this->assertResponseEquals('Ouais !');
 
     // Vérifie que le contenu de la réponse n'est pas égal à...
     $this->assertResponseNotEquals('Non !');
@@ -1710,7 +1710,7 @@ Mocker les Injections de Dépendances
 Voir :ref:`mocking-services-in-tests` pour savoir comment remplacer des services
 injectés avec le conteneur d'injection de dépendances dans vos tests
 d'intégration.
- 
+
 Mocker les Réponses du Client HTTP
 ==================================
 
@@ -1929,8 +1929,10 @@ suivantes::
                     'order' => $order
                 ]);
                 $this->getEventManager()->dispatch($event);
+
                 return true;
             }
+
             return false;
         }
     }
@@ -2004,7 +2006,7 @@ globaux::
 
 Testing Email
 =============
- 
+
 Consultez :ref:`email-testing` pour savoir comment tester les emails.
 
 Créer des Suites de Test (Test Suites)

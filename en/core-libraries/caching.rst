@@ -65,7 +65,7 @@ following::
             'className' => 'File',
             'duration' => '+1 hours',
             'path' => CACHE,
-            'prefix' => 'cake_short_'
+            'prefix' => 'cake_short_',
         ],
         // Using a fully namespaced name.
         'long' => [
@@ -73,7 +73,7 @@ following::
             'duration' => '+1 week',
             'probability' => 100,
             'path' => CACHE . 'long' . DS,
-        ]
+        ],
     ]
     // ...
 
@@ -169,6 +169,13 @@ RedisEngine uses the following engine specific options:
 * ``persistent`` Should a persistent connection be made to Redis.
 * ``timeout`` Connection timeout for Redis.
 * ``unix_socket`` Path to a unix socket for Redis.
+* ``tls`` Connect to redis over TLS.
+* ``ssl_key`` The ssl private key used for TLS connections.
+* ``ssl_ca`` The ssl certificate authority file for TLS connections.
+* ``ssl_cert`` The ssl certificate used for TLS connections.
+
+.. versionadded:: 5.1.0
+    TLS connections were added in 5.1
 
 MemcacheEngine Options
 ----------------------
@@ -499,7 +506,7 @@ group. This is possible by declaring the groups in cache configuration::
     Cache::setConfig('site_home', [
         'className' => 'Redis',
         'duration' => '+999 days',
-        'groups' => ['comment', 'article']
+        'groups' => ['comment', 'article'],
     ]);
 
 .. php:method:: clearGroup($group, $config = 'default')
